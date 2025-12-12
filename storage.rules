@@ -1,0 +1,26 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    match /weave-designs/{allPaths=**} {
+      allow read, write: if true;
+    }
+    match /3d-models/{allPaths=**} {
+      allow read, write: if true;
+    }
+    match /pcb-designs/{allPaths=**} {
+      allow read, write: if true;
+    }
+    
+    // Default deny
+    match /{allPaths=**} {
+      allow read, write: if false; 
+    }
+  }
+}
