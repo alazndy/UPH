@@ -75,6 +75,16 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         };
         const docRef = await addDoc(projectsCollection, newProjectData);
         const newProject = { ...newProjectData, id: docRef.id } as Project;
+        
+        // Log Activity
+        const { useActivityStore } = await import('./activity-store');
+        useActivityStore.getState().addActivity({
+            type: 'PROJECT_CREATED',
+            title: 'New Project Created',
+            description: `Project "${projectData.name}" created.`,
+            metadata: { projectId: docRef.id }
+        });
+
         set(state => ({ 
             projects: [...state.projects, newProject], 
             isLoading: false 

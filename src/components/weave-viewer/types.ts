@@ -10,6 +10,9 @@ export interface PortDefinition {
   y: number;
   type: 'input' | 'output' | 'bidirectional';
   connectorType: string;
+  isPower?: boolean;
+  isGround?: boolean;
+  voltage?: string;
 }
 
 export interface ProductTemplate {
@@ -30,6 +33,13 @@ export interface ProductInstance {
   height?: number;
   rotation?: number;
   mirrored?: boolean;
+  labelConfig?: {
+    visible: boolean;
+    fontSize: number;
+    color: string;
+    backgroundColor: string;
+    position: 'bottom' | 'top' | 'center';
+  };
 }
 
 export interface Connection {

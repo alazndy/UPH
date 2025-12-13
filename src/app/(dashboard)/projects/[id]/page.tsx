@@ -1,12 +1,15 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
+import { useAuthStore } from "@/stores/auth-store";
 import { useProjectStore } from '@/stores/project-store';
 import { useInventoryStore } from '@/stores/inventory-store';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { 
     Calendar, 
     DollarSign, 
@@ -21,8 +24,13 @@ import {
     Github,
     Package,
     FileText,
-    ExternalLink
+    ExternalLink,
+    Loader2,
+    Check,
+    AlertTriangle,
+    ArrowRightLeft
 } from 'lucide-react';
+import { BOMService, BOMItem } from "@/services/bom-service";
 import Link from 'next/link';
 import { 
     Table, 
@@ -43,6 +51,8 @@ import { Project3DModels } from '@/components/projects/project-3d-models';
 import { KanbanBoard } from '@/components/projects/kanban-board';
 import { ConnectGitHubDialog } from '@/components/projects/connect-github-dialog';
 import { AIAssistant } from '@/components/ai/ai-assistant';
+import { ProjectGantt } from '@/components/projects/project-gantt';
+import { ProjectFinancials } from '@/components/projects/project-financials';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -73,6 +83,56 @@ export default function ProjectDetailPage() {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [githubDialogOpen, setGithubDialogOpen] = useState(false);
     const [inventoryDialogOpen, setInventoryDialogOpen] = useState(false);
+    
+    // BOM Integration State
+    const [bomItems, setBomItems] = useState<BOMItem[]>([]);
+    const [selectedDesignId, setSelectedDesignId] = useState<string>("");
+    const [bomProcessing, setBomProcessing] = useState(false);
+    const { products } = useInventoryStore(); // Needed for matching
+
+    const handleScanBOM = async () => {
+         const design = project?.weaveDesigns?.find(d => d.id === selectedDesignId);
+         if (!design) return;
+
+         setBomProcessing(true);
+         // Simulate small delay for UX
+         await new Promise(r => setTimeout(r, 600));
+         
+         const items = BOMService.parseWeaveDesign(design, products);
+         setBomItems(items);
+         setBomProcessing(false);
+    };
+
+    const handleDeductStock = async () => {
+        if (!project) return;
+        if (!confirm(`Are you sure you want to deduct ${bomItems.length} types of items from inventory?`)) return;
+
+        setBomProcessing(true);
+        try {
+            const { assignToProject } = useInventoryStore.getState();
+            const user = useAuthStore.getState().user;
+
+            for (const item of bomItems) {
+                if (item.status === 'matched' && item.matchedInventoryId) {
+                    await assignToProject(
+                        item.matchedInventoryId, 
+                        project.id, 
+                        project.name, 
+                        item.quantity, 
+                        user?.displayName || 'Admin',
+                        'product'
+                    );
+                }
+            }
+            alert("Stock deducted successfully. Activity logged.");
+            setBomItems([]); // Clear after success
+        } catch (e) {
+            console.error(e);
+            alert("Failed to deduct stock. Check console.");
+        } finally {
+            setBomProcessing(false);
+        }
+    };
 
     const handleDelete = async () => {
         if (project) {
@@ -130,11 +190,14 @@ export default function ProjectDetailPage() {
             <Tabs defaultValue="overview" className="space-y-4">
                 <TabsList>
                     <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="timeline">Timeline</TabsTrigger>
                     <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                    <TabsTrigger value="finance">Financials</TabsTrigger>
                     <TabsTrigger value="board">Board View</TabsTrigger>
                     <TabsTrigger value="designs">Weave</TabsTrigger>
                     <TabsTrigger value="pcb">PCB</TabsTrigger>
                     <TabsTrigger value="3d">3D</TabsTrigger>
+                    <TabsTrigger value="bom">Bill of Materials (BOM)</TabsTrigger>
                     <TabsTrigger value="files">Files & Documents</TabsTrigger>
                 </TabsList>
 
@@ -302,6 +365,110 @@ export default function ProjectDetailPage() {
 
                 <TabsContent value="3d">
                      <Project3DModels project={project} />
+                </TabsContent>
+
+                {/* NEW BOM TAB */}
+                <TabsContent value="timeline">
+                    <ProjectGantt project={project} />
+                </TabsContent>
+
+                <TabsContent value="finance">
+                    <ProjectFinancials 
+                        project={project} 
+                        projectInventory={projectInventory} 
+                        allProducts={products} 
+                    />
+                </TabsContent>
+
+                <TabsContent value="bom">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Automated BOM Extraction</CardTitle>
+                            <CardDescription>
+                                Extract component list from Weave Designs and automatically deduct from inventory.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            {/* Selection Controls */}
+                            <div className="flex items-end gap-4 border-b pb-6">
+                                <div className="grid gap-2 flex-1">
+                                    <Label>Select Design Source</Label>
+                                    <Select value={selectedDesignId} onValueChange={setSelectedDesignId}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a Weave Design..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {project.weaveDesigns?.map(d => (
+                                                <SelectItem key={d.id} value={d.id}>{d.name} (v1.0)</SelectItem>
+                                            ))}
+                                            {(!project.weaveDesigns || project.weaveDesigns.length === 0) && (
+                                                <SelectItem value="none" disabled>No designs uploaded</SelectItem>
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <Button onClick={handleScanBOM} disabled={!selectedDesignId || bomProcessing}>
+                                    {bomProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}
+                                    Scan & Match
+                                </Button>
+                            </div>
+
+                            {/* Results Table */}
+                            {bomItems.length > 0 && (
+                                <div className="rounded-md border animate-fade-in-up">
+                                    <div className="p-4 bg-muted/50 border-b flex justify-between items-center">
+                                        <span className="font-semibold text-sm">
+                                            Found {bomItems.length} components ({bomItems.filter(i => i.status === 'matched').length} matched)
+                                        </span>
+                                        <Button size="sm" onClick={handleDeductStock} disabled={bomProcessing}>
+                                            Apply Stock Deduction
+                                        </Button>
+                                    </div>
+                                    <div className="max-h-[400px] overflow-y-auto">
+                                        <table className="w-full text-sm">
+                                            <thead className="text-left bg-muted/20 sticky top-0 backdrop-blur-sm">
+                                                <tr>
+                                                    <th className="p-3 font-medium">Status</th>
+                                                    <th className="p-3 font-medium">Component Name</th>
+                                                    <th className="p-3 font-medium text-right">Qty</th>
+                                                    <th className="p-3 font-medium">Matched Inventory</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {bomItems.map((item, i) => (
+                                                    <tr key={i} className="border-t hover:bg-muted/10 transition-colors">
+                                                        <td className="p-3">
+                                                            {item.status === 'matched' ? (
+                                                                <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+                                                                    <Check className="w-3 h-3 mr-1" /> Ready
+                                                                </Badge>
+                                                            ) : (
+                                                                <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
+                                                                    <AlertTriangle className="w-3 h-3 mr-1" /> Unknown
+                                                                </Badge>
+                                                            )}
+                                                        </td>
+                                                        <td className="p-3 font-medium">{item.name}</td>
+                                                        <td className="p-3 text-right">{item.quantity}</td>
+                                                        <td className="p-3 text-muted-foreground">
+                                                            {item.matchedInventoryId ? (
+                                                                <span className="flex items-center gap-2">
+                                                                    <Package className="w-3 h-3" />
+                                                                    {products.find(p => p.id === item.matchedInventoryId)?.name}
+                                                                </span>
+                                                            ) : (
+                                                                "No match found"
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </TabsContent>
 
                 <TabsContent value="files">

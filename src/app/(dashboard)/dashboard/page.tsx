@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useProjectStore } from '@/stores/project-store';
 import { useInventoryStore } from '@/stores/inventory-store';
+import { useActivityStore } from '@/stores/activity-store';
 import { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -18,6 +19,7 @@ import { Progress } from '@/components/ui/progress';
 export default function DashboardPage() {
   const { projects, fetchProjects } = useProjectStore();
   const { products, fetchInventory } = useInventoryStore();
+  const { activities } = useActivityStore();
 
   useEffect(() => {
     fetchProjects();
@@ -124,38 +126,39 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         
-        {/* Activity Feed - Kept static for now as we don't have an Activity log store yet */}
+        {/* Recent Activity Feed */}
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-8">
-               <div className="flex items-center">
-                  <div className="mr-4 rounded-full bg-blue-500/10 p-2 text-blue-500">
-                     <Package className="h-4 w-4" />
-                  </div>
-                  <div className="space-y-1">
-                     <p className="text-sm font-medium leading-none">System Update</p>
-                     <p className="text-xs text-muted-foreground">
-                        Dashboard updated to real-time data
-                     </p>
-                  </div>
-                  <div className="ml-auto text-xs text-muted-foreground">Just now</div>
-               </div>
-               
-               <div className="flex items-center">
-                  <div className="mr-4 rounded-full bg-green-500/10 p-2 text-green-500">
-                     <CheckCircle2 className="h-4 w-4" />
-                  </div>
-                  <div className="space-y-1">
-                     <p className="text-sm font-medium leading-none">Project System</p>
-                     <p className="text-xs text-muted-foreground">
-                        Project tracking module enabled
-                     </p>
-                  </div>
-                  <div className="ml-auto text-xs text-muted-foreground">1h ago</div>
-               </div>
+            <div className="space-y-8 max-h-[400px] overflow-y-auto pr-2">
+               {activities.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-8">No recent activity.</div>
+               ) : (
+                  activities.slice(0, 10).map((activity) => (
+                    <div key={activity.id} className="flex items-start animate-fade-in-up">
+                       <div className={`mr-4 mt-1 rounded-full p-2 ${
+                          activity.type.includes('PROJECT') ? 'bg-blue-500/10 text-blue-500' :
+                          activity.type.includes('INVENTORY') ? 'bg-green-500/10 text-green-500' :
+                          'bg-primary/10 text-primary'
+                       }`}>
+                          {activity.type.includes('PROJECT') ? <Activity className="h-4 w-4" /> : 
+                           activity.type.includes('INVENTORY') ? <Package className="h-4 w-4" /> :
+                           <CheckCircle2 className="h-4 w-4" />}
+                       </div>
+                       <div className="space-y-1">
+                          <p className="text-sm font-medium leading-none">{activity.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                             {activity.description}
+                          </p> 
+                          <p className="text-[10px] text-muted-foreground/60">
+                             {activity.userName} • {activity.timestamp.toLocaleTimeString()}
+                          </p>
+                       </div>
+                    </div>
+                  ))
+               )}
             </div>
           </CardContent>
         </Card>

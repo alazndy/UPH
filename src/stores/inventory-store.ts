@@ -79,6 +79,16 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
         });
         
         const newItem = { id: docRef.id, ...item, totalAllocated: 0 } as Product;
+
+        // Log Activity
+        const { useActivityStore } = await import('./activity-store');
+        useActivityStore.getState().addActivity({
+          type: 'INVENTORY_ADDED',
+          title: 'Inventory Item Added',
+          description: `${item.name} added to stock.`,
+          metadata: { productId: docRef.id }
+        });
+
         set(state => ({ products: [...state.products, newItem] }));
     } catch (error) {
         console.error("Error adding product:", error);
@@ -95,6 +105,15 @@ export const useInventoryStore = create<InventoryState>((set, get) => ({
         set(state => ({
             products: state.products.map(p => (p.id === id ? { ...p, ...updates } : p))
         }));
+
+        // Log Activity
+        const { useActivityStore } = await import('./activity-store');
+        useActivityStore.getState().addActivity({
+          type: 'INVENTORY_UPDATED',
+          title: 'Inventory Item Updated',
+          description: `Item ${id} updated.`,
+          metadata: { productId: id, updates }
+        });
     } catch (error) {
         console.error("Error updating product:", error);
     }
