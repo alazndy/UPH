@@ -1,14 +1,21 @@
 'use client';
 
+<<<<<<< HEAD
 import { useState, useRef } from 'react';
+=======
+import { useState } from 'react';
+>>>>>>> origin/main
 import { Project, ProjectFile } from '@/types/project';
 import { useProjectStore } from '@/stores/project-store';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2, Upload, FileText, Image as ImageIcon, File, Download } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+<<<<<<< HEAD
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
+=======
+>>>>>>> origin/main
 
 interface ProjectFilesProps {
     project: Project;
@@ -17,6 +24,7 @@ interface ProjectFilesProps {
 export function ProjectFiles({ project }: ProjectFilesProps) {
     const { addFile, deleteFile } = useProjectStore();
     const [isUploading, setIsUploading] = useState(false);
+<<<<<<< HEAD
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,6 +65,26 @@ export function ProjectFiles({ project }: ProjectFilesProps) {
                 fileInputRef.current.value = '';
             }
         }
+=======
+
+    const handleMockUpload = async () => {
+        setIsUploading(true);
+        // Simulate upload delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const fileTypes = ['PDF', 'Image', 'Document'];
+        const randomType = fileTypes[Math.floor(Math.random() * fileTypes.length)];
+        
+        const newFile = {
+            name: `Project_Document_${Date.now().toString().slice(-4)}.${randomType === 'Image' ? 'png' : 'pdf'}`,
+            url: '#', // Mock URL
+            type: randomType,
+            uploadedAt: new Date().toISOString()
+        };
+
+        await addFile(project.id, newFile);
+        setIsUploading(false);
+>>>>>>> origin/main
     };
 
     const getFileIcon = (type: string) => {
@@ -76,6 +104,7 @@ export function ProjectFiles({ project }: ProjectFilesProps) {
                         Manage project contracts, blueprints, and reports.
                     </CardDescription>
                 </div>
+<<<<<<< HEAD
                 <div>
                     <input 
                         type="file" 
@@ -91,6 +120,15 @@ export function ProjectFiles({ project }: ProjectFilesProps) {
                         )}
                     </Button>
                 </div>
+=======
+                <Button onClick={handleMockUpload} disabled={isUploading}>
+                    {isUploading ? 'Uploading...' : (
+                        <>
+                            <Upload className="h-4 w-4 mr-2" /> Upload File
+                        </>
+                    )}
+                </Button>
+>>>>>>> origin/main
             </CardHeader>
             <CardContent>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -109,10 +147,15 @@ export function ProjectFiles({ project }: ProjectFilesProps) {
                                     </p>
                                 </div>
                                 <div className="flex flex-col gap-1">
+<<<<<<< HEAD
                                     <Button variant="ghost" size="icon" className="h-6 w-6" title="Download" asChild>
                                         <a href={file.url} target="_blank" rel="noopener noreferrer">
                                             <Download className="h-3 w-3" />
                                         </a>
+=======
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" title="Download (Mock)">
+                                        <Download className="h-3 w-3" />
+>>>>>>> origin/main
                                     </Button>
                                     <Button 
                                         variant="ghost" 

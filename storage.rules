@@ -18,10 +18,13 @@ service firebase.storage {
       allow read, write: if true;
     }
     
+<<<<<<< HEAD
     match /projects/{allPaths=**} {
       allow read, write: if true;
     }
     
+=======
+>>>>>>> origin/main
     // Default deny
     match /{allPaths=**} {
       allow read, write: if false; 
