@@ -52,14 +52,14 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
     <div className="space-y-4 py-4 flex flex-col h-full glass-sidebar text-white transition-all duration-300">
       <div className="px-3 py-2 flex-1">
         <Link href="/dashboard" className={cn("flex items-center mb-14 transition-all duration-300", isCollapsed ? "pl-0 justify-center" : "pl-3")}>
-          <div className="relative w-8 h-8 mr-0">
+           <div className="relative w-8 h-8 mr-0">
              <div className="absolute bg-gradient-to-tr from-purple-500 to-indigo-600 shadow-[0_0_15px_rgba(168,85,247,0.5)] w-full h-full rounded-lg flex items-center justify-center font-bold text-lg">
-                U
+                T
              </div>
           </div>
           {!isCollapsed && (
               <h1 className="text-2xl font-bold ml-4 whitespace-nowrap opacity-100 transition-opacity duration-300 bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(168,85,247,0.3)]">
-                Project Hub
+                T-HUB
               </h1>
           )}
         </Link>
