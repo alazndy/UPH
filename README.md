@@ -1,4 +1,6 @@
-# 🚀 UPH: Unified Project Hub
+# 🚀 UPH:# T-HUB (Unified Project Hub)
+
+**TEK Ekosistemi**'nin yönetim merkezi olan **T-HUB**, tüm projelerinizi, görevlerinizi ve finansal akışınızı tek bir yerden yönetmenizi sağlar.
 
 **UPH** (Unified Project Hub) is a comprehensive ERP/PMS solution designed to bridge the gap between technical design and project management. It integrates directly with **Weave** (Schematic Design) and **ENV-I** (Inventory) to provide a single source of truth for engineering projects.
 
