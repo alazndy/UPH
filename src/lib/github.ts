@@ -82,10 +82,16 @@ const mockIssues: GitHubIssue[] = [
 
 export async function fetchRepoInfo(owner: string, repo: string): Promise<GitHubRepo> {
   try {
+    const headers: HeadersInit = {
+      'Accept': 'application/vnd.github.v3+json',
+    };
+
+    if (process.env.NEXT_PUBLIC_GITHUB_TOKEN) {
+      headers['Authorization'] = `token ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`;
+    }
+
     const response = await fetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}`, {
-      headers: {
-        'Accept': 'application/vnd.github.v3+json',
-      },
+      headers,
       next: { revalidate: 300 } // Cache for 5 minutes
     });
     
@@ -103,10 +109,16 @@ export async function fetchRepoInfo(owner: string, repo: string): Promise<GitHub
 
 export async function fetchIssues(owner: string, repo: string): Promise<GitHubIssue[]> {
   try {
+    const headers: HeadersInit = {
+      'Accept': 'application/vnd.github.v3+json',
+    };
+
+    if (process.env.NEXT_PUBLIC_GITHUB_TOKEN) {
+      headers['Authorization'] = `token ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`;
+    }
+
     const response = await fetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}/issues?state=open&per_page=30`, {
-      headers: {
-        'Accept': 'application/vnd.github.v3+json',
-      },
+      headers,
       next: { revalidate: 60 } // Cache for 1 minute
     });
     

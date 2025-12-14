@@ -15,6 +15,8 @@ import { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
+import Link from 'next/link';
+import { CreateProjectDialog } from '@/components/projects/create-project-dialog';
 
 export default function DashboardPage() {
   const { projects, fetchProjects } = useProjectStore();
@@ -39,20 +41,28 @@ export default function DashboardPage() {
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
       
+      {/* Quick Actions */}
+      <div className="flex items-center gap-4 mb-6">
+        <CreateProjectDialog />
+        {/* We can add more quick actions here like Add Inventory */}
+      </div>
+
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{activeProjects.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {projects.length} total projects
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/projects">
+            <Card className="hover:bg-accent/50 transition-colors cursor-pointer h-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
+                <Activity className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{activeProjects.length}</div>
+                <p className="text-xs text-muted-foreground">
+                {projects.length} total projects
+                </p>
+            </CardContent>
+            </Card>
+        </Link>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -68,18 +78,20 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Low Stock Alerts</CardTitle>
-            <AlertTriangle className={`h-4 w-4 ${lowStockItems.length > 0 ? 'text-red-500' : 'text-muted-foreground'}`} />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${lowStockItems.length > 0 ? 'text-red-600' : ''}`}>{lowStockItems.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Items below threshold
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/inventory">
+            <Card className="hover:bg-accent/50 transition-colors cursor-pointer h-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Low Stock Alerts</CardTitle>
+                <AlertTriangle className={`h-4 w-4 ${lowStockItems.length > 0 ? 'text-red-500' : 'text-muted-foreground'}`} />
+            </CardHeader>
+            <CardContent>
+                <div className={`text-2xl font-bold ${lowStockItems.length > 0 ? 'text-red-600' : ''}`}>{lowStockItems.length}</div>
+                <p className="text-xs text-muted-foreground">
+                Items below threshold
+                </p>
+            </CardContent>
+            </Card>
+        </Link>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -152,7 +164,7 @@ export default function DashboardPage() {
                           <p className="text-xs text-muted-foreground">
                              {activity.description}
                           </p> 
-                          <p className="text-[10px] text-muted-foreground/60">
+                          <p className="text-[10px] text-muted-foreground/60" suppressHydrationWarning>
                              {activity.userName} • {activity.timestamp.toLocaleTimeString()}
                           </p>
                        </div>

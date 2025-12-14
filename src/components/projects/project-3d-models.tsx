@@ -136,7 +136,6 @@ export function Project3DModels({ project }: Project3DModelsProps) {
             </Card>
 
             <Dialog open={!!selectedModel} onOpenChange={() => setSelectedModel(null)}>
-<<<<<<< HEAD
                 <DialogContent 
                     className="p-0 gap-0 overflow-hidden flex flex-col"
                     style={{
@@ -147,10 +146,6 @@ export function Project3DModels({ project }: Project3DModelsProps) {
                     }}
                 >
                     <DialogHeader className="p-4 border-b bg-background z-10 shrink-0">
-=======
-                <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 gap-0">
-                    <DialogHeader className="p-4 border-b bg-background z-10">
->>>>>>> origin/main
                         <DialogTitle className="flex items-center gap-2">
                             <Cuboid className="h-5 w-5 text-blue-500" />
                             {selectedModel?.name}

@@ -40,7 +40,7 @@ export function CreateProjectDialog() {
       deadline: '',
       budget: 0,
       manager: 'Turhan', // Default
-      tags: []
+      tags: [] as string[]
   });
 
   const handleSubmit = () => {
@@ -71,7 +71,7 @@ export function CreateProjectDialog() {
         <DialogHeader>
           <DialogTitle>Create New Project</DialogTitle>
           <DialogDescription>
-            Enter the details for your new project. Click save when you're done.
+            Enter the details for your new project. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -102,6 +102,27 @@ export function CreateProjectDialog() {
           <div className="grid grid-cols-4 items-center gap-4">
              <Label htmlFor="status" className="text-right">Status</Label>
              <div className="col-span-3">
+                 <Select 
+                    onValueChange={(template) => {
+                        if (template === 'Standard') {
+                            setFormData(prev => ({...prev, description: 'Standard project setup', tags: ['general']}));
+                        } else if (template === 'R&D') {
+                            setFormData(prev => ({...prev, description: 'Research and Development project for new product innovation.', tags: ['r&d', 'innovation']}));
+                        } else if (template === 'Maintenance') {
+                            setFormData(prev => ({...prev, description: 'Scheduled maintenance and repair work.', tags: ['maintenance', 'support']}));
+                        }
+                    }}
+                 >
+                    <SelectTrigger className="mb-2">
+                        <SelectValue placeholder="Select Template (Optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Standard">Standard</SelectItem>
+                        <SelectItem value="R&D">R&D</SelectItem>
+                        <SelectItem value="Maintenance">Maintenance</SelectItem>
+                    </SelectContent>
+                 </Select>
+
                 <Select 
                     value={formData.status} 
                     onValueChange={(v) => setFormData({...formData, status: v as ProjectStatus})}

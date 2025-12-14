@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { User as AppUser } from '@/types';
 import { 
   signInWithEmailAndPassword, 
+  signInWithPopup,
+  GoogleAuthProvider,
+  GithubAuthProvider,
   signOut as firebaseSignOut, 
   onAuthStateChanged,
   User as FirebaseUser
@@ -14,6 +17,8 @@ interface AuthState {
   isAuthenticated: boolean;
   
   login: (email: string, pass: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  loginWithGithub: () => Promise<void>;
   logout: () => Promise<void>;
   initializeAuth: () => () => void; // Returns unsubscribe
 }
@@ -29,6 +34,9 @@ const mapFirebaseUser = (firebaseUser: FirebaseUser): AppUser => ({
   }
 });
 
+const googleProvider = new GoogleAuthProvider();
+const githubProvider = new GithubAuthProvider();
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
@@ -41,6 +49,32 @@ export const useAuthStore = create<AuthState>((set) => ({
       // State updated by onAuthStateChanged
     } catch (error) {
       console.error('Login failed:', error);
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  loginWithGoogle: async () => {
+    set({ isLoading: true });
+    try {
+      await signInWithPopup(auth, googleProvider);
+      // State updated by onAuthStateChanged
+    } catch (error) {
+      console.error('Google login failed:', error);
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  loginWithGithub: async () => {
+    set({ isLoading: true });
+    try {
+      await signInWithPopup(auth, githubProvider);
+      // State updated by onAuthStateChanged
+    } catch (error) {
+      console.error('Github login failed:', error);
       throw error;
     } finally {
       set({ isLoading: false });

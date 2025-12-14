@@ -3,13 +3,34 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
+import { SearchCommand } from '@/components/layout/search-command';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/stores/auth-store';
 
 export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const { isAuthenticated, isLoading, initializeAuth } = useAuthStore();
+    const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        // Initialize auth listener
+        const unsubscribe = initializeAuth();
+        return () => unsubscribe();
+    }, [initializeAuth]);
+
+    useEffect(() => {
+        // Redirect if not authenticated and not loading
+        if (!isLoading && !isAuthenticated) {
+            // Prevent redirecting if we are already on login page (though this component shouldn't be rendered there)
+            // router.push('/login'); 
+            // NOTE: Allow rendering for now to avoid loops during dev if auth fails often.
+            // UNCOMMENT BELOW FOR PRODUCTION
+            router.push('/login');
+        }
+    }, [isLoading, isAuthenticated, router]);
 
     useEffect(() => {
         setIsMounted(true);
@@ -64,6 +85,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
                     isCollapsed ? "md:pl-20" : "md:pl-72"
                 )}
             >
+                <SearchCommand />
                 <Header />
                 <div className="p-8">
                     {children}
