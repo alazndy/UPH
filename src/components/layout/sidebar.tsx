@@ -10,7 +10,9 @@ import {
   Package,
   Settings,
   LogOut,
-  Plus
+  Plus,
+  Columns3,
+  BarChart3
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -26,6 +28,18 @@ const routes = [
     icon: FolderKanban,
     href: '/projects',
     color: 'text-violet-500',
+  },
+  {
+    label: 'Kanban',
+    icon: Columns3,
+    href: '/kanban',
+    color: 'text-orange-500',
+  },
+  {
+    label: 'Analytics',
+    icon: BarChart3,
+    href: '/analytics',
+    color: 'text-emerald-500',
   },
   {
     label: 'Inventory',

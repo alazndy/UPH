@@ -12,7 +12,7 @@ import {
    DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore } from '@/stores/auth-store';
-import { Bell } from 'lucide-react';
+import { NotificationBell } from '@/components/notifications';
 import { useState, useEffect } from 'react';
 
 export function Header() {
@@ -28,10 +28,7 @@ export function Header() {
     <div className="flex items-center p-4 sticky top-0 z-50 bg-background/60 backdrop-blur-xl border-b border-white/5 supports-[backdrop-filter]:bg-background/60">
       <MobileSidebar />
       <div className="flex w-full justify-end items-center gap-x-4">
-         <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full" />
-         </Button>
+         <NotificationBell />
          
          {!mounted ? (
             <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
