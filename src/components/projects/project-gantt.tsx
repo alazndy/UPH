@@ -1,12 +1,13 @@
 
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Gantt, Task, ViewMode } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
-import { Project, ProjectTask } from '@/types/project';
+import { Project } from '@/types/project';
 import { Card, CardContent } from "@/components/ui/card";
 import { useTheme } from 'next-themes';
+import { useProjectStore } from '@/stores/project-store';
 
 interface ProjectGanttProps {
     project: Project;
@@ -14,9 +15,15 @@ interface ProjectGanttProps {
 
 export function ProjectGantt({ project }: ProjectGanttProps) {
     const { theme } = useTheme();
+    const { getProjectTasks, fetchProjectTasks } = useProjectStore();
+    const projectTasks = getProjectTasks(project.id);
+    
+    useEffect(() => {
+        fetchProjectTasks(project.id);
+    }, [project.id]);
 
     const tasks: Task[] = useMemo(() => {
-        if (!project.tasks || project.tasks.length === 0) {
+        if (!projectTasks || projectTasks.length === 0) {
             // Return a dummy task if empty to prevent errors or show empty state
             return [{
                 start: new Date(project.startDate),
@@ -32,7 +39,7 @@ export function ProjectGantt({ project }: ProjectGanttProps) {
 
         const projectStart = new Date(project.startDate);
         
-        return project.tasks.map((t, index) => {
+        return projectTasks.map((t, index) => {
             // Logic to determine start/end dates
             // If no specific dates, stagger them purely for visualization
             const startDate = new Date(projectStart);
@@ -67,7 +74,7 @@ export function ProjectGantt({ project }: ProjectGanttProps) {
                 },
             };
         });
-    }, [project, theme]);
+    }, [project, projectTasks, theme]);
 
     const [viewMode, setViewMode] = React.useState<ViewMode>(ViewMode.Day);
 

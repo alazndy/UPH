@@ -1,18 +1,66 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, memo, useCallback } from 'react';
 import { Project, ProjectFile } from '@/types/project';
 import { useProjectStore } from '@/stores/project-store';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2, Upload, FileText, Image as ImageIcon, File, Download } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 
 interface ProjectFilesProps {
     project: Project;
 }
+
+const getFileIcon = (type: string) => {
+    switch (type) {
+        case 'PDF': return <FileText className="h-8 w-8 text-red-500" />;
+        case 'Image': return <ImageIcon className="h-8 w-8 text-blue-500" />;
+        default: return <File className="h-8 w-8 text-gray-500" />;
+    }
+};
+
+// Memoized File Item Component
+const FileItem = memo(({ 
+    file, 
+    projectId, 
+    onDelete 
+}: { 
+    file: ProjectFile, 
+    projectId: string, 
+    onDelete: (pid: string, fid: string) => void 
+}) => {
+    return (
+        <div className="flex items-start gap-3 p-3 border rounded-lg hover:shadow-sm transition-shadow">
+            <div className="mt-1">{getFileIcon(file.type)}</div>
+            <div className="flex-1 overflow-hidden">
+                <p className="font-medium text-sm truncate" title={file.name}>{file.name}</p>
+                <p className="text-xs text-muted-foreground">
+                    {new Date(file.uploadedAt).toLocaleDateString()}
+                </p>
+            </div>
+            <div className="flex flex-col gap-1">
+                <Button variant="ghost" size="icon" className="h-6 w-6" title="Download" asChild>
+                    <a href={file.url} target="_blank" rel="noopener noreferrer">
+                        <Download className="h-3 w-3" />
+                    </a>
+                </Button>
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-6 w-6 text-destructive hover:text-destructive"
+                    onClick={() => onDelete(projectId, file.id)}
+                    title="Delete"
+                >
+                    <Trash2 className="h-3 w-3" />
+                </Button>
+            </div>
+        </div>
+    );
+});
+
+FileItem.displayName = 'FileItem';
 
 export function ProjectFiles({ project }: ProjectFilesProps) {
     const { addFile, deleteFile } = useProjectStore();
@@ -59,14 +107,9 @@ export function ProjectFiles({ project }: ProjectFilesProps) {
         }
     };
 
-
-    const getFileIcon = (type: string) => {
-        switch (type) {
-            case 'PDF': return <FileText className="h-8 w-8 text-red-500" />;
-            case 'Image': return <ImageIcon className="h-8 w-8 text-blue-500" />;
-            default: return <File className="h-8 w-8 text-gray-500" />;
-        }
-    };
+    const handleDelete = useCallback((pid: string, fid: string) => {
+        deleteFile(pid, fid);
+    }, [deleteFile]);
 
     return (
         <Card>
@@ -101,31 +144,12 @@ export function ProjectFiles({ project }: ProjectFilesProps) {
                         </div>
                     ) : (
                         (project.files || []).map(file => (
-                            <div key={file.id} className="flex items-start gap-3 p-3 border rounded-lg hover:shadow-sm transition-shadow">
-                                <div className="mt-1">{getFileIcon(file.type)}</div>
-                                <div className="flex-1 overflow-hidden">
-                                    <p className="font-medium text-sm truncate" title={file.name}>{file.name}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {new Date(file.uploadedAt).toLocaleDateString()}
-                                    </p>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <Button variant="ghost" size="icon" className="h-6 w-6" title="Download" asChild>
-                                        <a href={file.url} target="_blank" rel="noopener noreferrer">
-                                            <Download className="h-3 w-3" />
-                                        </a>
-                                    </Button>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        className="h-6 w-6 text-destructive hover:text-destructive"
-                                        onClick={() => deleteFile(project.id, file.id)}
-                                        title="Delete"
-                                    >
-                                        <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                </div>
-                            </div>
+                            <FileItem 
+                                key={file.id} 
+                                file={file} 
+                                projectId={project.id} 
+                                onDelete={handleDelete} 
+                            />
                         ))
                     )}
                 </div>

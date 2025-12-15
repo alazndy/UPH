@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -21,10 +21,10 @@ import { ProjectTask, TaskStatus } from '@/types/project';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, Clock, Eye, ListTodo, GripVertical } from 'lucide-react';
+import { useProjectStore } from '@/stores/project-store';
 
 interface KanbanBoardProps {
-  tasks: ProjectTask[];
-  onTaskStatusChange: (taskId: string, newStatus: TaskStatus) => void;
+  projectId: string; // Changed from tasks prop to projectId
 }
 
 const COLUMNS: { id: TaskStatus; title: string; icon: React.ReactNode; color: string }[] = [
@@ -131,8 +131,14 @@ function KanbanColumn({
   );
 }
 
-export function KanbanBoard({ tasks, onTaskStatusChange }: KanbanBoardProps) {
+export function KanbanBoard({ projectId }: KanbanBoardProps) {
+  const { getProjectTasks, updateTaskStatus, fetchProjectTasks } = useProjectStore();
+  const tasks = getProjectTasks(projectId);
   const [activeTask, setActiveTask] = useState<ProjectTask | null>(null);
+
+  useEffect(() => {
+      fetchProjectTasks(projectId);
+  }, [projectId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -159,14 +165,14 @@ export function KanbanBoard({ tasks, onTaskStatusChange }: KanbanBoardProps) {
     // Check if dropped on a column
     const targetColumn = COLUMNS.find((col) => col.id === overId);
     if (targetColumn) {
-      onTaskStatusChange(taskId, targetColumn.id);
+      updateTaskStatus(projectId, taskId, targetColumn.id);
       return;
     }
 
     // Check if dropped on another task (get its column)
     const targetTask = tasks.find((t) => t.id === overId);
     if (targetTask && targetTask.status) {
-      onTaskStatusChange(taskId, targetTask.status);
+      updateTaskStatus(projectId, taskId, targetTask.status);
     }
   };
 

@@ -134,6 +134,49 @@ export async function fetchIssues(owner: string, repo: string): Promise<GitHubIs
   }
 }
 
+export async function fetchReadme(owner: string, repo: string): Promise<string | null> {
+  try {
+    const headers: HeadersInit = {
+      'Accept': 'application/vnd.github.v3+json',
+    };
+
+    if (process.env.NEXT_PUBLIC_GITHUB_TOKEN) {
+      headers['Authorization'] = `token ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`;
+    }
+
+    const response = await fetch(`${GITHUB_API_BASE}/repos/${owner}/${repo}/readme`, {
+      headers,
+      next: { revalidate: 300 }
+    });
+
+    if (!response.ok) {
+       if (response.status === 404) return null;
+       console.warn(`GitHub API error (README): ${response.status}`);
+       return null;
+    }
+
+    const data = await response.json();
+    // GitHub API returns content in Base64
+    if (data.content && data.encoding === 'base64') {
+        try {
+             // Universal base64 decode (works in browser and node)
+             const decoded = typeof window === 'undefined' 
+                ? Buffer.from(data.content, 'base64').toString('utf-8')
+                : atob(data.content.replace(/\s/g, ''));
+             return decoded;
+        } catch (e) {
+            console.error('Error decoding README:', e);
+            return null;
+        }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching README:', error);
+    return null;
+  }
+}
+
 // Convert GitHub issues to project tasks
 export function issuesToTasks(issues: GitHubIssue[]): Array<{
   title: string;

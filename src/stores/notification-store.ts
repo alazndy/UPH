@@ -1,111 +1,98 @@
 import { create } from 'zustand';
-
-export type NotificationType = 'info' | 'warning' | 'success' | 'error';
-
-export interface Notification {
-  id: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  read: boolean;
-  createdAt: Date;
-  link?: string;
-}
+import { Notification } from '@/types/notification';
+import { 
+  collection, 
+  addDoc, 
+  updateDoc, 
+  doc, 
+  query, 
+  where, 
+  orderBy, 
+  onSnapshot,
+  writeBatch
+} from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface NotificationState {
   notifications: Notification[];
   unreadCount: number;
+  isLoading: boolean;
   
-  addNotification: (notification: Omit<Notification, 'id' | 'read' | 'createdAt'>) => void;
-  markAsRead: (id: string) => void;
-  markAllAsRead: () => void;
-  removeNotification: (id: string) => void;
-  clearAll: () => void;
+  subscribeToNotifications: (userId: string) => () => void;
+  markAsRead: (notificationId: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
+  addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'read'>) => Promise<void>;
 }
 
-// Mock initial notifications
-const initialNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'warning',
-    title: 'Low Stock Alert',
-    message: '3 items are below minimum stock level',
-    read: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 min ago
-    link: '/inventory',
-  },
-  {
-    id: '2',
-    type: 'info',
-    title: 'Project Update',
-    message: 'Kanban Board feature has been added',
-    read: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-    link: '/kanban',
-  },
-  {
-    id: '3',
-    type: 'success',
-    title: 'Analytics Ready',
-    message: 'New analytics dashboard is now available',
-    read: true,
-    createdAt: new Date(Date.now() - 1000 * 60 * 120), // 2 hours ago
-    link: '/analytics',
-  },
-];
+export const useNotificationStore = create<NotificationState>((set, get) => ({
+  notifications: [],
+  unreadCount: 0,
+  isLoading: false,
 
-export const useNotificationStore = create<NotificationState>((set) => ({
-  notifications: initialNotifications,
-  unreadCount: initialNotifications.filter(n => !n.read).length,
-
-  addNotification: (notification) => {
-    const newNotification: Notification = {
-      ...notification,
-      id: Math.random().toString(36).substring(7),
-      read: false,
-      createdAt: new Date(),
-    };
+  subscribeToNotifications: (userId: string) => {
+    set({ isLoading: true });
     
-    set(state => ({
-      notifications: [newNotification, ...state.notifications],
-      unreadCount: state.unreadCount + 1,
-    }));
-  },
+    // Subscribe to notifications for the specific user
+    const q = query(
+      collection(db, 'notifications'),
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
+    );
 
-  markAsRead: (id) => {
-    set(state => {
-      const notification = state.notifications.find(n => n.id === id);
-      if (!notification || notification.read) return state;
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const notifications = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Notification[];
       
-      return {
-        notifications: state.notifications.map(n =>
-          n.id === id ? { ...n, read: true } : n
-        ),
-        unreadCount: Math.max(0, state.unreadCount - 1),
-      };
-    });
-  },
-
-  markAllAsRead: () => {
-    set(state => ({
-      notifications: state.notifications.map(n => ({ ...n, read: true })),
-      unreadCount: 0,
-    }));
-  },
-
-  removeNotification: (id) => {
-    set(state => {
-      const notification = state.notifications.find(n => n.id === id);
-      const wasUnread = notification && !notification.read;
+      const unreadCount = notifications.filter(n => !n.read).length;
       
-      return {
-        notifications: state.notifications.filter(n => n.id !== id),
-        unreadCount: wasUnread ? state.unreadCount - 1 : state.unreadCount,
-      };
+      set({ notifications, unreadCount, isLoading: false });
+    }, (error) => {
+      console.error("Notification subscription error:", error);
+      set({ isLoading: false });
     });
+
+    return unsubscribe;
   },
 
-  clearAll: () => {
-    set({ notifications: [], unreadCount: 0 });
+  addNotification: async (notificationData) => {
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        ...notificationData,
+        read: false,
+        createdAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error adding notification:", error);
+    }
   },
+
+  markAsRead: async (notificationId) => {
+    try {
+      const notifRef = doc(db, 'notifications', notificationId);
+      await updateDoc(notifRef, { read: true });
+      // State updates automatically via listener
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  },
+
+  markAllAsRead: async () => {
+    const { notifications } = get();
+    const unreadNotifications = notifications.filter(n => !n.read);
+    
+    if (unreadNotifications.length === 0) return;
+
+    try {
+      const batch = writeBatch(db);
+      unreadNotifications.forEach(n => {
+        const notifRef = doc(db, 'notifications', n.id);
+        batch.update(notifRef, { read: true });
+      });
+      await batch.commit();
+    } catch (error) {
+      console.error("Error marking all as read:", error);
+    }
+  }
 }));

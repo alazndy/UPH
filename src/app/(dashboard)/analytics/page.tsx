@@ -29,7 +29,7 @@ export default function AnalyticsPage() {
       Status: p.status,
       Budget: p.budget,
       Spent: p.spent,
-      Progress: `${p.progress}%`,
+      Progress: `${p.completionPercentage}%`,
       Tags: p.tags.join(', '),
     }));
     

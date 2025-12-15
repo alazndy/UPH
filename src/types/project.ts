@@ -66,7 +66,7 @@ export interface Project {
     manager: string;
     completionPercentage: number;
     tags: string[];
-    tasks: ProjectTask[];
+    // tasks removed -> subcollection
     files: ProjectFile[];
     // Weave Final Designs
     weaveDesigns?: WeaveDesign[];
@@ -79,4 +79,3 @@ export interface Project {
     githubSyncEnabled?: boolean;
     lastGithubSync?: string;
 }
-

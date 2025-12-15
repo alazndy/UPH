@@ -6,18 +6,16 @@ interface GitHubState {
   error: string | null;
   repoInfo: GitHubRepo | null;
   issues: GitHubIssue[];
+  token: string | null;
   
-  connectRepo: (repoUrl: string) => Promise<GitHubRepo | null>;
-  fetchRepoIssues: (owner: string, repo: string) => Promise<GitHubIssue[]>;
+  setToken: (token: string) => void;
+  connectRepo: (repoUrl: string, token?: string) => Promise<GitHubRepo | null>;
+  fetchRepoIssues: (owner: string, repo: string, token?: string) => Promise<GitHubIssue[]>;
   clearRepo: () => void;
 }
 
 // Parse GitHub URL to get owner and repo
 function parseGitHubUrl(url: string): { owner: string; repo: string } | null {
-  // Handle formats: 
-  // - https://github.com/owner/repo
-  // - github.com/owner/repo
-  // - owner/repo
   const patterns = [
     /github\.com\/([^\/]+)\/([^\/]+)/,
     /^([^\/]+)\/([^\/]+)$/
@@ -37,9 +35,13 @@ export const useGitHubStore = create<GitHubState>((set, get) => ({
   error: null,
   repoInfo: null,
   issues: [],
+  token: null,
 
-  connectRepo: async (repoUrl) => {
+  setToken: (token) => set({ token }),
+
+  connectRepo: async (repoUrl, token) => {
     set({ isConnecting: true, error: null });
+    const activeToken = token || get().token;
     
     const parsed = parseGitHubUrl(repoUrl);
     if (!parsed) {
@@ -48,7 +50,8 @@ export const useGitHubStore = create<GitHubState>((set, get) => ({
     }
 
     try {
-      const repoInfo = await fetchRepoInfo(parsed.owner, parsed.repo);
+      // @ts-ignore
+      const repoInfo = await fetchRepoInfo(parsed.owner, parsed.repo, activeToken);
       set({ repoInfo, isConnecting: false });
       return repoInfo;
     } catch (error: any) {
@@ -57,9 +60,11 @@ export const useGitHubStore = create<GitHubState>((set, get) => ({
     }
   },
 
-  fetchRepoIssues: async (owner, repo) => {
+  fetchRepoIssues: async (owner, repo, token) => {
     try {
-      const issues = await fetchIssues(owner, repo);
+      const activeToken = token || get().token;
+      // @ts-ignore
+      const issues = await fetchIssues(owner, repo, activeToken);
       set({ issues });
       return issues;
     } catch (error: any) {

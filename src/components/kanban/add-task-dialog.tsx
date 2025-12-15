@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useKanbanStore, TaskStatus } from '@/stores/kanban-store';
+import { useProjectStore } from '@/stores/project-store';
 import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
@@ -36,6 +37,7 @@ const formSchema = z.object({
   description: z.string().optional(),
   priority: z.enum(['low', 'medium', 'high']),
   status: z.enum(['backlog', 'todo', 'in-progress', 'review', 'done']),
+  projectId: z.string().min(1, 'Project is required'),
 });
 
 interface AddTaskDialogProps {
@@ -46,7 +48,14 @@ interface AddTaskDialogProps {
 
 export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: AddTaskDialogProps) {
   const { addTask } = useKanbanStore();
+  const { projects, fetchProjects } = useProjectStore();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+      if (open) {
+          fetchProjects();
+      }
+  }, [open, fetchProjects]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,6 +64,7 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
       description: '',
       priority: 'medium',
       status: defaultStatus,
+      projectId: '',
     },
   });
 
@@ -66,12 +76,11 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      addTask({
+      await addTask(values.projectId, {
         title: values.title,
         description: values.description,
         priority: values.priority,
         status: values.status,
-        projectId: 'current', // TODO: Get from context
       });
       form.reset();
       onOpenChange(false);
@@ -84,10 +93,34 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-zinc-900 border-zinc-800 sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Task</DialogTitle>
+          <DialogTitle>Add New Global Task</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+             {/* Project Selection */}
+             <FormField
+              control={form.control}
+              name="projectId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a project" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        {projects.map(project => (
+                             <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="title"
@@ -154,7 +187,7 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="backlog">Backlog</SelectItem>
+                         {/* Note: ProjectStatus vs TaskStatus naming conflict potential. */}
                         <SelectItem value="todo">To Do</SelectItem>
                         <SelectItem value="in-progress">In Progress</SelectItem>
                         <SelectItem value="review">Review</SelectItem>

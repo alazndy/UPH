@@ -41,18 +41,6 @@ import {
     TableRow 
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EditProjectDialog } from '@/components/projects/edit-project-dialog';
-import { ProjectTasks } from '@/components/projects/project-tasks';
-import { ProjectFiles } from '@/components/projects/project-files';
-import { ProjectDesigns } from '@/components/projects/project-designs';
-import { AddInventoryDialog } from '@/components/projects/add-inventory-dialog';
-import { ProjectPCBDesigns } from '@/components/projects/project-pcb-designs';
-import { Project3DModels } from '@/components/projects/project-3d-models';
-import { KanbanBoard } from '@/components/projects/kanban-board';
-import { ConnectGitHubDialog } from '@/components/projects/connect-github-dialog';
-import { AIAssistant } from '@/components/ai/ai-assistant';
-import { ProjectGantt } from '@/components/projects/project-gantt';
-import { ProjectFinancials } from '@/components/projects/project-financials';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -64,16 +52,51 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useState, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// -- Lazy Loaded Components for Performance --
+const ProjectTasks = dynamic(() => import('@/components/projects/project-tasks').then(mod => mod.ProjectTasks), {
+  loading: () => <div className="space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-20 w-full" /></div>
+});
+const ProjectFiles = dynamic(() => import('@/components/projects/project-files').then(mod => mod.ProjectFiles), {
+    loading: () => <Skeleton className="h-[300px] w-full" />
+});
+const ProjectDesigns = dynamic(() => import('@/components/projects/project-designs').then(mod => mod.ProjectDesigns), {
+    loading: () => <Skeleton className="h-[400px] w-full" />
+});
+const ProjectPCBDesigns = dynamic(() => import('@/components/projects/project-pcb-designs').then(mod => mod.ProjectPCBDesigns), {
+    loading: () => <Skeleton className="h-[500px] w-full" />
+});
+const Project3DModels = dynamic(() => import('@/components/projects/project-3d-models').then(mod => mod.Project3DModels), {
+    loading: () => <Skeleton className="h-[600px] w-full" />
+});
+const KanbanBoard = dynamic(() => import('@/components/projects/kanban-board').then(mod => mod.KanbanBoard), {
+    loading: () => <div className="flex gap-4"><Skeleton className="h-[500px] w-64" /><Skeleton className="h-[500px] w-64" /><Skeleton className="h-[500px] w-64" /></div>
+});
+const ProjectGantt = dynamic(() => import('@/components/projects/project-gantt').then(mod => mod.ProjectGantt), {
+    loading: () => <Skeleton className="h-[500px] w-full" />
+});
+const ProjectFinancials = dynamic(() => import('@/components/projects/project-financials').then(mod => mod.ProjectFinancials), {
+    loading: () => <div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-[300px]" /><Skeleton className="h-[300px]" /></div>
+});
+
+// Dialogs are also lazy loaded as they are not needed on initial render
+const ConnectGitHubDialog = dynamic(() => import('@/components/projects/connect-github-dialog').then(mod => mod.ConnectGitHubDialog));
+const AddInventoryDialog = dynamic(() => import('@/components/projects/add-inventory-dialog').then(mod => mod.AddInventoryDialog));
+const AIAssistant = dynamic(() => import('@/components/ai/ai-assistant').then(mod => mod.AIAssistant), { ssr: false });
+const EditProjectDialog = dynamic(() => import('@/components/projects/edit-project-dialog').then(mod => mod.EditProjectDialog));
 
 export default function ProjectDetailPage() {
     const params = useParams();
     const router = useRouter();
     const id = params.id as string;
     
-    const { getProject, deleteProject, updateTaskStatus } = useProjectStore();
+    // Destructure isLoading and fetchProjects as well
+    const { getProject, deleteProject, updateTaskStatus, fetchProjectTasks, fetchProjects, isLoading } = useProjectStore();
     const project = getProject(id);
     
-    const { projectUsages, returnFromProject } = useInventoryStore();
+    const { projectUsages, returnFromProject, fetchInventory } = useInventoryStore();
     const projectInventory = useMemo(() => 
         projectUsages.filter(u => u.projectId === id && u.status === 'Active'),
         [projectUsages, id]
@@ -90,12 +113,20 @@ export default function ProjectDetailPage() {
     const [bomProcessing, setBomProcessing] = useState(false);
     const { products } = useInventoryStore(); // Needed for matching
 
+    useEffect(() => {
+        if (id) {
+            // Ensure data is loaded on refresh
+            fetchProjects();
+            fetchInventory();
+            fetchProjectTasks(id);
+        }
+    }, [id, fetchProjects, fetchProjectTasks, fetchInventory]);
+
     const handleScanBOM = async () => {
          const design = project?.weaveDesigns?.find(d => d.id === selectedDesignId);
          if (!design) return;
 
          setBomProcessing(true);
-         // Simulate small delay for UX
          await new Promise(r => setTimeout(r, 600));
          
          const items = BOMService.parseWeaveDesign(design, products);
@@ -125,7 +156,7 @@ export default function ProjectDetailPage() {
                 }
             }
             alert("Stock deducted successfully. Activity logged.");
-            setBomItems([]); // Clear after success
+            setBomItems([]);
         } catch (e) {
             console.error(e);
             alert("Failed to deduct stock. Check console.");
@@ -147,12 +178,24 @@ export default function ProjectDetailPage() {
         }
     };
 
+    // Show loader while fetching
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-100px)] space-y-4">
+               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+               <p className="text-muted-foreground animate-pulse">Proje verileri yükleniyor...</p>
+            </div>
+        );
+    }
+
     if (!project) {
         return (
-            <div className="flex flex-col items-center justify-center h-full space-y-4">
-                <h2 className="text-2xl font-bold">Project Not Found</h2>
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-100px)] space-y-4">
+                <AlertTriangle className="h-12 w-12 text-yellow-500" />
+                <h2 className="text-2xl font-bold">Proje Bulunamadı</h2>
+                <p className="text-muted-foreground">Aradığınız proje mevcut değil veya silinmiş olabilir.</p>
                 <Button asChild variant="secondary">
-                    <Link href="/projects"><ArrowLeft className="mr-2 h-4 w-4"/> Back to Projects</Link>
+                    <Link href="/projects"><ArrowLeft className="mr-2 h-4 w-4"/> Projelere Dön</Link>
                 </Button>
             </div>
         );
@@ -186,289 +229,241 @@ export default function ProjectDetailPage() {
                 </div>
             </div>
 
-            {/* Content Tabs */}
-            <Tabs defaultValue="overview" className="space-y-4">
-                <TabsList>
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="timeline">Timeline</TabsTrigger>
-                    <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                    <TabsTrigger value="finance">Financials</TabsTrigger>
-                    <TabsTrigger value="board">Board View</TabsTrigger>
-                    <TabsTrigger value="designs">Weave</TabsTrigger>
-                    <TabsTrigger value="pcb">PCB</TabsTrigger>
-                    <TabsTrigger value="3d">3D</TabsTrigger>
-                    <TabsTrigger value="bom">Bill of Materials (BOM)</TabsTrigger>
-                    <TabsTrigger value="files">Files & Documents</TabsTrigger>
+            {/* Main Tabs */}
+            <Tabs defaultValue="overview" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+                    <TabsTrigger value="overview">Proje Özeti</TabsTrigger>
+                    <TabsTrigger value="management">Yönetim</TabsTrigger>
+                    <TabsTrigger value="engineering">Mühendislik</TabsTrigger>
+                    <TabsTrigger value="files">Dosyalar</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="overview" className="space-y-4">
-                    {/* Metrics Grid */}
+                <TabsContent value="overview" className="space-y-6">
+                    {/* Refined Metrics Grid */}
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Budget Usage</CardTitle>
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Bütçe Durumu</CardTitle>
                                 <DollarSign className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">${project.spent.toLocaleString()} / ${project.budget.toLocaleString()}</div>
-                                <Progress value={(project.spent / project.budget) * 100} className="mt-2 h-1.5" />
-                                <p className="text-xs text-muted-foreground mt-2">
-                                    {((project.spent / project.budget) * 100).toFixed(1)}% of budget used
-                                </p>
+                                <div className="text-xl font-bold">${project.spent.toLocaleString()}</div>
+                                <p className="text-xs text-muted-foreground mb-2">/ ${project.budget.toLocaleString()}</p>
+                                <Progress value={(project.spent / project.budget) * 100} className="h-2" />
                             </CardContent>
                         </Card>
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Timeline</CardTitle>
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Zaman Çizelgesi</CardTitle>
                                 <Calendar className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-lg font-bold">{project.deadline || 'No deadline'}</div>
-                                <p className="text-xs text-muted-foreground mt-1">Start: {project.startDate}</p>
-                                <div className="mt-2 text-xs flex items-center gap-1 font-medium text-green-600">
-                                     On Track
-                                </div>
+                                <div className="text-xl font-bold">{project.deadline ? new Date(project.deadline).toLocaleDateString('tr-TR') : 'Belirsiz'}</div>
+                                <p className="text-xs text-muted-foreground mt-1">Bitiş Tarihi</p>
                             </CardContent>
                         </Card>
-                        <Card>
-                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Allocated Items</CardTitle>
+                         <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Envanter</CardTitle>
                                 <Box className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{projectInventory.length}</div>
-                                <p className="text-xs text-muted-foreground mt-1">Components assigned via Inventory</p>
+                                <div className="text-xl font-bold">{projectInventory.length}</div>
+                                <p className="text-xs text-muted-foreground mt-1">Atanan Kalem</p>
                             </CardContent>
                         </Card>
                          <Card>
                              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Completion</CardTitle>
+                                <CardTitle className="text-sm font-medium text-muted-foreground">Tamamlanma</CardTitle>
                                 <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{project.completionPercentage}%</div>
-                                <Progress value={project.completionPercentage} className="mt-2 h-1.5" />
+                                <div className="text-xl font-bold">{project.completionPercentage}%</div>
+                                <Progress value={project.completionPercentage} className="mt-2 h-2" />
                             </CardContent>
                         </Card>
                     </div>
 
-                    {/* Scope Section */}
-                    {project.scope && (
-                        <Card>
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    {/* Scope & Description */}
+                    <div className="grid gap-6 md:grid-cols-3">
+                         <Card className="md:col-span-2">
+                            <CardHeader>
+                                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                                    <FileText className="h-4 w-4 text-primary" />
                                     Proje Kapsamı
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-sm whitespace-pre-wrap">{project.scope}</p>
+                                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                                    {project.scope || project.description || "Kapsam bilgisi girilmemiş."}
+                                </p>
                             </CardContent>
                         </Card>
-                    )}
 
-                    {/* Inventory Table */}
-                    <Card className="col-span-full">
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                                <CardTitle>Kullanılan Malzemeler</CardTitle>
-                                <CardDescription>
-                                    Bu projeye atanan ürün ve ekipmanlar
-                                </CardDescription>
-                            </div>
-                            <Button onClick={() => setInventoryDialogOpen(true)}>
-                                <Package className="mr-2 h-4 w-4" /> Ürün Ekle
-                            </Button>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Product Name</TableHead>
-                                        <TableHead>Assigned Quantity</TableHead>
-                                        <TableHead>Assigned Date</TableHead>
-                                        <TableHead>Assigned By</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {projectInventory.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
-                                                No items assigned yet. Go to Inventory to assign items.
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        projectInventory.map((item) => (
-                                            <TableRow key={item.id}>
-                                                <TableCell className="font-medium">
-                                                    <a 
-                                                        href={`/inventory?search=${encodeURIComponent(item.productName)}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="hover:underline flex items-center gap-1 text-primary"
-                                                    >
-                                                        {item.productName}
-                                                        <ExternalLink className="h-3 w-3" />
-                                                    </a>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="secondary" className="font-mono text-xs">
-                                                        {item.quantity} adet
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>{new Date(item.assignedDate).toLocaleDateString('tr-TR')}</TableCell>
-                                                <TableCell>{item.assignedBy}</TableCell>
-                                                <TableCell className="text-right">
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="sm" 
-                                                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                                        onClick={() => handleReturn(item.id, item.quantity, item.productName)}
-                                                    >
-                                                        İade Et
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                <TabsContent value="tasks">
-                    <ProjectTasks project={project} />
-                </TabsContent>
-
-                <TabsContent value="board" className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="text-lg font-semibold">Kanban Board</h3>
-                            <p className="text-sm text-muted-foreground">Drag and drop tasks between columns</p>
-                        </div>
-                    </div>
-                    <KanbanBoard 
-                        tasks={project.tasks || []} 
-                        onTaskStatusChange={(taskId, status) => updateTaskStatus(project.id, taskId, status)}
-                    />
-                </TabsContent>
-
-                <TabsContent value="designs">
-                     <ProjectDesigns project={project} />
-                </TabsContent>
-
-                <TabsContent value="pcb">
-                     <ProjectPCBDesigns project={project} />
-                </TabsContent>
-
-                <TabsContent value="3d">
-                     <Project3DModels project={project} />
-                </TabsContent>
-
-                {/* NEW BOM TAB */}
-                <TabsContent value="timeline">
-                    <ProjectGantt project={project} />
-                </TabsContent>
-
-                <TabsContent value="finance">
-                    <ProjectFinancials 
-                        project={project} 
-                        projectInventory={projectInventory} 
-                        allProducts={products} 
-                    />
-                </TabsContent>
-
-                <TabsContent value="bom">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Automated BOM Extraction</CardTitle>
-                            <CardDescription>
-                                Extract component list from Weave Designs and automatically deduct from inventory.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            {/* Selection Controls */}
-                            <div className="flex items-end gap-4 border-b pb-6">
-                                <div className="grid gap-2 flex-1">
-                                    <Label>Select Design Source</Label>
-                                    <Select value={selectedDesignId} onValueChange={setSelectedDesignId}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a Weave Design..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {project.weaveDesigns?.map(d => (
-                                                <SelectItem key={d.id} value={d.id}>{d.name} (v1.0)</SelectItem>
-                                            ))}
-                                            {(!project.weaveDesigns || project.weaveDesigns.length === 0) && (
-                                                <SelectItem value="none" disabled>No designs uploaded</SelectItem>
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <Button onClick={handleScanBOM} disabled={!selectedDesignId || bomProcessing}>
-                                    {bomProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}
-                                    Scan & Match
+                        {/* Quick Stats or Team (Placeholder for future) */}
+                        <Card>
+                             <CardHeader>
+                                <CardTitle className="text-base font-semibold">Hızlı İşlemler</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-2">
+                                <Button variant="outline" className="w-full justify-start" onClick={() => setGithubDialogOpen(true)}>
+                                    <Github className="mr-2 h-4 w-4" /> GitHub Bağla
                                 </Button>
-                            </div>
+                                <Button variant="outline" className="w-full justify-start" onClick={() => setInventoryDialogOpen(true)}>
+                                    <Package className="mr-2 h-4 w-4" /> Malzeme Ekle
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </TabsContent>
 
-                            {/* Results Table */}
-                            {bomItems.length > 0 && (
-                                <div className="rounded-md border animate-fade-in-up">
-                                    <div className="p-4 bg-muted/50 border-b flex justify-between items-center">
-                                        <span className="font-semibold text-sm">
-                                            Found {bomItems.length} components ({bomItems.filter(i => i.status === 'matched').length} matched)
-                                        </span>
-                                        <Button size="sm" onClick={handleDeductStock} disabled={bomProcessing}>
-                                            Apply Stock Deduction
-                                        </Button>
-                                    </div>
-                                    <div className="max-h-[400px] overflow-y-auto">
-                                        <table className="w-full text-sm">
-                                            <thead className="text-left bg-muted/20 sticky top-0 backdrop-blur-sm">
-                                                <tr>
-                                                    <th className="p-3 font-medium">Status</th>
-                                                    <th className="p-3 font-medium">Component Name</th>
-                                                    <th className="p-3 font-medium text-right">Qty</th>
-                                                    <th className="p-3 font-medium">Matched Inventory</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {bomItems.map((item, i) => (
-                                                    <tr key={i} className="border-t hover:bg-muted/10 transition-colors">
-                                                        <td className="p-3">
-                                                            {item.status === 'matched' ? (
-                                                                <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                                                                    <Check className="w-3 h-3 mr-1" /> Ready
-                                                                </Badge>
-                                                            ) : (
-                                                                <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
-                                                                    <AlertTriangle className="w-3 h-3 mr-1" /> Unknown
-                                                                </Badge>
-                                                            )}
-                                                        </td>
-                                                        <td className="p-3 font-medium">{item.name}</td>
-                                                        <td className="p-3 text-right">{item.quantity}</td>
-                                                        <td className="p-3 text-muted-foreground">
-                                                            {item.matchedInventoryId ? (
-                                                                <span className="flex items-center gap-2">
-                                                                    <Package className="w-3 h-3" />
-                                                                    {products.find(p => p.id === item.matchedInventoryId)?.name}
-                                                                </span>
-                                                            ) : (
-                                                                "No match found"
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                <TabsContent value="management" className="space-y-4">
+                     <Tabs defaultValue="tasks" className="w-full">
+                        <TabsList className="grid w-full grid-cols-4 lg:w-[400px]">
+                            <TabsTrigger value="tasks">Liste</TabsTrigger>
+                            <TabsTrigger value="board">Pano</TabsTrigger>
+                            <TabsTrigger value="timeline">Zaman</TabsTrigger>
+                            <TabsTrigger value="finance">Finans</TabsTrigger>
+                        </TabsList>
+                        
+                        <div className="mt-4">
+                            <TabsContent value="tasks">
+                                <ProjectTasks project={project} />
+                            </TabsContent>
+                            <TabsContent value="board">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 className="text-lg font-semibold">Kanban Panosu</h3>
+                                        <p className="text-sm text-muted-foreground">Görevleri sürükleyip bırakarak yönetin</p>
                                     </div>
                                 </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                                <KanbanBoard projectId={project.id} />
+                            </TabsContent>
+                            <TabsContent value="timeline">
+                                <ProjectGantt project={project} />
+                            </TabsContent>
+                             <TabsContent value="finance">
+                                <ProjectFinancials 
+                                    project={project} 
+                                    projectInventory={projectInventory} 
+                                    allProducts={products} 
+                                />
+                            </TabsContent>
+                        </div>
+                     </Tabs>
+                </TabsContent>
+
+                <TabsContent value="engineering" className="space-y-4">
+                    <Tabs defaultValue="designs" className="w-full">
+                        <TabsList className="grid w-full grid-cols-4 lg:w-[400px]">
+                            <TabsTrigger value="designs">Weave</TabsTrigger>
+                            <TabsTrigger value="pcb">PCB</TabsTrigger>
+                            <TabsTrigger value="3d">3D</TabsTrigger>
+                            <TabsTrigger value="bom">BOM</TabsTrigger>
+                        </TabsList>
+
+                        <div className="mt-4">
+                             <TabsContent value="designs">
+                                <ProjectDesigns project={project} />
+                            </TabsContent>
+                            <TabsContent value="pcb">
+                                <ProjectPCBDesigns project={project} />
+                            </TabsContent>
+                            <TabsContent value="3d">
+                                <Project3DModels project={project} />
+                            </TabsContent>
+                            <TabsContent value="bom">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Otomatik BOM Çıkarıcı</CardTitle>
+                                        <CardDescription>
+                                            Weave tasarımlarından malzeme listesi çıkarın ve stoktan düşürün.
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        {/* Selection Controls */}
+                                        <div className="flex items-end gap-4 border-b pb-6">
+                                            <div className="grid gap-2 flex-1">
+                                                <Label>Tasarım Seçin</Label>
+                                                <Select value={selectedDesignId} onValueChange={setSelectedDesignId}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Weave Dosyası Seçin..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {project.weaveDesigns?.map(d => (
+                                                            <SelectItem key={d.id} value={d.id}>{d.name} (v1.0)</SelectItem>
+                                                        ))}
+                                                        {(!project.weaveDesigns || project.weaveDesigns.length === 0) && (
+                                                            <SelectItem value="none" disabled>Tasarım dosyası yok</SelectItem>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <Button onClick={handleScanBOM} disabled={!selectedDesignId || bomProcessing}>
+                                                {bomProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}
+                                                Tara & Eşleştir
+                                            </Button>
+                                        </div>
+
+                                        {/* Results Table */}
+                                        {bomItems.length > 0 && (
+                                            <div className="rounded-md border animate-fade-in-up">
+                                                <div className="p-4 bg-muted/50 border-b flex justify-between items-center">
+                                                    <span className="font-semibold text-sm">
+                                                        Bulunan: {bomItems.length} parça ({bomItems.filter(i => i.status === 'matched').length} eşleşti)
+                                                    </span>
+                                                    <Button size="sm" onClick={handleDeductStock} disabled={bomProcessing}>
+                                                        Stoktan Düş
+                                                    </Button>
+                                                </div>
+                                                <div className="max-h-[400px] overflow-y-auto">
+                                                    <table className="w-full text-sm">
+                                                        <thead className="text-left bg-muted/20 sticky top-0 backdrop-blur-sm">
+                                                            <tr>
+                                                                <th className="p-3 font-medium">Durum</th>
+                                                                <th className="p-3 font-medium">Parça Adı</th>
+                                                                <th className="p-3 font-medium text-right">Adet</th>
+                                                                <th className="p-3 font-medium">Eşleşen Stok</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {bomItems.map((item, i) => (
+                                                                <tr key={i} className="border-t hover:bg-muted/10 transition-colors">
+                                                                    <td className="p-3">
+                                                                        {item.status === 'matched' ? (
+                                                                            <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+                                                                                <Check className="w-3 h-3 mr-1" /> Hazır
+                                                                            </Badge>
+                                                                        ) : (
+                                                                            <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
+                                                                                <AlertTriangle className="w-3 h-3 mr-1" /> Bilinmiyor
+                                                                            </Badge>
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="p-3 font-medium">{item.name}</td>
+                                                                    <td className="p-3 text-right">{item.quantity}</td>
+                                                                    <td className="p-3 text-muted-foreground">
+                                                                        {item.matchedInventoryId ? (
+                                                                            <span className="flex items-center gap-2">
+                                                                                <Package className="w-3 h-3" />
+                                                                                {products.find(p => p.id === item.matchedInventoryId)?.name}
+                                                                            </span>
+                                                                        ) : (
+                                                                            "Eşleşme yok"
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                        </div>
+                    </Tabs>
                 </TabsContent>
 
                 <TabsContent value="files">
@@ -486,10 +481,10 @@ export default function ProjectDetailPage() {
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                    <AlertDialogTitle>Delete this project?</AlertDialogTitle>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This will permanently delete <span className="font-semibold">{project.name}</span> and remove all tracking data.
-                        Inventory items assigned to this project will NOT be deleted, but their assignment history may be lost or archived.
+                        This action cannot be undone. This will permanently delete your project
+                        and remove your data from our servers.
                     </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
