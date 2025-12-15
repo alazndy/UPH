@@ -14,8 +14,10 @@ import { db, storage } from "@/lib/firebase";
 import { collection, writeBatch, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Loader2, Database, Upload } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 export default function SettingsPage() {
+  const t = useTranslations('Settings');
   const { profile, system, updateProfile, updateSystemSettings } = useSettingsStore();
   const [loading, setLoading] = useState(false);
 
@@ -41,10 +43,10 @@ export default function SettingsPage() {
         usages.forEach(u => batch.set(doc(db, 'project_usages', u.id), u));
 
         await batch.commit();
-        alert('Database seeded successfully!');
+        alert(t('maintenance.seedSuccess'));
     } catch (error) {
         console.error(error);
-        alert('Failed to seed database.');
+        alert(t('maintenance.seedError'));
     } finally {
         setLoading(false);
     }
@@ -61,10 +63,10 @@ export default function SettingsPage() {
         const url = await getDownloadURL(storageRef);
         
         updateProfile({ avatarUrl: url });
-        alert('Avatar updated successfully!');
+        alert(t('profile.avatarSuccess'));
     } catch (error) {
         console.error('Error uploading avatar:', error);
-        alert('Failed to upload avatar.');
+        alert(t('profile.avatarError'));
     } finally {
         setLoading(false);
     }
@@ -73,22 +75,22 @@ export default function SettingsPage() {
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
+        <h2 className="text-3xl font-bold tracking-tight">{t('title')}</h2>
       </div>
 
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="system">System</TabsTrigger>
-          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+          <TabsTrigger value="profile">{t('tabs.profile')}</TabsTrigger>
+          <TabsTrigger value="system">{t('tabs.system')}</TabsTrigger>
+          <TabsTrigger value="maintenance">{t('tabs.maintenance')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <Card className="col-span-2">
                     <CardHeader>
-                        <CardTitle>Personal Information</CardTitle>
-                        <CardDescription>Update your public profile and contact details.</CardDescription>
+                        <CardTitle>{t('profile.title')}</CardTitle>
+                        <CardDescription>{t('profile.description')}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center gap-4">
@@ -107,13 +109,13 @@ export default function SettingsPage() {
                                 <Button variant="outline" size="sm" asChild disabled={loading}>
                                     <Label htmlFor="avatar-upload" className="cursor-pointer">
                                         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                                        Change Avatar
+                                        {t('profile.changeAvatar')}
                                     </Label>
                                 </Button>
                             </div>
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Display Name</Label>
+                            <Label htmlFor="name">{t('profile.displayName')}</Label>
                             <Input 
                                 id="name" 
                                 value={profile.displayName} 
@@ -121,7 +123,7 @@ export default function SettingsPage() {
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email">{t('profile.email')}</Label>
                             <Input 
                                 id="email" 
                                 type="email" 
@@ -131,7 +133,7 @@ export default function SettingsPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
-                                <Label htmlFor="title">Job Title</Label>
+                                <Label htmlFor="title">{t('profile.jobTitle')}</Label>
                                 <Input 
                                     id="title" 
                                     value={profile.jobTitle} 
@@ -139,7 +141,7 @@ export default function SettingsPage() {
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="company">Company</Label>
+                                <Label htmlFor="company">{t('profile.company')}</Label>
                                 <Input 
                                     id="company" 
                                     value={profile.companyName} 
@@ -149,7 +151,7 @@ export default function SettingsPage() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button>Save Changes</Button>
+                        <Button>{t('profile.save')}</Button>
                     </CardFooter>
                 </Card>
             </div>
@@ -158,15 +160,15 @@ export default function SettingsPage() {
         <TabsContent value="system">
             <Card>
                 <CardHeader>
-                    <CardTitle>System Preferences</CardTitle>
-                    <CardDescription>Manage global application settings.</CardDescription>
+                    <CardTitle>{t('system.title')}</CardTitle>
+                    <CardDescription>{t('system.description')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                      <div className="flex items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                            <Label className="text-base">Low Stock Threshold</Label>
+                            <Label className="text-base">{t('system.lowStock')}</Label>
                             <p className="text-sm text-muted-foreground">
-                                Minimum stock level before triggering an alert.
+                                {t('system.lowStockDesc')}
                             </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -176,15 +178,15 @@ export default function SettingsPage() {
                                 value={system.lowStockThreshold}
                                 onChange={(e) => updateSystemSettings({ lowStockThreshold: Number(e.target.value) })}
                             />
-                            <span className="text-sm text-muted-foreground">units</span>
+                            <span className="text-sm text-muted-foreground">{t('system.units')}</span>
                         </div>
                     </div>
                     
                     <div className="flex items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                            <Label className="text-base">Currency</Label>
+                            <Label className="text-base">{t('system.currency')}</Label>
                             <p className="text-sm text-muted-foreground">
-                                Default currency for project budgets and inventory.
+                                {t('system.currencyDesc')}
                             </p>
                         </div>
                         <Select 
@@ -192,7 +194,7 @@ export default function SettingsPage() {
                             onValueChange={(val) => updateSystemSettings({ currency: val })}
                         >
                             <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Select currency" />
+                                <SelectValue placeholder={t('system.selectCurrency')} />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="TRY">Turkish Lira (₺)</SelectItem>
@@ -204,9 +206,9 @@ export default function SettingsPage() {
 
                      <div className="flex items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                            <Label className="text-base">Notifications</Label>
+                            <Label className="text-base">{t('system.notifications')}</Label>
                             <p className="text-sm text-muted-foreground">
-                                Receive alerts for low stock and assigned tasks.
+                                {t('system.notificationsDesc')}
                             </p>
                         </div>
                         <Switch 
@@ -221,13 +223,13 @@ export default function SettingsPage() {
         <TabsContent value="maintenance">
              <Card>
                 <CardHeader>
-                    <CardTitle>Database Maintenance</CardTitle>
-                    <CardDescription>Manage database and system configs</CardDescription>
+                    <CardTitle>{t('maintenance.title')}</CardTitle>
+                    <CardDescription>{t('maintenance.description')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Button onClick={seedData} disabled={loading} variant="destructive">
                         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
-                        Reset & Seed Initial Data
+                        {t('maintenance.resetData')}
                     </Button>
                 </CardContent>
             </Card>

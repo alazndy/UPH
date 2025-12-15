@@ -40,7 +40,10 @@ interface CreateTeamDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+import { useTranslations } from "next-intl";
+
 export function CreateTeamDialog({ open, onOpenChange }: CreateTeamDialogProps) {
+  const t = useTranslations('Teams');
   const { createTeam } = useTeamStore();
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -74,9 +77,9 @@ export function CreateTeamDialog({ open, onOpenChange }: CreateTeamDialogProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create Team</DialogTitle>
+          <DialogTitle>{t('createDialog.title')}</DialogTitle>
           <DialogDescription>
-            Create a new team to manage projects and collaborate with members.
+            {t('createDialog.description')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -86,9 +89,9 @@ export function CreateTeamDialog({ open, onOpenChange }: CreateTeamDialogProps) 
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Team Name</FormLabel>
+                  <FormLabel>{t('createDialog.name')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Engineering Team" {...field} />
+                    <Input placeholder={t('createDialog.namePlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -99,10 +102,10 @@ export function CreateTeamDialog({ open, onOpenChange }: CreateTeamDialogProps) 
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('createDialog.desc')}</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="What is this team about?" 
+                      placeholder={t('createDialog.descPlaceholder')} 
                       className="resize-none"
                       {...field} 
                     />
@@ -114,7 +117,7 @@ export function CreateTeamDialog({ open, onOpenChange }: CreateTeamDialogProps) 
             <DialogFooter>
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Team
+                {t('createDialog.submit')}
               </Button>
             </DialogFooter>
           </form>

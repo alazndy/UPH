@@ -46,16 +46,16 @@ interface AddTaskDialogProps {
   defaultStatus?: TaskStatus;
 }
 
+import { useTranslations } from 'next-intl';
+
 export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: AddTaskDialogProps) {
+  const t = useTranslations('Kanban');
+  const tCommon = useTranslations('Common');
   const { addTask } = useKanbanStore();
   const { projects, fetchProjects } = useProjectStore();
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-      if (open) {
-          fetchProjects();
-      }
-  }, [open, fetchProjects]);
+  // ... (keep logic) ...
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,6 +67,13 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
       projectId: '',
     },
   });
+
+  // ... (keep useEffect and logic) ...
+  useEffect(() => {
+      if (open) {
+          fetchProjects();
+      }
+  }, [open, fetchProjects]);
 
   // Update form when defaultStatus changes
   if (form.getValues('status') !== defaultStatus && open) {
@@ -93,7 +100,7 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-zinc-900 border-zinc-800 sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add New Global Task</DialogTitle>
+          <DialogTitle>{t('addTask')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -103,11 +110,11 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
               name="projectId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project</FormLabel>
+                  <FormLabel>{t('form.project')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a project" />
+                        <SelectValue placeholder={t('form.selectProject')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -126,9 +133,9 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>{t('form.title')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="Task title..." {...field} />
+                    <Input placeholder={t('form.titlePlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -139,10 +146,10 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('form.description')}</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="Task description..." 
+                      placeholder={t('form.descriptionPlaceholder')} 
                       className="resize-none" 
                       {...field} 
                     />
@@ -157,17 +164,17 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Priority</FormLabel>
+                    <FormLabel>{t('form.priority')}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
+                          <SelectValue placeholder={t('form.selectPriority')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="low">{t('priorities.low')}</SelectItem>
+                        <SelectItem value="medium">{t('priorities.medium')}</SelectItem>
+                        <SelectItem value="high">{t('priorities.high')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -179,19 +186,18 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status</FormLabel>
+                    <FormLabel>{t('form.status')}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select status" />
+                          <SelectValue placeholder={t('form.selectStatus')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                         {/* Note: ProjectStatus vs TaskStatus naming conflict potential. */}
-                        <SelectItem value="todo">To Do</SelectItem>
-                        <SelectItem value="in-progress">In Progress</SelectItem>
-                        <SelectItem value="review">Review</SelectItem>
-                        <SelectItem value="done">Done</SelectItem>
+                        <SelectItem value="todo">{t('todo')}</SelectItem>
+                        <SelectItem value="in-progress">{t('inProgress')}</SelectItem>
+                        <SelectItem value="review">{t('review')}</SelectItem>
+                        <SelectItem value="done">{t('done')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -201,11 +207,11 @@ export function AddTaskDialog({ open, onOpenChange, defaultStatus = 'todo' }: Ad
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                {tCommon('cancel')}
               </Button>
               <Button type="submit" disabled={isLoading} className="bg-purple-600 hover:bg-purple-700">
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Add Task
+                {t('addTask')}
               </Button>
             </div>
           </form>

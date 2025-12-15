@@ -29,7 +29,11 @@ interface EditProductDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+import { useTranslations } from 'next-intl';
+
 export function EditProductDialog({ product, open, onOpenChange }: EditProductDialogProps) {
+  const t = useTranslations('Inventory.editProduct');
+  const tForm = useTranslations('Inventory.form');
   const [loading, setLoading] = useState(false);
   const updateProduct = useInventoryStore((state) => state.updateProduct);
 
@@ -59,15 +63,13 @@ export function EditProductDialog({ product, open, onOpenChange }: EditProductDi
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
             <DialogHeader>
-            <DialogTitle>Edit Product</DialogTitle>
-            <DialogDescription>
-                Make changes to item details. Click save when you're done.
-            </DialogDescription>
+            <DialogTitle>{t('title')}</DialogTitle>
+            <DialogDescription>{t('description')}</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="edit-name" className="text-right">
-                Name
+                {tForm('name')}
                 </Label>
                 <Input
                 id="edit-name"
@@ -79,24 +81,24 @@ export function EditProductDialog({ product, open, onOpenChange }: EditProductDi
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="edit-category" className="text-right">
-                Category
+                {tForm('category')}
                 </Label>
                 <Select
-                    value={formData.category}
+                    value={formData.category} // Keeping existing value logic
                     onValueChange={(value: any) => setFormData({ ...formData, category: value })}
                 >
                     <SelectTrigger className="col-span-3">
-                        <SelectValue placeholder="Select category" />
+                        <SelectValue placeholder={tForm('selectCategory')} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="Stok Malzemesi">Stok Malzemesi</SelectItem>
-                        <SelectItem value="Sarf Malzeme">Sarf Malzeme</SelectItem>
+                        <SelectItem value="Stok Malzemesi">{tForm('stockItem')}</SelectItem>
+                        <SelectItem value="Sarf Malzeme">{tForm('consumable')}</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="edit-manufacturer" className="text-right">
-                Brand
+                {tForm('brand')}
                 </Label>
                 <Input
                 id="edit-manufacturer"
@@ -107,7 +109,7 @@ export function EditProductDialog({ product, open, onOpenChange }: EditProductDi
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="edit-stock" className="text-right">
-                Stock
+                {tForm('stock')}
                 </Label>
                 <Input
                 id="edit-stock"
@@ -120,7 +122,7 @@ export function EditProductDialog({ product, open, onOpenChange }: EditProductDi
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="edit-price" className="text-right">
-                Price
+                {tForm('price')}
                 </Label>
                 <Input
                 id="edit-price"
@@ -135,7 +137,7 @@ export function EditProductDialog({ product, open, onOpenChange }: EditProductDi
             <DialogFooter>
             <Button type="submit" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
+                {tForm('save')}
             </Button>
             </DialogFooter>
         </form>

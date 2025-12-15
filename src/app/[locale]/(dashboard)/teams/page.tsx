@@ -6,10 +6,13 @@ import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Plus, Users, Shield, User as UserIcon, Loader2 } from "lucide-react";
+import { Plus, Users, Shield, Loader2 } from "lucide-react";
 import { CreateTeamDialog } from "@/components/teams/create-team-dialog";
 
+import { useTranslations } from 'next-intl';
+
 export default function TeamsPage() {
+    const t = useTranslations('Teams');
     const { user } = useAuthStore();
     const { teams, fetchUserTeams, isLoading, activeTeamId, setActiveTeam } = useTeamStore();
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -32,13 +35,13 @@ export default function TeamsPage() {
         <div className="flex-1 space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Takımlarım</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
                     <p className="text-muted-foreground mt-1">
-                        Üyesi olduğunuz veya yönettiğiniz takımlar
+                        {t('subtitle')}
                     </p>
                 </div>
                 <Button onClick={() => setCreateDialogOpen(true)}>
-                    <Plus className="mr-2 h-4 w-4" /> Yeni Takım Oluştur
+                    <Plus className="mr-2 h-4 w-4" /> {t('createTeam')}
                 </Button>
             </div>
 
@@ -53,7 +56,7 @@ export default function TeamsPage() {
                         </CardHeader>
                         <CardContent>
                             <CardDescription className="mb-4 min-h-[40px]">
-                                {team.description || "Açıklama yok"}
+                                {team.description || t('noDescription')}
                             </CardDescription>
                             
                             <div className="flex items-center justify-between mt-4">
@@ -71,7 +74,7 @@ export default function TeamsPage() {
                                     )}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                    {team.members.length} Üye
+                                    {t('members', {count: team.members.length})}
                                 </div>
                             </div>
 
@@ -81,7 +84,7 @@ export default function TeamsPage() {
                                     variant={activeTeamId === team.id ? "secondary" : "default"}
                                     onClick={() => setActiveTeam(team.id)}
                                 >
-                                    {activeTeamId === team.id ? "Aktif Takım" : "Seç"}
+                                    {activeTeamId === team.id ? t('active') : t('select')}
                                 </Button>
                                 <Button variant="outline" className="px-3">
                                     <Shield className="h-4 w-4" />
@@ -94,12 +97,12 @@ export default function TeamsPage() {
                 {teams.length === 0 && (
                      <div className="col-span-full flex flex-col items-center justify-center p-12 border-2 border-dashed rounded-lg border-zinc-800 bg-zinc-900/50">
                         <Users className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-medium">Henüz bir takımınız yok</h3>
+                        <h3 className="text-lg font-medium">{t('empty.title')}</h3>
                         <p className="text-muted-foreground text-center max-w-sm mb-6">
-                            Projelerinizi yönetmek ve işbirliği yapmak için ilk takımınızı oluşturun.
+                            {t('empty.description')}
                         </p>
                         <Button onClick={() => setCreateDialogOpen(true)}>
-                            Takım Oluştur
+                            {t('empty.button')}
                         </Button>
                      </div>
                 )}

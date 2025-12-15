@@ -1,28 +1,35 @@
-import { FixedSizeList as List } from 'react-window';
-import AutoSizer from 'react-virtualized-auto-sizer';
+'use client';
 
-// ... (other imports remain same)
+import { useState, useCallback, useEffect, memo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, Trash2 } from 'lucide-react';
+import { Project, ProjectTask } from '@/types/project';
+import { useProjectStore } from '@/stores/project-store';
+import { Virtuoso } from 'react-virtuoso';
 
-// Memoized Task Item (Keep this as is, but make sure style is passed for virtualization)
+interface ProjectTasksProps {
+    project: Project;
+}
+
+// Memoized Task Item
 const TaskItem = memo(({ 
     task, 
     projectId, 
     onToggle, 
-    onDelete,
-    style 
+    onDelete
 }: { 
     task: ProjectTask, 
     projectId: string, 
     onToggle: (pid: string, tid: string, completed: boolean) => void, 
-    onDelete: (pid: string, tid: string) => void,
-    style?: React.CSSProperties
+    onDelete: (pid: string, tid: string) => void
 }) => {
     return (
         <div 
-            style={style}
             className={`flex items-center justify-between p-3 border rounded-md transition-all hover:bg-muted/50 ${task.completed ? 'bg-muted/20' : 'bg-card'}`}
         >
-             {/* Content same as before */}
             <div className="flex items-center gap-3 overflow-hidden">
                 <Checkbox 
                     checked={task.completed} 
@@ -56,7 +63,6 @@ export function ProjectTasks({ project }: ProjectTasksProps) {
 
     const tasks = getProjectTasks(project.id);
 
-    // ... (Handlers handleAddTask, handleToggle, handleDelete same as before)
     const handleAddTask = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newTaskTitle.trim()) return;
@@ -81,17 +87,6 @@ export function ProjectTasks({ project }: ProjectTasksProps) {
         if (a.completed === b.completed) return 0;
         return a.completed ? 1 : -1;
     });
-
-    const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => (
-        <div style={{ ...style, paddingBottom: '8px' }}>
-            <TaskItem 
-                task={sortedTasks[index]} 
-                projectId={project.id} 
-                onToggle={handleToggle} 
-                onDelete={handleDelete} 
-            />
-        </div>
-    );
 
     return (
         <Card className="h-[500px] flex flex-col">
@@ -122,18 +117,20 @@ export function ProjectTasks({ project }: ProjectTasksProps) {
                             No tasks yet. Add one to get started!
                         </div>
                     ) : (
-                        <AutoSizer>
-                            {({ height, width }) => (
-                                <List
-                                    height={height}
-                                    itemCount={sortedTasks.length}
-                                    itemSize={60} // Adjusted for padding
-                                    width={width}
-                                >
-                                    {Row}
-                                </List>
+                        <Virtuoso
+                            style={{ height: '100%' }}
+                            totalCount={sortedTasks.length}
+                            itemContent={(index) => (
+                                <div className="pb-2">
+                                    <TaskItem 
+                                        task={sortedTasks[index]} 
+                                        projectId={project.id} 
+                                        onToggle={handleToggle} 
+                                        onDelete={handleDelete} 
+                                    />
+                                </div>
                             )}
-                        </AutoSizer>
+                        />
                     )}
                 </div>
             </CardContent>

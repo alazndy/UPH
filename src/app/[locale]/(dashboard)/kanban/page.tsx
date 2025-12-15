@@ -5,28 +5,30 @@ import { Button } from '@/components/ui/button';
 import { Plus, Filter, SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { AddTaskDialog } from '@/components/kanban/add-task-dialog';
+import { useTranslations } from 'next-intl';
 
 export default function KanbanPage() {
+  const t = useTranslations('Kanban');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-120px)]">
+    <div className="flex-1 flex flex-col h-[calc(100vh-140px)]">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Kanban Board</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground text-sm">
-            Drag and drop tasks to manage your workflow
+            {t('subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="gap-2">
             <Filter className="h-4 w-4" />
-            Filter
+            {t('filter')}
           </Button>
           <Button variant="outline" size="sm" className="gap-2">
             <SlidersHorizontal className="h-4 w-4" />
-            View
+            {t('view')}
           </Button>
           <Button 
             size="sm" 
@@ -34,7 +36,7 @@ export default function KanbanPage() {
             onClick={() => setIsAddDialogOpen(true)}
           >
             <Plus className="h-4 w-4" />
-            Add Task
+            {t('addTask')}
           </Button>
         </div>
       </div>

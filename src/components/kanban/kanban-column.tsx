@@ -21,10 +21,23 @@ const columnColors: Record<string, string> = {
   'done': 'border-t-green-500',
 };
 
+import { useTranslations } from 'next-intl';
+
 export function KanbanColumn({ column, onAddTask }: KanbanColumnProps) {
+  const t = useTranslations('Kanban');
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
+
+  const getColumnTitle = (id: string) => {
+    switch (id) {
+      case 'todo': return t('todo');
+      case 'in-progress': return t('inProgress');
+      case 'review': return t('review');
+      case 'done': return t('done');
+      default: return column.title;
+    }
+  };
 
   return (
     <div
@@ -39,7 +52,7 @@ export function KanbanColumn({ column, onAddTask }: KanbanColumnProps) {
       <div className="p-3 border-b border-zinc-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-sm text-zinc-100">{column.title}</h3>
+            <h3 className="font-semibold text-sm text-zinc-100">{getColumnTitle(column.id)}</h3>
             <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full">
               {column.tasks.length}
             </span>
@@ -68,7 +81,7 @@ export function KanbanColumn({ column, onAddTask }: KanbanColumnProps) {
         
         {column.tasks.length === 0 && (
           <div className="flex items-center justify-center h-20 text-zinc-600 text-sm">
-            No tasks
+            {t('noTasks')}
           </div>
         )}
       </div>

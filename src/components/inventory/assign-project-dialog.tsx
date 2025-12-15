@@ -36,7 +36,10 @@ interface AssignProjectDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+import { useTranslations } from 'next-intl';
+
 export function AssignProjectDialog({ product, open, onOpenChange }: AssignProjectDialogProps) {
+  const t = useTranslations('Inventory.assignProject');
   const { assignToProject } = useInventoryStore();
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
@@ -46,9 +49,7 @@ export function AssignProjectDialog({ product, open, onOpenChange }: AssignProje
       if (!project) return;
 
       if (quantity > product.stock) {
-          // Check stock limit
-           // Using simple alert if toast not configured yet, assuming toast exists based on file analysis
-           alert("Insufficient stock!"); 
+           alert(t('insufficientStock')); 
            return;
       }
 
@@ -64,22 +65,25 @@ export function AssignProjectDialog({ product, open, onOpenChange }: AssignProje
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Assign to Project</DialogTitle>
+          <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
-            Allocate <strong>{product.name}</strong> to a project.
+            {t.rich('description', {
+                name: product.name,
+                strong: (chunks) => <strong>{chunks}</strong>
+            })}
             <br />
-            Available Stock: {product.stock}
+            {t('availableStock')}: {product.stock}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="project" className="text-right">
-              Project
+              {t('project')}
             </Label>
             <div className="col-span-3">
                 <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
                     <SelectTrigger>
-                        <SelectValue placeholder="Select project" />
+                        <SelectValue placeholder={t('selectProject')} />
                     </SelectTrigger>
                     <SelectContent>
                         {PROJECTS.map(p => (
@@ -91,7 +95,7 @@ export function AssignProjectDialog({ product, open, onOpenChange }: AssignProje
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="quantity" className="text-right">
-              Quantity
+              {t('quantity')}
             </Label>
             <Input
               id="quantity"
@@ -105,7 +109,7 @@ export function AssignProjectDialog({ product, open, onOpenChange }: AssignProje
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit" onClick={handleAssign} disabled={!selectedProjectId || quantity <= 0}>Assign</Button>
+          <Button type="submit" onClick={handleAssign} disabled={!selectedProjectId || quantity <= 0}>{t('submit')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

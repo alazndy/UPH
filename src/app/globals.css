@@ -34,6 +34,15 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar: var(--sidebar-background);
+  
+  --animate-gradient: gradient 15s ease infinite;
+
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 }
 
 /*
@@ -52,79 +61,91 @@
 
 @layer utilities {
   :root {
-    --background: hsl(240 10% 4%);
-    --foreground: hsl(0 0% 98%);
+    /* Gradient Background for Light Mode */
+    --background: hsl(210 40% 98%); /* Fallback */
+    --background-gradient: linear-gradient(-45deg, #e0e7ff, #f3e8ff, #ffffff, #eef2ff);
+    
+    --foreground: hsl(222 47% 11%);
 
-    --card: hsl(240 10% 4%);
-    --card-foreground: hsl(0 0% 98%);
+    --card: hsl(0 0% 100% / 0.7);
+    --card-foreground: hsl(222 47% 11%);
 
-    --popover: hsl(240 10% 4%);
-    --popover-foreground: hsl(0 0% 98%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(222 47% 11%);
 
-    --primary: hsl(265 89% 66%);
+    --primary: hsl(262 83% 58%);
     --primary-foreground: hsl(210 40% 98%);
 
-    --secondary: hsl(240 5% 15%);
-    --secondary-foreground: hsl(0 0% 98%);
+    --secondary: hsl(210 40% 96.1%);
+    --secondary-foreground: hsl(222 47% 11%);
 
-    --muted: hsl(240 5% 15%);
-    --muted-foreground: hsl(240 5% 65%);
+    --muted: hsl(210 40% 96.1%);
+    --muted-foreground: hsl(215.4 16.3% 46.9%);
 
-    --accent: hsl(240 5% 15%);
-    --accent-foreground: hsl(0 0% 98%);
+    --accent: hsl(210 40% 96.1%);
+    --accent-foreground: hsl(222 47% 11%);
 
-    --destructive: hsl(0 62.8% 30.6%);
-    --destructive-foreground: hsl(0 0% 98%);
+    --destructive: hsl(0 84.2% 60.2%);
+    --destructive-foreground: hsl(210 40% 98%);
 
-    --border: hsl(240 5% 15%);
-    --input: hsl(240 5% 15%);
-    --ring: hsl(265 89% 66%);
+    --border: hsl(214.3 31.8% 91.4%);
+    --input: hsl(214.3 31.8% 91.4%);
+    --ring: hsl(262 83% 58%);
 
     --radius: 0.75rem;
 
-    /* Sidebar */
-    --sidebar-background: hsl(240 10% 4%);
-    --sidebar-foreground: hsl(240 5% 65%);
-    --sidebar-primary: hsl(265 89% 66%);
+    /* Sidebar Light */
+    --sidebar-background: hsl(0 0% 100% / 0.8);
+    --sidebar-foreground: hsl(240 5% 45%);
+    --sidebar-primary: hsl(262 83% 58%);
     --sidebar-primary-foreground: hsl(0 0% 98%);
-    --sidebar-accent: hsl(240 5% 15%);
-    --sidebar-accent-foreground: hsl(0 0% 98%);
-    --sidebar-border: hsl(240 5% 15%);
-    --sidebar-ring: hsl(265 89% 66%);
+    --sidebar-accent: hsl(240 4.8% 95.9% / 0.8);
+    --sidebar-accent-foreground: hsl(240 5.9% 10%);
+    --sidebar-border: hsl(240 5.9% 90%);
+    --sidebar-ring: hsl(262 83% 58%);
   }
 
   .dark {
-    --background: hsl(240 10% 4%);
-    --foreground: hsl(0 0% 98%);
-    --card: hsl(240 10% 4%);
-    --card-foreground: hsl(0 0% 98%);
-    --popover: hsl(240 10% 4%);
-    --popover-foreground: hsl(0 0% 98%);
+    /* Gradient Background for Dark Mode */
+    --background: hsl(221, 53%, 9%); /* Fallback */
+    --background-gradient: linear-gradient(-45deg, #000000, #080620, #060324, #312e81);
+    
+    --foreground: hsl(210 40% 98%);
 
-    --primary: hsl(265 89% 66%);
-    --primary-foreground: hsl(240 10% 4%);
+    --card: hsl(222 47% 11% / 0.6);
+    --card-foreground: hsl(210 40% 98%);
 
-    --secondary: hsl(240 5% 15%);
-    --secondary-foreground: hsl(0 0% 98%);
-    --muted: hsl(240 5% 15%);
-    --muted-foreground: hsl(240 5% 65%);
-    --accent: hsl(240 5% 15%);
-    --accent-foreground: hsl(0 0% 98%);
+    --popover: hsl(222 47% 11%);
+    --popover-foreground: hsl(210 40% 98%);
+
+    --primary: hsl(263 70% 50%);
+    --primary-foreground: hsl(210 40% 98%);
+
+    --secondary: hsl(217.2 32.6% 17.5%);
+    --secondary-foreground: hsl(210 40% 98%);
+
+    --muted: hsl(217.2 32.6% 17.5%);
+    --muted-foreground: hsl(215 20.2% 65.1%);
+
+    --accent: hsl(217.2 32.6% 17.5%);
+    --accent-foreground: hsl(210 40% 98%);
+
     --destructive: hsl(0 62.8% 30.6%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(240 5% 15%);
-    --input: hsl(240 5% 15%);
-    --ring: hsl(265 89% 66%);
+    --destructive-foreground: hsl(210 40% 98%);
+
+    --border: hsl(217.2 32.6% 17.5%);
+    --input: hsl(217.2 32.6% 17.5%);
+    --ring: hsl(39, 70%, 50%);
 
     /* Sidebar Dark Theme - Glass */
-    --sidebar-background: hsl(240 10% 4%);
-    --sidebar-foreground: hsl(240 5% 65%);
-    --sidebar-primary: hsl(265 89% 66%);
+    --sidebar-background: hsl(222 47% 11% / 0.5);
+    --sidebar-foreground: hsl(240 5% 75%);
+    --sidebar-primary: hsl(263, 86%, 14%);
     --sidebar-primary-foreground: hsl(0 0% 98%);
-    --sidebar-accent: hsl(240 5% 15%);
-    --sidebar-accent-foreground: hsl(0 0% 98%);
-    --sidebar-border: hsl(240 5% 15%);
-    --sidebar-ring: hsl(265 89% 66%);
+    --sidebar-accent: hsl(217.2 32.6% 17.5% / 0.8);
+    --sidebar-accent-foreground: hsl(210 40% 98%);
+    --sidebar-border: hsl(217.2 32.6% 17.5%);
+    --sidebar-ring: hsl(263 70% 50%);
   }
 }
 
@@ -133,25 +154,28 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    background: var(--background-gradient);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    @apply text-foreground min-h-screen antialiased;
   }
 }
 
 @layer utilities {
   .glass-panel {
-    @apply bg-black/20 backdrop-blur-xl border border-white/5;
+    @apply bg-background/60 backdrop-blur-xl border border-border/50 shadow-lg;
   }
 
   .glass-card {
-    @apply bg-zinc-900/40 backdrop-blur-md border border-white/10 hover:border-purple-500/50 hover:shadow-[0_0_20px_-5px_rgba(168,85,247,0.3)] transition-all duration-300;
+    @apply bg-card backdrop-blur-md border border-border/50 shadow-sm transition-all duration-300;
+  }
+  
+  .glass-card:hover {
+    @apply shadow-lg border-primary/30 -translate-y-[2px];
   }
 
   .glass-sidebar {
-    @apply bg-zinc-950/80 backdrop-blur-2xl border-r border-white/5;
-  }
-
-  .neon-text {
-    @apply text-purple-400 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)];
+    @apply bg-sidebar/70 backdrop-blur-2xl border-r border-sidebar-border;
   }
 
   /* Safe Area & Mobile utilities */

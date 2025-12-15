@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, FileSpreadsheet } from 'lucide-react';
 import { ProjectProgressChart, BudgetChart, InventoryTrendChart } from '@/components/analytics';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProjectStore } from '@/stores/project-store';
 import { useInventoryStore } from '@/stores/inventory-store';
 import { exportToExcel, exportToCSV } from '@/lib/export-utils';
@@ -14,7 +15,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { useTranslations } from 'next-intl';
+
 export default function AnalyticsPage() {
+  const t = useTranslations('Analytics');
   const { projects, fetchProjects } = useProjectStore();
   const { products, fetchInventory } = useInventoryStore();
 
@@ -43,7 +47,7 @@ export default function AnalyticsPage() {
   const handleExportInventory = (format: 'excel' | 'csv') => {
     const data = products.map(p => ({
       Name: p.name,
-      SKU: p.sku || '',
+      SKU: p.partNumber || p.barcode || '',
       Stock: p.stock,
       'Min Stock': p.minStock || 5,
       Price: p.price || 0,
@@ -63,9 +67,9 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Analytics & Reports</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground text-sm">
-            Insights and data visualization for your projects and inventory
+            {t('subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -73,17 +77,17 @@ export default function AnalyticsPage() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
                 <FileSpreadsheet className="h-4 w-4" />
-                Export Projects
+                {t('exportProjects')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onClick={() => handleExportProjects('excel')}>
                 <Download className="mr-2 h-4 w-4" />
-                Export as Excel
+                {t('exportExcel')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleExportProjects('csv')}>
                 <Download className="mr-2 h-4 w-4" />
-                Export as CSV
+                {t('exportCSV')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -92,24 +96,23 @@ export default function AnalyticsPage() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
                 <FileSpreadsheet className="h-4 w-4" />
-                Export Inventory
+                {t('exportInventory')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onClick={() => handleExportInventory('excel')}>
                 <Download className="mr-2 h-4 w-4" />
-                Export as Excel
+                {t('exportExcel')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleExportInventory('csv')}>
                 <Download className="mr-2 h-4 w-4" />
-                Export as CSV
+                {t('exportCSV')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
-      {/* Charts Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <ProjectProgressChart />
         <BudgetChart />
@@ -118,26 +121,45 @@ export default function AnalyticsPage() {
 
       {/* Summary Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
-          <div className="text-sm text-zinc-500">Total Projects</div>
-          <div className="text-2xl font-bold">{projects.length}</div>
-        </div>
-        <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
-          <div className="text-sm text-zinc-500">Active Projects</div>
-          <div className="text-2xl font-bold text-green-400">
-            {projects.filter(p => p.status === 'active').length}
-          </div>
-        </div>
-        <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
-          <div className="text-sm text-zinc-500">Total Inventory Items</div>
-          <div className="text-2xl font-bold">{products.length}</div>
-        </div>
-        <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4">
-          <div className="text-sm text-zinc-500">Low Stock Alerts</div>
-          <div className="text-2xl font-bold text-red-400">
-            {products.filter(p => p.stock <= (p.minStock || 5)).length}
-          </div>
-        </div>
+        <Card className="border-l-4 border-l-blue-500">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+             <CardTitle className="text-sm font-medium text-muted-foreground">{t('totalProjects')}</CardTitle>
+           </CardHeader>
+           <CardContent>
+             <div className="text-3xl font-bold">{projects.length}</div>
+           </CardContent>
+        </Card>
+        
+        <Card className="border-l-4 border-l-green-500">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+             <CardTitle className="text-sm font-medium text-muted-foreground">{t('activeProjects')}</CardTitle>
+           </CardHeader>
+           <CardContent>
+             <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+               {projects.filter(p => p.status === 'Active').length}
+             </div>
+           </CardContent>
+        </Card>
+        
+        <Card className="border-l-4 border-l-purple-500">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+             <CardTitle className="text-sm font-medium text-muted-foreground">{t('inventoryItems')}</CardTitle>
+           </CardHeader>
+           <CardContent>
+             <div className="text-3xl font-bold">{products.length}</div>
+           </CardContent>
+        </Card>
+        
+        <Card className="border-l-4 border-l-red-500">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+             <CardTitle className="text-sm font-medium text-muted-foreground">{t('lowStockAlerts')}</CardTitle>
+           </CardHeader>
+           <CardContent>
+             <div className="text-3xl font-bold text-red-600 dark:text-red-400">
+               {products.filter(p => p.stock <= (p.minStock || 5)).length}
+             </div>
+           </CardContent>
+        </Card>
       </div>
     </div>
   );

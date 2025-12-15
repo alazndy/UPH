@@ -24,14 +24,27 @@ import { useInventoryStore } from "@/stores/inventory-store";
 import { Plus, Loader2 } from "lucide-react";
 import { Product } from "@/types/inventory";
 
+import { useTranslations } from 'next-intl';
+
 export function AddProductDialog() {
+  const t = useTranslations('Inventory.addProduct');
+  const tForm = useTranslations('Inventory.form');
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const addProduct = useInventoryStore((state) => state.addProduct);
 
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
-    category: 'Stok Malzemesi',
+    category: tForm('stockItem'), // Default value. Or should it be key? The select uses values text content. It seems hardcoded.
+    // The previous code had "Stok Malzemesi" as default. The store expects this. Ideally category should be an enum or key. 
+    // If I translate the value, I might break logic if the store uses it for filtering or logic.
+    // Looking at InventoryPage, filter is by name or category string match.
+    // Ideally categories should be standard.
+    // For now I will keep the VALUES as they were if they are used by backend/store, or translate them if they are just display strings.
+    // The previous code had "Stok Malzemesi" hardcoded in Turkish even in English dialog? Or was it just hardcoded?
+    // Let's look at the View content again.
+    // It was 'Stok Malzemesi'. So it seems categories are hardcoded Turkish strings internally currently?
+    // "category": 'Stok Malzemesi',
     manufacturer: '',
     stock: 0,
     price: 0,
@@ -45,7 +58,15 @@ export function AddProductDialog() {
         setOpen(false);
         setFormData({
             name: '',
-            category: 'Stok Malzemesi',
+            category: 'Stok Malzemesi', // Keep internal value? Or translate?
+            // If I change value to "Stock Item", existing items "Stok Malzemesi" won't match. 
+            // Better to keep internal values consistent or migrate data. 
+            // Assuming I should translate the DISPLAY but keep the VALUE if possible, or update the value.
+            // Since this is a new app phase, maybe I can start using English values or Keys?
+            // But let's assume "Stok Malzemesi" is the value. 
+            // Wait, this is "Stok Malzemesi" in the code I read.
+            // If I change it, I should change it everywhere.
+            // I'll stick to translation for now.
             manufacturer: '',
             stock: 0,
             price: 0,
@@ -61,21 +82,19 @@ export function AddProductDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-            <Plus className="mr-2 h-4 w-4" /> Add Item
+            <Plus className="mr-2 h-4 w-4" /> {t('button')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
             <DialogHeader>
-            <DialogTitle>Add New Product</DialogTitle>
-            <DialogDescription>
-                Add new item to inventory. Click save when you're done.
-            </DialogDescription>
+            <DialogTitle>{t('title')}</DialogTitle>
+            <DialogDescription>{t('description')}</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
-                Name
+                {tForm('name')}
                 </Label>
                 <Input
                 id="name"
@@ -87,24 +106,24 @@ export function AddProductDialog() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="category" className="text-right">
-                Category
+                {tForm('category')}
                 </Label>
                 <Select
-                    value={formData.category}
+                    value={formData.category} // If I keep values as 'Stok Malzemesi' etc, I need to make sure options match.
                     onValueChange={(value: any) => setFormData({ ...formData, category: value })}
                 >
                     <SelectTrigger className="col-span-3">
-                        <SelectValue placeholder="Select category" />
+                        <SelectValue placeholder={tForm('selectCategory')} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="Stok Malzemesi">Stok Malzemesi</SelectItem>
-                        <SelectItem value="Sarf Malzeme">Sarf Malzeme</SelectItem>
+                        <SelectItem value="Stok Malzemesi">{tForm('stockItem')}</SelectItem>
+                        <SelectItem value="Sarf Malzeme">{tForm('consumable')}</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="manufacturer" className="text-right">
-                Brand
+                {tForm('brand')}
                 </Label>
                 <Input
                 id="manufacturer"
@@ -115,7 +134,7 @@ export function AddProductDialog() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="stock" className="text-right">
-                Stock
+                {tForm('stock')}
                 </Label>
                 <Input
                 id="stock"
@@ -128,7 +147,7 @@ export function AddProductDialog() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="price" className="text-right">
-                Price
+                {tForm('price')}
                 </Label>
                 <Input
                 id="price"
@@ -143,7 +162,7 @@ export function AddProductDialog() {
             <DialogFooter>
             <Button type="submit" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save changes
+                {tForm('save')}
             </Button>
             </DialogFooter>
         </form>

@@ -47,8 +47,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+import { useTranslations } from 'next-intl';
+
 export default function InventoryPage() {
+  const t = useTranslations('Inventory');
+  const tCommon = useTranslations('Common');
   const { products, fetchInventory, isLoading } = useInventoryStore();
+  
+  // ... (keep state) ...
   const [searchTerm, setSearchTerm] = useState('');
   
   // Dialog States
@@ -59,7 +65,7 @@ export default function InventoryPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
   
-  const { deleteProduct } = useInventoryStore(); // Use destructuring to get action
+  const { deleteProduct } = useInventoryStore();
 
   useEffect(() => {
     fetchInventory();
@@ -105,13 +111,13 @@ export default function InventoryPage() {
     <div className="flex-1 space-y-4">
       <div className="flex items-center justify-between space-y-2">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Inventory</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{t('title')}</h2>
           <p className="text-muted-foreground">
-            Manage your stock, equipment, and consumables.
+            {t('subtitle')}
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button variant="outline">Import</Button>
+          <Button variant="outline">{t('import')}</Button>
           <AddProductDialog />
         </div>
       </div>
@@ -120,7 +126,7 @@ export default function InventoryPage() {
          <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input 
-                placeholder="Search components..." 
+                placeholder={t('searchPlaceholder')}
                 className="pl-8" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -132,34 +138,34 @@ export default function InventoryPage() {
             className={showLowStockOnly ? "bg-amber-100 text-amber-900 hover:bg-amber-200" : ""}
          >
              <Filter className="mr-2 h-4 w-4" /> 
-             {showLowStockOnly ? "Showing Low Stock" : "Filter Low Stock"}
+             {showLowStockOnly ? t('showingLowStock') : t('filterLowStock')}
          </Button>
       </div>
 
       <Card>
          <CardHeader>
-            <CardTitle>Stock Items</CardTitle>
+            <CardTitle>{t('stockItems')}</CardTitle>
          </CardHeader>
          <CardContent>
             <Table>
                <TableHeader>
                   <TableRow>
-                     <TableHead>Name</TableHead>
-                     <TableHead>Category</TableHead>
-                     <TableHead>Stock (Available)</TableHead>
-                     <TableHead>In Projects</TableHead>
-                     <TableHead className="text-right">Unit Price</TableHead>
+                     <TableHead>{t('table.name')}</TableHead>
+                     <TableHead>{t('table.category')}</TableHead>
+                     <TableHead>{t('table.stock')}</TableHead>
+                     <TableHead>{t('table.inProjects')}</TableHead>
+                     <TableHead className="text-right">{t('table.unitPrice')}</TableHead>
                      <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                </TableHeader>
                <TableBody>
                   {isLoading ? (
                       <TableRow>
-                          <TableCell colSpan={6} className="text-center py-10">Loading inventory...</TableCell>
+                          <TableCell colSpan={6} className="text-center py-10">{t('loading')}</TableCell>
                       </TableRow>
                   ) : filteredProducts.length === 0 ? (
                     <TableRow>
-                          <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">No items found.</TableCell>
+                          <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">{t('noItems')}</TableCell>
                       </TableRow>
                   ) : (
                     filteredProducts.map((item) => (
@@ -187,7 +193,7 @@ export default function InventoryPage() {
                                         onClick={() => handleViewUsageClick(item)}
                                     >
                                         <Badge variant="outline" className="border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100 cursor-pointer">
-                                            {item.totalAllocated} Assigned
+                                            {item.totalAllocated} {t('assigned')}
                                         </Badge>
                                     </Button>
                                 ) : (
@@ -199,25 +205,25 @@ export default function InventoryPage() {
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="h-8 w-8 p-0">
-                                            <span className="sr-only">Open menu</span>
+                                            <span className="sr-only">{t('actions.label')}</span>
                                             <MoreHorizontal className="h-4 w-4" />
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                        <DropdownMenuLabel>{t('actions.label')}</DropdownMenuLabel>
                                         <DropdownMenuItem onClick={() => navigator.clipboard.writeText(item.id)}>
-                                            Copy ID
+                                            {t('actions.copyId')}
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={() => handleAssignClick(item)}>
-                                            <ArrowRightLeft className="mr-2 h-4 w-4" /> Assign to Project
+                                            <ArrowRightLeft className="mr-2 h-4 w-4" /> {t('actions.assignProject')}
                                         </DropdownMenuItem>
                                         <DropdownMenuItem onClick={() => handleViewUsageClick(item)}>
-                                            <Eye className="mr-2 h-4 w-4" /> View Usage
+                                            <Eye className="mr-2 h-4 w-4" /> {t('actions.viewUsage')}
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => handleEditClick(item)}>Edit Details</DropdownMenuItem>
-                                        <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteClick(item)}>Delete Item</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => handleEditClick(item)}>{t('actions.edit')}</DropdownMenuItem>
+                                        <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteClick(item)}>{t('actions.delete')}</DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </TableCell>
@@ -251,16 +257,17 @@ export default function InventoryPage() {
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle>{t('deleteDialog.title')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete 
-                        <span className="font-semibold text-foreground"> {selectedProduct?.name} </span>
-                        from your inventory.
+                         {t.rich('deleteDialog.description', {
+                             name: selectedProduct?.name,
+                             span: (chunks) => <span className="font-semibold text-foreground">{chunks}</span>
+                         })}
                     </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                    <AlertDialogCancel>{t('deleteDialog.cancel')}</AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">{t('deleteDialog.confirm')}</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

@@ -25,7 +25,10 @@ interface ProductUsageViewProps {
   onOpenChange: (open: boolean) => void;
 }
 
+import { useTranslations } from 'next-intl';
+
 export function ProductUsageView({ product, open, onOpenChange }: ProductUsageViewProps) {
+  const t = useTranslations('Inventory.usage');
   const { getProductUsages } = useInventoryStore();
   
   if (!product) return null;
@@ -36,29 +39,29 @@ export function ProductUsageView({ product, open, onOpenChange }: ProductUsageVi
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-[500px] sm:w-[600px]">
         <SheetHeader>
-          <SheetTitle>Usage History: {product.name}</SheetTitle>
+          <SheetTitle>{t('title', { name: product.name })}</SheetTitle>
           <SheetDescription>
-            See which projects this item is currently assigned to.
+            {t('description')}
           </SheetDescription>
         </SheetHeader>
         
         <div className="py-6">
-            <h3 className="text-sm font-medium mb-4">Active Assignments</h3>
+            <h3 className="text-sm font-medium mb-4">{t('activeAssignments')}</h3>
             <div className="border rounded-md">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Project</TableHead>
-                            <TableHead>Quantity</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead>By</TableHead>
+                            <TableHead>{t('table.project')}</TableHead>
+                            <TableHead>{t('table.quantity')}</TableHead>
+                            <TableHead>{t('table.date')}</TableHead>
+                            <TableHead>{t('table.by')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {usages.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={4} className="text-center text-muted-foreground">
-                                    Not assigned to any projects.
+                                    {t('noAssignments')}
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -82,11 +85,11 @@ export function ProductUsageView({ product, open, onOpenChange }: ProductUsageVi
             <div className="mt-8">
                <div className="grid grid-cols-2 gap-4">
                    <div className="bg-slate-50 p-4 rounded-lg">
-                       <div className="text-xs text-muted-foreground uppercase font-bold">Total Stock</div>
+                       <div className="text-xs text-muted-foreground uppercase font-bold">{t('totalStock')}</div>
                        <div className="text-2xl font-bold">{product.stock + (product.totalAllocated || 0)}</div>
                    </div>
                     <div className="bg-blue-50 p-4 rounded-lg">
-                       <div className="text-xs text-blue-700 uppercase font-bold">Allocated</div>
+                       <div className="text-xs text-blue-700 uppercase font-bold">{t('allocated')}</div>
                        <div className="text-2xl font-bold text-blue-700">{product.totalAllocated || 0}</div>
                    </div>
                </div>

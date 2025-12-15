@@ -2,6 +2,11 @@
 // @ts-check
 import type { NextConfig } from "next";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const createNextIntlPlugin = require('next-intl/plugin');
+ 
+const withNextIntl = createNextIntlPlugin();
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const withPWA = require("next-pwa")({
   dest: "public",
@@ -19,4 +24,4 @@ const nextConfig: NextConfig = {
   }
 };
 
-export default withPWA(nextConfig);
+export default withPWA(withNextIntl(nextConfig));

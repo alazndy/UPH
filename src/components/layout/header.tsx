@@ -13,6 +13,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore } from '@/stores/auth-store';
 import { NotificationBell } from '@/components/notifications';
+import { LanguageSwitcher } from '@/components/language-switcher';
+import { EcosystemSwitcher } from '@/components/ecosystem-switcher';
+import { ModeToggle } from '@/components/mode-toggle';
 import { useState, useEffect } from 'react';
 
 export function Header() {
@@ -25,9 +28,12 @@ export function Header() {
    }, []);
 
   return (
-    <div className="flex items-center p-4 sticky top-0 z-50 bg-background/60 backdrop-blur-xl border-b border-white/5 supports-[backdrop-filter]:bg-background/60">
+    <div className="flex items-center p-4 sticky top-0 z-50 bg-background/60 backdrop-blur-xl border-b border-border/50 supports-[backdrop-filter]:bg-background/60">
       <MobileSidebar />
-      <div className="flex w-full justify-end items-center gap-x-4">
+      <div className="flex w-full justify-end items-center gap-x-3">
+         <EcosystemSwitcher />
+         <ModeToggle />
+         <LanguageSwitcher />
          <NotificationBell />
          
          {!mounted ? (

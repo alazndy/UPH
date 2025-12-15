@@ -47,7 +47,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
     if (!isMounted) {
         return (
             <div className="h-full relative">
-                <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-30 bg-gray-900">
+                <div className="hidden h-full md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-30 glass-sidebar">
                     <Sidebar />
                 </div>
                 <main className="md:pl-72">
@@ -63,7 +63,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
             {/* Sidebar Wrapper */}
             <div 
                 className={cn(
-                    "hidden h-full md:flex md:flex-col md:fixed md:inset-y-0 z-30 bg-sidebar/90 backdrop-blur-3xl border-r border-sidebar-border transition-all duration-300 shadow-2xl shadow-primary/5",
+                    "hidden h-full md:flex md:flex-col md:fixed md:inset-y-0 z-30 glass-sidebar transition-all duration-300 shadow-2xl shadow-primary/5",
                     isCollapsed ? "w-20" : "w-72"
                 )}
             >
@@ -72,7 +72,7 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
                 {/* Toggle Button */}
                 <button 
                      onClick={toggleSidebar}
-                     className="absolute -right-3 top-8 bg-zinc-800 border border-zinc-700 text-zinc-400 p-1 rounded-full shadow-md hover:text-white transition-colors z-50 hidden md:flex"
+                     className="absolute -right-3 top-8 bg-sidebar-accent border border-sidebar-border text-muted-foreground p-1 rounded-full shadow-md hover:text-sidebar-foreground transition-colors z-50 hidden md:flex"
                 >
                     {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
                 </button>
