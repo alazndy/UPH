@@ -169,6 +169,24 @@
     "lowStockAlerts": "Low Stock Alerts"
   },
   "Settings": {
+    "integrations": {
+      "title": "Integrations",
+      "description": "Manage connections with other T-ECOSYSTEM apps.",
+      "weave": "Weave (Technical Design)",
+      "weaveDesc": "Enable linking and viewing Weave designs in projects.",
+      "env": "ENV-I Integration",
+      "envDesc": "Enable material and stock management connection for projects.",
+      "googleDrive": "Google Drive",
+      "googleDriveDesc": "Sync and backup project files with Google Drive.",
+      "slack": "Slack",
+      "slackDesc": "Enable Slack notifications for project updates.",
+      "github": "GitHub",
+      "githubDesc": "Show GitHub repository stats for reporting and PR tracking.",
+      "webhookUrl": "Slack Webhook URL",
+      "githubToken": "Personal Access Token",
+      "communication": "Communication",
+      "development": "Development"
+    },
     "title": "Settings",
     "tabs": {
       "profile": "Profile",

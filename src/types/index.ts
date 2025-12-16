@@ -72,11 +72,23 @@ export interface Task {
   updatedAt: Date;
 }
 
+export type UserRole = 'admin' | 'manager' | 'viewer';
+
+export interface TeamMember {
+  uid: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+  avatarUrl?: string;
+  status: 'active' | 'pending';
+}
+
 export interface User {
   uid: string;
   email: string;
   displayName: string;
   photoURL?: string;
+  role?: UserRole; // Added role to user
   settings: {
     theme: 'light' | 'dark' | 'system';
     notifications: boolean;

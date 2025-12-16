@@ -169,6 +169,24 @@
     "lowStockAlerts": "Düşük Stok Uyarıları"
   },
   "Settings": {
+    "integrations": {
+      "title": "Entegrasyonlar",
+      "description": "Diğer T-ECOSYSTEM uygulamaları ile bağlantıları yönetin.",
+      "weave": "Weave (Teknik Tasarım)",
+      "weaveDesc": "Projelere Weave tasarımlarını bağlamayı ve görüntülemeyi etkinleştir.",
+      "env": "ENV-I (Envanter)",
+      "envDesc": "Stok takibi için ENV-I envanterine erişimi etkinleştir.",
+      "googleDrive": "Google Drive",
+      "googleDriveDesc": "Proje dosyalarını Google Drive ile senkronize et ve yedekle.",
+      "slack": "Slack",
+      "slackDesc": "Proje güncellemeleri için Slack bildirimlerini etkinleştir.",
+      "github": "GitHub",
+      "githubDesc": "Raporlama ve PR takibi için GitHub deposu istatistiklerini göster.",
+      "webhookUrl": "Slack Webhook URL",
+      "githubToken": "Kişisel Erişim Belirteci (Token)",
+      "communication": "İletişim",
+      "development": "Geliştirme"
+    },
     "title": "Ayarlar",
     "tabs": {
       "profile": "Profil",

@@ -23,6 +23,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useInventoryStore } from '@/stores/inventory-store';
 import { useAuthStore } from '@/stores/auth-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import { Package, Plus, Minus, AlertCircle, Loader2, HardHat, FlaskConical, Box } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -46,6 +47,9 @@ export function AddInventoryDialog({
   
   const { products, equipment, consumables, assignToProject, fetchInventory, isLoading } = useInventoryStore();
   const user = useAuthStore(state => state.user);
+  const { system } = useSettingsStore();
+  
+  const envEnabled = system.integrations?.envInventory ?? true;
 
   // Fetch inventory when dialog opens
   useEffect(() => {
@@ -124,6 +128,22 @@ export function AddInventoryDialog({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
+        {!envEnabled ? (
+             <div className="flex flex-col items-center justify-center py-8 space-y-4 text-center">
+                <AlertCircle className="h-12 w-12 text-muted-foreground" />
+                <DialogHeader>
+                    <DialogTitle>Entegrasyon Kapalı</DialogTitle>
+                    <DialogDescription>
+                        ENV-I entegrasyonu sistem ayarlarından kapatılmış. 
+                        Envanterden malzeme eklemek için lütfen ayarlardan entegrasyonu açın.
+                    </DialogDescription>
+                </DialogHeader>
+                 <DialogFooter>
+                    <Button onClick={handleClose}>Kapat</Button>
+                </DialogFooter>
+            </div>
+        ) : (
+        <>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -232,6 +252,8 @@ export function AddInventoryDialog({
             {isSubmitting ? 'Ekleniyor...' : 'Projeye Ekle'}
           </Button>
         </DialogFooter>
+        </>
+        )}
       </DialogContent>
     </Dialog>
   );

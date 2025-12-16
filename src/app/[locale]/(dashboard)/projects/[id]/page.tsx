@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuthStore } from "@/stores/auth-store";
 import { useProjectStore } from '@/stores/project-store';
 import { useInventoryStore } from '@/stores/inventory-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -28,7 +29,8 @@ import {
     Loader2,
     Check,
     AlertTriangle,
-    ArrowRightLeft
+    ArrowRightLeft,
+    RefreshCw
 } from 'lucide-react';
 import { BOMService, BOMItem } from "@/services/bom-service";
 import Link from 'next/link';
@@ -86,6 +88,7 @@ const ConnectGitHubDialog = dynamic(() => import('@/components/projects/connect-
 const AddInventoryDialog = dynamic(() => import('@/components/projects/add-inventory-dialog').then(mod => mod.AddInventoryDialog));
 const AIAssistant = dynamic(() => import('@/components/ai/ai-assistant').then(mod => mod.AIAssistant), { ssr: false });
 const EditProjectDialog = dynamic(() => import('@/components/projects/edit-project-dialog').then(mod => mod.EditProjectDialog));
+import { GitHubStats } from '@/components/projects/github-stats';
 
 export default function ProjectDetailPage() {
     const params = useParams();
@@ -93,7 +96,7 @@ export default function ProjectDetailPage() {
     const id = params.id as string;
     
     // Destructure isLoading and fetchProjects as well
-    const { getProject, deleteProject, updateTaskStatus, fetchProjectTasks, fetchProjects, isLoading } = useProjectStore();
+    const { getProject, deleteProject, updateTaskStatus, fetchProjectTasks, fetchProjects, isLoading, syncGitHubIssues } = useProjectStore();
     const project = getProject(id);
     
     const { projectUsages, returnFromProject, fetchInventory } = useInventoryStore();
@@ -112,6 +115,10 @@ export default function ProjectDetailPage() {
     const [selectedDesignId, setSelectedDesignId] = useState<string>("");
     const [bomProcessing, setBomProcessing] = useState(false);
     const { products } = useInventoryStore(); // Needed for matching
+    const { system } = useSettingsStore();
+
+    const weaveEnabled = system.integrations?.weave ?? true;
+    const envEnabled = system.integrations?.envInventory ?? true;
 
     useEffect(() => {
         if (id) {
@@ -124,14 +131,15 @@ export default function ProjectDetailPage() {
 
     const handleScanBOM = async () => {
          const design = project?.weaveDesigns?.find(d => d.id === selectedDesignId);
-         if (!design) return;
-
-         setBomProcessing(true);
-         await new Promise(r => setTimeout(r, 600));
-         
-         const items = BOMService.parseWeaveDesign(design, products);
-         setBomItems(items);
-         setBomProcessing(false);
+         if (design) {
+            // Simulate processing
+            setBomProcessing(true);
+            setTimeout(() => {
+                const items = BOMService.parseWeaveDesign(design, envEnabled ? products : []);
+                setBomItems(items);
+                setBomProcessing(false);
+            }, 500);
+        }
     };
 
     const handleDeductStock = async () => {
@@ -272,8 +280,8 @@ export default function ProjectDetailPage() {
                                 <p className="text-xs text-muted-foreground mt-1">Atanan Kalem</p>
                             </CardContent>
                         </Card>
-                         <Card>
-                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-muted-foreground">Tamamlanma</CardTitle>
                                 <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
@@ -283,6 +291,13 @@ export default function ProjectDetailPage() {
                             </CardContent>
                         </Card>
                     </div>
+
+                    {/* GitHub Stats Integration */}
+                    {system.integrations.github && (
+                        <div className="animate-fade-in-up">
+                            <GitHubStats repoUrl="https://github.com/example/repo" />
+                        </div>
+                    )}
 
                     {/* Scope & Description */}
                     <div className="grid gap-6 md:grid-cols-3">
@@ -309,9 +324,11 @@ export default function ProjectDetailPage() {
                                 <Button variant="outline" className="w-full justify-start" onClick={() => setGithubDialogOpen(true)}>
                                     <Github className="mr-2 h-4 w-4" /> GitHub Bağla
                                 </Button>
-                                <Button variant="outline" className="w-full justify-start" onClick={() => setInventoryDialogOpen(true)}>
-                                    <Package className="mr-2 h-4 w-4" /> Malzeme Ekle
-                                </Button>
+                                {envEnabled && (
+                                    <Button variant="outline" className="w-full justify-start" onClick={() => setInventoryDialogOpen(true)}>
+                                        <Package className="mr-2 h-4 w-4" /> Malzeme Ekle
+                                    </Button>
+                                )}
                             </CardContent>
                         </Card>
                     </div>
@@ -328,6 +345,23 @@ export default function ProjectDetailPage() {
                         
                         <div className="mt-4">
                             <TabsContent value="tasks">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 className="text-lg font-semibold">Görev Listesi</h3>
+                                        <p className="text-sm text-muted-foreground">Proje iş paketi ve görev takibi</p>
+                                    </div>
+                                    {system.integrations.github && (
+                                        <Button 
+                                            variant="outline" 
+                                            size="sm" 
+                                            onClick={() => syncGitHubIssues(id)}
+                                            className="gap-2"
+                                        >
+                                            <RefreshCw className="h-4 w-4" />
+                                            GitHub'dan Eşitle
+                                        </Button>
+                                    )}
+                                </div>
                                 <ProjectTasks project={project} />
                             </TabsContent>
                             <TabsContent value="board">
@@ -356,111 +390,116 @@ export default function ProjectDetailPage() {
                 <TabsContent value="engineering" className="space-y-4">
                     <Tabs defaultValue="designs" className="w-full">
                         <TabsList className="grid w-full grid-cols-4 lg:w-[400px]">
-                            <TabsTrigger value="designs">Weave</TabsTrigger>
+                            {weaveEnabled && <TabsTrigger value="designs">Weave</TabsTrigger>}
                             <TabsTrigger value="pcb">PCB</TabsTrigger>
                             <TabsTrigger value="3d">3D</TabsTrigger>
-                            <TabsTrigger value="bom">BOM</TabsTrigger>
+                            {weaveEnabled && <TabsTrigger value="bom">BOM</TabsTrigger>}
                         </TabsList>
 
                         <div className="mt-4">
-                             <TabsContent value="designs">
-                                <ProjectDesigns project={project} />
-                            </TabsContent>
+                             {weaveEnabled && (
+                                <>
+                                    <TabsContent value="designs">
+                                        <ProjectDesigns project={project} />
+                                    </TabsContent>
+                                    <TabsContent value="bom">
+                                        <Card>
+                                            <CardHeader>
+                                                <CardTitle>Otomatik BOM Çıkarıcı</CardTitle>
+                                                <CardDescription>
+                                                    Weave tasarımlarından malzeme listesi çıkarın ve stoktan düşürün.
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="space-y-6">
+                                                {/* Selection Controls */}
+                                                <div className="flex items-end gap-4 border-b pb-6">
+                                                    <div className="grid gap-2 flex-1">
+                                                        <Label>Tasarım Seçin</Label>
+                                                        <Select value={selectedDesignId} onValueChange={setSelectedDesignId}>
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Weave Dosyası Seçin..." />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {project.weaveDesigns?.map(d => (
+                                                                    <SelectItem key={d.id} value={d.id}>{d.name} (v1.0)</SelectItem>
+                                                                ))}
+                                                                {(!project.weaveDesigns || project.weaveDesigns.length === 0) && (
+                                                                    <SelectItem value="none" disabled>Tasarım dosyası yok</SelectItem>
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <Button onClick={handleScanBOM} disabled={!selectedDesignId || bomProcessing}>
+                                                        {bomProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}
+                                                        Tara & Eşleştir
+                                                    </Button>
+                                                </div>
+        
+                                                {/* Results Table */}
+                                                {bomItems.length > 0 && (
+                                                    <div className="rounded-md border animate-fade-in-up">
+                                                        <div className="p-4 bg-muted/50 border-b flex justify-between items-center">
+                                                            <span className="font-semibold text-sm">
+                                                                Bulunan: {bomItems.length} parça ({bomItems.filter(i => i.status === 'matched').length} eşleşti)
+                                                            </span>
+                                                            <Button size="sm" onClick={handleDeductStock} disabled={bomProcessing}>
+                                                                Stoktan Düş
+                                                            </Button>
+                                                        </div>
+                                                        <div className="max-h-[400px] overflow-y-auto">
+                                                            <table className="w-full text-sm">
+                                                                <thead className="text-left bg-muted/20 sticky top-0 backdrop-blur-sm">
+                                                                    <tr>
+                                                                        <th className="p-3 font-medium">Durum</th>
+                                                                        <th className="p-3 font-medium">Parça Adı</th>
+                                                                        <th className="p-3 font-medium text-right">Adet</th>
+                                                                        <th className="p-3 font-medium">Eşleşen Stok</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {bomItems.map((item, i) => (
+                                                                        <tr key={i} className="border-t hover:bg-muted/10 transition-colors">
+                                                                            <td className="p-3">
+                                                                                {item.status === 'matched' ? (
+                                                                                    <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+                                                                                        <Check className="w-3 h-3 mr-1" /> Hazır
+                                                                                    </Badge>
+                                                                                ) : (
+                                                                                    <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
+                                                                                        <AlertTriangle className="w-3 h-3 mr-1" /> Bilinmiyor
+                                                                                    </Badge>
+                                                                                )}
+                                                                            </td>
+                                                                            <td className="p-3 font-medium">{item.name}</td>
+                                                                            <td className="p-3 text-right">{item.quantity}</td>
+                                                                            <td className="p-3 text-muted-foreground">
+                                                                                {item.matchedInventoryId ? (
+                                                                                    <span className="flex items-center gap-2">
+                                                                                        <Package className="w-3 h-3" />
+                                                                                        {products.find(p => p.id === item.matchedInventoryId)?.name}
+                                                                                    </span>
+                                                                                ) : (
+                                                                                    "Eşleşme yok"
+                                                                                )}
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+                                    </TabsContent>
+                                </>
+                             )}
                             <TabsContent value="pcb">
                                 <ProjectPCBDesigns project={project} />
                             </TabsContent>
+                            </TabsContent>
                             <TabsContent value="3d">
                                 <Project3DModels project={project} />
-                            </TabsContent>
-                            <TabsContent value="bom">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Otomatik BOM Çıkarıcı</CardTitle>
-                                        <CardDescription>
-                                            Weave tasarımlarından malzeme listesi çıkarın ve stoktan düşürün.
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-6">
-                                        {/* Selection Controls */}
-                                        <div className="flex items-end gap-4 border-b pb-6">
-                                            <div className="grid gap-2 flex-1">
-                                                <Label>Tasarım Seçin</Label>
-                                                <Select value={selectedDesignId} onValueChange={setSelectedDesignId}>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Weave Dosyası Seçin..." />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {project.weaveDesigns?.map(d => (
-                                                            <SelectItem key={d.id} value={d.id}>{d.name} (v1.0)</SelectItem>
-                                                        ))}
-                                                        {(!project.weaveDesigns || project.weaveDesigns.length === 0) && (
-                                                            <SelectItem value="none" disabled>Tasarım dosyası yok</SelectItem>
-                                                        )}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <Button onClick={handleScanBOM} disabled={!selectedDesignId || bomProcessing}>
-                                                {bomProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}
-                                                Tara & Eşleştir
-                                            </Button>
-                                        </div>
-
-                                        {/* Results Table */}
-                                        {bomItems.length > 0 && (
-                                            <div className="rounded-md border animate-fade-in-up">
-                                                <div className="p-4 bg-muted/50 border-b flex justify-between items-center">
-                                                    <span className="font-semibold text-sm">
-                                                        Bulunan: {bomItems.length} parça ({bomItems.filter(i => i.status === 'matched').length} eşleşti)
-                                                    </span>
-                                                    <Button size="sm" onClick={handleDeductStock} disabled={bomProcessing}>
-                                                        Stoktan Düş
-                                                    </Button>
-                                                </div>
-                                                <div className="max-h-[400px] overflow-y-auto">
-                                                    <table className="w-full text-sm">
-                                                        <thead className="text-left bg-muted/20 sticky top-0 backdrop-blur-sm">
-                                                            <tr>
-                                                                <th className="p-3 font-medium">Durum</th>
-                                                                <th className="p-3 font-medium">Parça Adı</th>
-                                                                <th className="p-3 font-medium text-right">Adet</th>
-                                                                <th className="p-3 font-medium">Eşleşen Stok</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {bomItems.map((item, i) => (
-                                                                <tr key={i} className="border-t hover:bg-muted/10 transition-colors">
-                                                                    <td className="p-3">
-                                                                        {item.status === 'matched' ? (
-                                                                            <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                                                                                <Check className="w-3 h-3 mr-1" /> Hazır
-                                                                            </Badge>
-                                                                        ) : (
-                                                                            <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
-                                                                                <AlertTriangle className="w-3 h-3 mr-1" /> Bilinmiyor
-                                                                            </Badge>
-                                                                        )}
-                                                                    </td>
-                                                                    <td className="p-3 font-medium">{item.name}</td>
-                                                                    <td className="p-3 text-right">{item.quantity}</td>
-                                                                    <td className="p-3 text-muted-foreground">
-                                                                        {item.matchedInventoryId ? (
-                                                                            <span className="flex items-center gap-2">
-                                                                                <Package className="w-3 h-3" />
-                                                                                {products.find(p => p.id === item.matchedInventoryId)?.name}
-                                                                            </span>
-                                                                        ) : (
-                                                                            "Eşleşme yok"
-                                                                        )}
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
                             </TabsContent>
                         </div>
                     </Tabs>

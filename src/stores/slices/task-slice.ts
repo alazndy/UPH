@@ -21,6 +21,9 @@ export interface TaskSlice {
   deleteComment: (projectId: string, taskId: string, commentId: string) => Promise<void>;
   
   getProjectTasks: (projectId: string) => ProjectTask[];
+  
+  // Integrations
+  syncGitHubIssues: (projectId: string) => Promise<void>;
 }
 
 export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
@@ -233,4 +236,46 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
           console.error("Error deleting comment:", error);
       }
   },
+
+  syncGitHubIssues: async (projectId) => {
+      console.log("Syncing GitHub issues for project:", projectId);
+      
+      // Mock Data mimicking GitHub API response
+      const mockIssues = [
+          { title: "Fix login page responsiveness", state: "open" },
+          { title: "Update dependency versions", state: "open" },
+          { title: "Refactor inventory search logic", state: "closed" }
+      ];
+
+      const currentTasks = get().tasks[projectId] || [];
+      const tasksRef = collection(db, 'projects', projectId, 'tasks');
+
+      try {
+          for (const issue of mockIssues) {
+              // Simple duplicate check by title to avoid spamming
+              if (currentTasks.some(t => t.title === issue.title)) continue;
+
+              const newTask: Omit<ProjectTask, 'id'> = {
+                  title: issue.title,
+                  completed: issue.state === 'closed',
+                  status: issue.state === 'closed' ? 'done' : 'todo',
+                  dueDate: new Date(Date.now() + 86400000 * 7).toISOString() // Next week
+              };
+
+              const docRef = await addDoc(tasksRef, newTask);
+              const taskWithId = { ...newTask, id: docRef.id };
+
+              // Update local state immediately for responsiveness
+              set(state => ({
+                  tasks: {
+                      ...state.tasks,
+                      [projectId]: [...(state.tasks[projectId] || []), taskWithId]
+                  }
+              }));
+          }
+          console.log("GitHub sync complete");
+      } catch (error) {
+          console.error("Error syncing GitHub issues:", error);
+      }
+  }
 });

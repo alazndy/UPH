@@ -15,6 +15,15 @@ export interface SystemSettings {
   currency: string;
   enableNotifications: boolean;
   language: 'en' | 'tr';
+  integrations: {
+    weave: boolean;
+    envInventory: boolean;
+    googleDrive: boolean;
+    slack: boolean;
+    github: boolean;
+  };
+  slackWebhookUrl?: string;
+  githubToken?: string;
 }
 
 interface SettingsState {
@@ -39,7 +48,14 @@ export const useSettingsStore = create<SettingsState>()(
         lowStockThreshold: 5,
         currency: 'TRY',
         enableNotifications: true,
-        language: 'tr'
+        language: 'tr',
+        integrations: {
+          weave: true,
+          envInventory: true,
+          googleDrive: false,
+          slack: false,
+          github: false
+        }
       },
 
       updateProfile: (updates) => 

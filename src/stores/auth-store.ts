@@ -21,6 +21,12 @@ interface AuthState {
   loginWithGithub: () => Promise<void>;
   logout: () => Promise<void>;
   initializeAuth: () => () => void; // Returns unsubscribe
+  
+  // Team Management
+  teamMembers: import('@/types').TeamMember[];
+  inviteMember: (email: string, role: import('@/types').UserRole) => Promise<void>;
+  updateMemberRole: (uid: string, role: import('@/types').UserRole) => Promise<void>;
+  removeMember: (uid: string) => Promise<void>;
 }
 
 const mapFirebaseUser = (firebaseUser: FirebaseUser): AppUser => ({
@@ -108,5 +114,41 @@ export const useAuthStore = create<AuthState>((set) => ({
         }
      });
      return unsubscribe;
+  },
+
+  // Mock Team Implementation (Local State)
+  teamMembers: [
+      { uid: '1', email: 'ali@firma.com', displayName: 'Ali Yılmaz', role: 'admin', status: 'active', avatarUrl: '' },
+      { uid: '2', email: 'ayse@firma.com', displayName: 'Ayşe Demir', role: 'manager', status: 'active', avatarUrl: '' },
+  ],
+
+  inviteMember: async (email, role) => {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const newMember: import('@/types').TeamMember = {
+          uid: Date.now().toString(),
+          email,
+          displayName: email.split('@')[0], // Placeholder name
+          role,
+          status: 'pending',
+          avatarUrl: ''
+      };
+
+      set(state => ({
+          teamMembers: [...state.teamMembers, newMember]
+      }));
+  },
+
+  updateMemberRole: async (uid, role) => {
+      set(state => ({
+          teamMembers: state.teamMembers.map(m => m.uid === uid ? { ...m, role } : m)
+      }));
+  },
+
+  removeMember: async (uid) => {
+      set(state => ({
+          teamMembers: state.teamMembers.filter(m => m.uid !== uid)
+      }));
   }
 }));

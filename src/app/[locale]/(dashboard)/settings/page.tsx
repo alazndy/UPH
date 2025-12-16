@@ -13,13 +13,18 @@ import { useSettingsStore } from "@/stores/settings-store";
 import { db, storage } from "@/lib/firebase";
 import { collection, writeBatch, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Loader2, Database, Upload } from "lucide-react";
+import { Loader2, Database, Upload, Network, Moon, Sun, Monitor, Laptop, Bell, Globe, DollarSign, Archive, Cloud } from "lucide-react";
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
+import { GoogleDriveService } from '@/services/google-drive-service';
 
 export default function SettingsPage() {
   const t = useTranslations('Settings');
   const { profile, system, updateProfile, updateSystemSettings } = useSettingsStore();
   const [loading, setLoading] = useState(false);
+  const [integrations, setIntegrations] = useState(system.integrations || { weave: true, envInventory: true, googleDrive: false });
+  const [connectingDrive, setConnectingDrive] = useState(false);
+  const [driveUser, setDriveUser] = useState<string | null>(null);
 
   const seedData = async () => {
     setLoading(true);
@@ -72,6 +77,31 @@ export default function SettingsPage() {
     }
   };
 
+  const handleGoogleDriveToggle = async (checked: boolean) => {
+    setIntegrations(prev => ({ ...prev, googleDrive: checked }));
+    updateSystemSettings({ integrations: { ...system.integrations, googleDrive: checked } });
+
+    if (checked) {
+        setConnectingDrive(true);
+        try {
+            const user = await GoogleDriveService.authorize();
+            setDriveUser(user.displayName || user.emailAddress || 'Unknown User');
+            toast.success(t('integrations.driveConnected', { user: user.displayName || user.emailAddress }));
+        } catch (error) {
+            console.error('Google Drive connection failed:', error);
+            toast.error(t('integrations.driveConnectError'));
+            setIntegrations(prev => ({ ...prev, googleDrive: false })); // Revert toggle on failure
+            updateSystemSettings({ integrations: { ...system.integrations, googleDrive: false } });
+        } finally {
+            setConnectingDrive(false);
+        }
+    } else {
+        // Disconnect logic if needed, for now just update state
+        setDriveUser(null);
+        toast.info(t('integrations.driveDisconnected'));
+    }
+  };
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -82,6 +112,7 @@ export default function SettingsPage() {
         <TabsList>
           <TabsTrigger value="profile">{t('tabs.profile')}</TabsTrigger>
           <TabsTrigger value="system">{t('tabs.system')}</TabsTrigger>
+          <TabsTrigger value="integrations">{t('integrations.title')}</TabsTrigger>
           <TabsTrigger value="maintenance">{t('tabs.maintenance')}</TabsTrigger>
         </TabsList>
 
@@ -215,6 +246,128 @@ export default function SettingsPage() {
                             checked={system.enableNotifications}
                             onCheckedChange={(checked) => updateSystemSettings({ enableNotifications: checked })}
                         />
+                    </div>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
+        <TabsContent value="integrations">
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t('integrations.title')}</CardTitle>
+                    <CardDescription>{t('integrations.description')}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <div className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                            <Label className="text-base">{t('integrations.weave')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('integrations.weaveDesc')}
+                            </p>
+                        </div>
+                        <Switch 
+                            checked={integrations.weave ?? true}
+                            onCheckedChange={(checked) => {
+                                setIntegrations(prev => ({ ...prev, weave: checked }));
+                                updateSystemSettings({ integrations: { ...system.integrations, weave: checked } });
+                            }}
+                        />
+                    </div>
+                    
+                    <div className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                            <Label className="text-base">{t('integrations.env')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('integrations.envDesc')}
+                            </p>
+                        </div>
+                        <Switch 
+                            checked={integrations.envInventory ?? true}
+                            onCheckedChange={(checked) => {
+                                setIntegrations(prev => ({ ...prev, envInventory: checked }));
+                                updateSystemSettings({ integrations: { ...system.integrations, envInventory: checked } });
+                            }}
+                        />
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                            <Label className="text-base">{t('integrations.googleDrive')}</Label>
+                            <p className="text-sm text-muted-foreground">
+                                {t('integrations.googleDriveDesc')}
+                                {driveUser && <span className="ml-2 text-xs text-green-600">({driveUser})</span>}
+                            </p>
+                        </div>
+                        <Switch 
+                            checked={integrations.googleDrive ?? false}
+                            onCheckedChange={handleGoogleDriveToggle}
+                            disabled={connectingDrive}
+                        />
+                    </div>
+
+                    <div className="pt-4 border-t">
+                        <h3 className="text-lg font-medium mb-4">{t('integrations.communication')}</h3>
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                    <Label className="text-base">{t('integrations.slack')}</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('integrations.slackDesc')}
+                                    </p>
+                                </div>
+                                <Switch 
+                                    checked={integrations.slack ?? false}
+                                    onCheckedChange={(checked) => {
+                                        setIntegrations(prev => ({ ...prev, slack: checked }));
+                                        updateSystemSettings({ integrations: { ...system.integrations, slack: checked } });
+                                    }}
+                                />
+                            </div>
+                            {integrations.slack && (
+                                <div className="grid gap-2 p-4 pt-0">
+                                    <Label htmlFor="slack-webhook">{t('integrations.webhookUrl')}</Label>
+                                    <Input 
+                                        id="slack-webhook" 
+                                        value={system.slackWebhookUrl || ''}
+                                        onChange={(e) => updateSystemSettings({ slackWebhookUrl: e.target.value })}
+                                        placeholder="https://hooks.slack.com/services/..."
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="pt-4 border-t">
+                        <h3 className="text-lg font-medium mb-4">{t('integrations.development')}</h3>
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between rounded-lg border p-4">
+                                <div className="space-y-0.5">
+                                    <Label className="text-base">{t('integrations.github')}</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        {t('integrations.githubDesc')}
+                                    </p>
+                                </div>
+                                <Switch 
+                                    checked={integrations.github ?? false}
+                                    onCheckedChange={(checked) => {
+                                        setIntegrations(prev => ({ ...prev, github: checked }));
+                                        updateSystemSettings({ integrations: { ...system.integrations, github: checked } });
+                                    }}
+                                />
+                            </div>
+                            {integrations.github && (
+                                <div className="grid gap-2 p-4 pt-0">
+                                    <Label htmlFor="github-token">{t('integrations.githubToken')}</Label>
+                                    <Input 
+                                        id="github-token" 
+                                        type="password"
+                                        value={system.githubToken || ''}
+                                        onChange={(e) => updateSystemSettings({ githubToken: e.target.value })}
+                                        placeholder="ghp_..."
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </CardContent>
             </Card>

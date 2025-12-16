@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useSettingsStore } from "@/stores/settings-store"
 
 const apps = [
     {
@@ -44,6 +45,14 @@ const apps = [
 ]
 
 export function EcosystemSwitcher() {
+  const { system } = useSettingsStore();
+
+  const filteredApps = apps.filter(app => {
+    if (app.name === "T-WEAVE") return system.integrations?.weave ?? true;
+    if (app.name === "ENV-I") return system.integrations?.envInventory ?? true;
+    return true;
+  });
+
   return (
     <DropdownMenu>
       <TooltipProvider>
@@ -65,7 +74,7 @@ export function EcosystemSwitcher() {
           Ecosystem Apps
         </DropdownMenuLabel>
         <div className="grid grid-cols-1 gap-1">
-            {apps.map((app) => (
+            {filteredApps.map((app) => (
                 <DropdownMenuItem key={app.name} asChild className="p-0 focus:bg-transparent">
                     <a 
                         href={app.url}
