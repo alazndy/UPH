@@ -347,10 +347,17 @@ export default function ProjectDetailPage() {
                         <div className="mt-4">
                             <TabsContent value="tasks">
                                 <div className="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h3 className="text-lg font-semibold">Görev Listesi</h3>
-                                        <p className="text-sm text-muted-foreground">Proje iş paketi ve görev takibi</p>
-                                    </div>
+                                    <div className="flex items-center gap-2">
+                                <h2 className="text-lg font-semibold tracking-tight">Proje Envanteri</h2>
+                                <Button variant="outline" size="sm" onClick={() => {
+                                    // Mock Cross-App Communication
+                                    const eventId = crypto.randomUUID();
+                                    console.log(`[UPH -> ENV-I] Event: CHECK_STOCK, ID: ${eventId}`);
+                                    alert("ENV-I ile iletişim kuruluyor...\nStok Durumu: YETERLİ (Mock)");
+                                }}>
+                                    ENV-I Stok Kontrolü (Mock)
+                                </Button>
+                            </div>            <p className="text-sm text-muted-foreground">Proje iş paketi ve görev takibi</p>
                                     {system.integrations.github && (
                                         <Button 
                                             variant="outline" 
