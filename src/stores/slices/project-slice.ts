@@ -24,10 +24,44 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
     set({ isLoading: true });
     try {
         const querySnapshot = await getDocs(collection(db, 'projects'));
-        const projects = querySnapshot.docs.map(doc => ({ 
+        let projects = querySnapshot.docs.map(doc => ({ 
             id: doc.id, 
             ...doc.data() 
         })) as Project[];
+
+        // Filter based on Team Group Membership
+        // We need to access the Auth Store state. 
+        // Using dynamic import or direct access if possible. 
+        // For simplicity in this architecture, we'll try to get state from the window/module if accessible 
+        // or just accept that for now we are fetching all but filtering in memory.
+        
+        try {
+            // Get Current User and Groups from Auth Store
+            const { useAuthStore } = await import('../auth-store');
+            const { user, teamGroups } = useAuthStore.getState();
+
+            if (user && user.role !== 'admin') {
+                // If not admin, filter projects
+                // 1. My personal projects (userId == myId)
+                // 2. Projects belonging to groups I am a member of
+                
+                const myGroupIds = teamGroups
+                    .filter(g => g.memberIds.includes(user.uid))
+                    .map(g => g.id);
+
+                projects = projects.filter(p => {
+                    const isMyProject = p.userId === user.uid;
+                    const isGroupProject = p.teamGroupId ? myGroupIds.includes(p.teamGroupId) : false;
+                    // If no teamGroupId is set, assume it's visible to all (or just creator? Let's say public for now for backward compat)
+                    // OR strict mode: validation required.
+                    // Let's go with: Created by me OR in my group.
+                    return isMyProject || isGroupProject;
+                });
+            }
+        } catch (e) {
+            console.warn("Could not access Auth Store for filtering, showing all projects", e);
+        }
+
         set({ projects });
     } catch (error: any) {
         console.error("Error fetching projects:", error);

@@ -54,10 +54,12 @@ export interface ThreeDModel {
 
 export interface Project {
     id: string;
+    userId: string; // Added user ID
     name: string;
     description: string;
     scope?: string; // Proje kapsamı / amacı
     status: ProjectStatus;
+    teamGroupId?: string; // Added Team Group ID
     priority: ProjectPriority;
     startDate: string;
     deadline?: string;

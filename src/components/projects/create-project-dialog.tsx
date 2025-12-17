@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useProjectStore } from '@/stores/project-store';
+import { useAuthStore } from '@/stores/auth-store';
 import { Plus } from 'lucide-react';
 import { ProjectPriority, ProjectStatus } from '@/types/project';
 
@@ -40,8 +41,11 @@ export function CreateProjectDialog() {
       deadline: '',
       budget: 0,
       manager: 'Turhan', // Default
-      tags: [] as string[]
+    tags: [] as string[],
+      teamGroupId: undefined as string | undefined
   });
+
+  const { teamGroups } = useAuthStore();
 
   const handleSubmit = () => {
       addProject(formData);
@@ -56,7 +60,10 @@ export function CreateProjectDialog() {
         deadline: '',
         budget: 0,
         manager: 'Turhan',
-        tags: []
+        budget: 0,
+        manager: 'Turhan',
+        tags: [] as string[],
+        teamGroupId: undefined
       });
   };
 
@@ -138,6 +145,31 @@ export function CreateProjectDialog() {
                     </SelectContent>
                 </Select>
              </div>
+          </div>
+          
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="team" className="text-right">Project Team</Label>
+            <div className="col-span-3">
+                 <Select 
+                    value={formData.teamGroupId || "personal"} 
+                    onValueChange={(v) => setFormData({...formData, teamGroupId: v === "personal" ? undefined : v})}
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select Team" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="personal">Personal (Only Me)</SelectItem>
+                        {teamGroups.map(group => (
+                            <SelectItem key={group.id} value={group.id}>{group.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                    {formData.teamGroupId 
+                        ? "Visible to members of " + teamGroups.find(g => g.id === formData.teamGroupId)?.name
+                        : "Visible only to you."}
+                </p>
+            </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="deadline" className="text-right">

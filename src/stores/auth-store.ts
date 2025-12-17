@@ -20,13 +20,20 @@ interface AuthState {
   loginWithGoogle: () => Promise<void>;
   loginWithGithub: () => Promise<void>;
   logout: () => Promise<void>;
-  initializeAuth: () => () => void; // Returns unsubscribe
-  
+  completeOnboarding: () => Promise<void>;
+
   // Team Management
   teamMembers: import('@/types').TeamMember[];
   inviteMember: (email: string, role: import('@/types').UserRole) => Promise<void>;
   updateMemberRole: (uid: string, role: import('@/types').UserRole) => Promise<void>;
   removeMember: (uid: string) => Promise<void>;
+
+  // Group Management
+  teamGroups: import('@/types').TeamGroup[];
+  createGroup: (name: string, description?: string) => Promise<void>;
+  deleteGroup: (groupId: string) => Promise<void>;
+  addMemberToGroup: (groupId: string, memberId: string) => Promise<void>;
+  removeMemberFromGroup: (groupId: string, memberId: string) => Promise<void>;
 }
 
 const mapFirebaseUser = (firebaseUser: FirebaseUser): AppUser => ({
@@ -116,6 +123,13 @@ export const useAuthStore = create<AuthState>((set) => ({
      return unsubscribe;
   },
 
+  completeOnboarding: async () => {
+      // Mock implementation for onboarding completion
+      await new Promise(resolve => setTimeout(resolve, 500));
+      // In a real app, you would update the user profile in Firestore here
+      console.log('Onboarding completed');
+  },
+
   // Mock Team Implementation (Local State)
   teamMembers: [
       { uid: '1', email: 'ali@firma.com', displayName: 'Ali Yılmaz', role: 'admin', status: 'active', avatarUrl: '' },
@@ -147,8 +161,44 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   removeMember: async (uid) => {
-      set(state => ({
-          teamMembers: state.teamMembers.filter(m => m.uid !== uid)
+      set((state) => ({
+        teamMembers: state.teamMembers.filter((m) => m.uid !== uid),
       }));
-  }
+    },
+    
+    // Cloud/Mock Group Logic
+    teamGroups: [],
+    createGroup: async (name, description) => {
+        const newGroup: import('@/types').TeamGroup = {
+            id: crypto.randomUUID(),
+            name,
+            description,
+            memberIds: [],
+            color: 'blue'
+        };
+        set((state) => ({ teamGroups: [...state.teamGroups, newGroup] }));
+    },
+    deleteGroup: async (groupId) => {
+        set((state) => ({ teamGroups: state.teamGroups.filter(g => g.id !== groupId) }));
+    },
+    addMemberToGroup: async (groupId, memberId) => {
+        set((state) => ({
+            teamGroups: state.teamGroups.map(g => 
+                g.id === groupId && !g.memberIds.includes(memberId) 
+                ? { ...g, memberIds: [...g.memberIds, memberId] } 
+                : g
+            )
+        }));
+    },
+    removeMemberFromGroup: async (groupId, memberId) => {
+        set((state) => ({
+             teamGroups: state.teamGroups.map(g => 
+                g.id === groupId 
+                ? { ...g, memberIds: g.memberIds.filter(id => id !== memberId) }
+                : g
+            )
+        }));
+    },
+
 }));
+

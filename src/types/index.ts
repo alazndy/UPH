@@ -43,6 +43,8 @@ export interface Project {
   // Integrations
   githubRepo?: GithubRepo;
   driveFolderId?: string;
+  teamGroupId?: string; // ID of the TeamGroup this project belongs to
+  
   
   // Metadata
   tags: string[];
@@ -81,6 +83,14 @@ export interface TeamMember {
   role: UserRole;
   avatarUrl?: string;
   status: 'active' | 'pending';
+}
+
+export interface TeamGroup {
+  id: string;
+  name: string;
+  description?: string;
+  memberIds: string[]; // References to TeamMember.uid
+  color?: string; // For UI tags
 }
 
 export interface User {

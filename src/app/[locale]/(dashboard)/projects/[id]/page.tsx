@@ -497,7 +497,7 @@ export default function ProjectDetailPage() {
                             <TabsContent value="pcb">
                                 <ProjectPCBDesigns project={project} />
                             </TabsContent>
-                            </TabsContent>
+
                             <TabsContent value="3d">
                                 <Project3DModels project={project} />
                             </TabsContent>
