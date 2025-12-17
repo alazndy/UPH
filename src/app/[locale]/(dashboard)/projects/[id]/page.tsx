@@ -96,8 +96,9 @@ export default function ProjectDetailPage() {
     const id = params.id as string;
     
     // Destructure isLoading and fetchProjects as well
-    const { getProject, deleteProject, updateTaskStatus, fetchProjectTasks, fetchProjects, isLoading, syncGitHubIssues } = useProjectStore();
+    const { getProject, deleteProject, updateTaskStatus, fetchProjectTasks, fetchProjects, isLoading, syncGitHubIssues, getProjectTasks } = useProjectStore();
     const project = getProject(id);
+    const tasks = getProjectTasks(id);
     
     const { projectUsages, returnFromProject, fetchInventory } = useInventoryStore();
     const projectInventory = useMemo(() => 

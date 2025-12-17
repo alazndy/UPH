@@ -106,46 +106,47 @@
   }
 
   .dark {
-    /* Gradient Background for Dark Mode */
-    --background: hsl(221, 53%, 9%); /* Fallback */
-    --background-gradient: linear-gradient(-45deg, #000000, #080620, #060324, #312e81);
+    /* "Deep Space" Theme - Unified Ecosystem Base */
+    --background: 240 10% 4%; /* Zinc-950 (Same as ENV-I) */
+    --background-gradient: linear-gradient(to bottom right, hsl(240 10% 4%), hsl(240 10% 4%)); /* Subtle or removed gradient for consistency */
     
-    --foreground: hsl(210 40% 98%);
+    --foreground: 0 0% 98%;
 
-    --card: hsl(222 47% 11% / 0.6);
-    --card-foreground: hsl(210 40% 98%);
+    --card: 240 10% 4%; /* Match ENV-I */
+    --card-foreground: 0 0% 98%;
 
-    --popover: hsl(222 47% 11%);
-    --popover-foreground: hsl(210 40% 98%);
+    --popover: 240 10% 4%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: hsl(263 70% 50%);
-    --primary-foreground: hsl(210 40% 98%);
+    /* UPH Identity: Purple (kept distinct from ENV-I Green) */
+    --primary: 263 70% 50%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: hsl(217.2 32.6% 17.5%);
-    --secondary-foreground: hsl(210 40% 98%);
+    --secondary: 240 5% 15%; /* Match ENV-I */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: hsl(217.2 32.6% 17.5%);
-    --muted-foreground: hsl(215 20.2% 65.1%);
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
 
-    --accent: hsl(217.2 32.6% 17.5%);
-    --accent-foreground: hsl(210 40% 98%);
+    --accent: 240 5% 15%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: hsl(0 62.8% 30.6%);
-    --destructive-foreground: hsl(210 40% 98%);
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: hsl(217.2 32.6% 17.5%);
-    --input: hsl(217.2 32.6% 17.5%);
-    --ring: hsl(39, 70%, 50%);
+    --border: 240 5% 15%; /* Match ENV-I */
+    --input: 240 5% 15%;
+    --ring: 263 70% 50%; /* Primary color for ring */
 
     /* Sidebar Dark Theme - Glass */
-    --sidebar-background: hsl(222 47% 11% / 0.5);
-    --sidebar-foreground: hsl(240 5% 75%);
-    --sidebar-primary: hsl(263, 86%, 14%);
-    --sidebar-primary-foreground: hsl(0 0% 98%);
-    --sidebar-accent: hsl(217.2 32.6% 17.5% / 0.8);
-    --sidebar-accent-foreground: hsl(210 40% 98%);
-    --sidebar-border: hsl(217.2 32.6% 17.5%);
-    --sidebar-ring: hsl(263 70% 50%);
+    --sidebar-background: 240 10% 4%;
+    --sidebar-foreground: 240 5% 65%;
+    --sidebar-primary: 263 70% 50%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 5% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 5% 15%;
+    --sidebar-ring: 263 70% 50%;
   }
 }
 
