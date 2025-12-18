@@ -14,18 +14,16 @@ import { Label } from "@/components/ui/label";
 import { 
     Calendar, 
     DollarSign, 
-    User, 
+    Calendar, 
+    DollarSign, 
     Box, 
     ArrowLeft,
-    Share2,
-    Settings,
     LayoutDashboard,
     Pencil,
     Trash2,
     Github,
     Package,
     FileText,
-    ExternalLink,
     Loader2,
     Check,
     AlertTriangle,
@@ -34,14 +32,6 @@ import {
 } from 'lucide-react';
 import { BOMService, BOMItem } from "@/services/bom-service";
 import Link from 'next/link';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
@@ -82,6 +72,9 @@ const ProjectGantt = dynamic(() => import('@/components/projects/project-gantt')
 const ProjectFinancials = dynamic(() => import('@/components/projects/project-financials').then(mod => mod.ProjectFinancials), {
     loading: () => <div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-[300px]" /><Skeleton className="h-[300px]" /></div>
 });
+const DriveBrowser = dynamic(() => import('@/components/projects/drive-browser').then(mod => mod.DriveBrowser), {
+    loading: () => <Skeleton className="h-[400px] w-full" />
+});
 
 // Dialogs are also lazy loaded as they are not needed on initial render
 const ConnectGitHubDialog = dynamic(() => import('@/components/projects/connect-github-dialog').then(mod => mod.ConnectGitHubDialog));
@@ -89,6 +82,7 @@ const AddInventoryDialog = dynamic(() => import('@/components/projects/add-inven
 const AIAssistant = dynamic(() => import('@/components/ai/ai-assistant').then(mod => mod.AIAssistant), { ssr: false });
 const EditProjectDialog = dynamic(() => import('@/components/projects/edit-project-dialog').then(mod => mod.EditProjectDialog));
 import { GitHubStats } from '@/components/projects/github-stats';
+import { MarkdownViewer } from '@/components/ui/markdown-viewer';
 
 export default function ProjectDetailPage() {
     const params = useParams();
@@ -96,11 +90,10 @@ export default function ProjectDetailPage() {
     const id = params.id as string;
     
     // Destructure isLoading and fetchProjects as well
-    const { getProject, deleteProject, updateTaskStatus, fetchProjectTasks, fetchProjects, isLoading, syncGitHubIssues, getProjectTasks } = useProjectStore();
+    const { getProject, deleteProject, fetchProjectTasks, fetchProjects, isLoading, syncGitHubIssues, syncProjectReadme } = useProjectStore();
     const project = getProject(id);
-    const tasks = getProjectTasks(id);
     
-    const { projectUsages, returnFromProject, fetchInventory } = useInventoryStore();
+    const { projectUsages, fetchInventory } = useInventoryStore();
     const projectInventory = useMemo(() => 
         projectUsages.filter(u => u.projectId === id && u.status === 'Active'),
         [projectUsages, id]
@@ -181,11 +174,6 @@ export default function ProjectDetailPage() {
         }
     };
 
-    const handleReturn = async (usageId: string, quantity: number, productName: string) => {
-        if (confirm(`${quantity} adet ${productName} stoğa iade edilsin mi?`)) {
-            await returnFromProject(usageId, quantity);
-        }
-    };
 
     // Show loader while fetching
     if (isLoading) {
@@ -303,16 +291,28 @@ export default function ProjectDetailPage() {
                     {/* Scope & Description */}
                     <div className="grid gap-6 md:grid-cols-3">
                          <Card className="md:col-span-2">
-                            <CardHeader>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0">
                                 <CardTitle className="text-base font-semibold flex items-center gap-2">
                                     <FileText className="h-4 w-4 text-primary" />
                                     Proje Kapsamı
                                 </CardTitle>
+                                {project.githubRepo && (
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-8 text-xs gap-2"
+                                        onClick={() => syncProjectReadme(project.id)}
+                                    >
+                                        <RefreshCw className="h-3 w-3" />
+                                        README&apos;den Eşitle
+                                    </Button>
+                                )}
                             </CardHeader>
                             <CardContent>
-                                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                                    {project.scope || project.description || "Kapsam bilgisi girilmemiş."}
-                                </p>
+                                <MarkdownViewer 
+                                    content={project.readmeContent || project.scope || project.description || ""} 
+                                    className="min-h-[100px]"
+                                />
                             </CardContent>
                         </Card>
 
@@ -348,16 +348,16 @@ export default function ProjectDetailPage() {
                             <TabsContent value="tasks">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-2">
-                                <h2 className="text-lg font-semibold tracking-tight">Proje Envanteri</h2>
-                                <Button variant="outline" size="sm" onClick={() => {
-                                    // Mock Cross-App Communication
-                                    const eventId = crypto.randomUUID();
-                                    console.log(`[UPH -> ENV-I] Event: CHECK_STOCK, ID: ${eventId}`);
-                                    alert("ENV-I ile iletişim kuruluyor...\nStok Durumu: YETERLİ (Mock)");
-                                }}>
-                                    ENV-I Stok Kontrolü (Mock)
-                                </Button>
-                            </div>            <p className="text-sm text-muted-foreground">Proje iş paketi ve görev takibi</p>
+                                        <h2 className="text-lg font-semibold tracking-tight">Proje Görevleri</h2>
+                                        <Button variant="outline" size="sm" onClick={() => {
+                                            // Mock Cross-App Communication
+                                            const eventId = crypto.randomUUID();
+                                            console.log(`[UPH -> ENV-I] Event: CHECK_STOCK, ID: ${eventId}`);
+                                            alert("ENV-I ile iletişim kuruluyor...\nStok Durumu: YETERLİ (Mock)");
+                                        }}>
+                                            ENV-I Stok Kontrolü (Mock)
+                                        </Button>
+                                    </div>
                                     {system.integrations.github && (
                                         <Button 
                                             variant="outline" 
@@ -366,7 +366,7 @@ export default function ProjectDetailPage() {
                                             className="gap-2"
                                         >
                                             <RefreshCw className="h-4 w-4" />
-                                            GitHub'dan Eşitle
+                                            GitHub&apos;dan Eşitle
                                         </Button>
                                     )}
                                 </div>
@@ -513,8 +513,11 @@ export default function ProjectDetailPage() {
                     </Tabs>
                 </TabsContent>
 
-                <TabsContent value="files">
-                     <ProjectFiles project={project} />
+                <TabsContent value="files" className="space-y-6">
+                     <div className="grid gap-6 md:grid-cols-2">
+                        <ProjectFiles project={project} />
+                        <DriveBrowser project={project} />
+                     </div>
                 </TabsContent>
             </Tabs>
 

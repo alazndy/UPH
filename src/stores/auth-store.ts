@@ -15,6 +15,7 @@ interface AuthState {
   user: AppUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  googleAccessToken: string | null;
   
   login: (email: string, pass: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -48,12 +49,14 @@ const mapFirebaseUser = (firebaseUser: FirebaseUser): AppUser => ({
 });
 
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('https://www.googleapis.com/auth/drive.file');
 const githubProvider = new GithubAuthProvider();
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true, // Start loading to check auth state
+  googleAccessToken: null,
 
   login: async (email, pass) => {
     set({ isLoading: true });
@@ -71,7 +74,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   loginWithGoogle: async () => {
     set({ isLoading: true });
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential?.accessToken;
+      if (token) {
+        set({ googleAccessToken: token });
+      }
       // State updated by onAuthStateChanged
     } catch (error) {
       console.error('Google login failed:', error);
@@ -97,7 +105,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     try {
       await firebaseSignOut(auth);
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, googleAccessToken: null });
     } catch (error) {
       console.error('Logout failed:', error);
     }

@@ -80,4 +80,9 @@ export interface Project {
     githubRepo?: string;
     githubSyncEnabled?: boolean;
     lastGithubSync?: string;
+    color?: string; // Hex color for visual distinction
+    logoUrl?: string; // Optional logo/identicon
+    readmeContent?: string; // Markdown content for project scope
+    googleDriveFolderId?: string; // Google Drive integration
+    isFavorite?: boolean; // Favorite status
 }

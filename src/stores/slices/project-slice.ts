@@ -9,10 +9,11 @@ export interface ProjectSlice {
   error: string | null;
   
   fetchProjects: () => Promise<void>;
-  addProject: (project: Omit<Project, 'id' | 'spent' | 'completionPercentage' | 'tasks' | 'files'>) => Promise<void>;
+  addProject: (project: Omit<Project, 'id' | 'userId' | 'spent' | 'completionPercentage' | 'files'>) => Promise<void>;
   updateProject: (id: string, project: Partial<Project>) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   getProject: (id: string) => Project | undefined;
+  syncProjectReadme: (id: string) => Promise<void>;
 }
 
 export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
@@ -26,7 +27,8 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
         const querySnapshot = await getDocs(collection(db, 'projects'));
         let projects = querySnapshot.docs.map(doc => ({ 
             id: doc.id, 
-            ...doc.data() 
+            ...doc.data(),
+            logoUrl: (doc.data() as { logoUrl?: string }).logoUrl || '/logo.png'
         })) as Project[];
 
         // Filter based on Team Group Membership
@@ -63,7 +65,7 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
         }
 
         set({ projects });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error fetching projects:", error);
     } finally {
         set({ isLoading: false });
@@ -74,11 +76,16 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
     set({ isLoading: true, error: null });
     try {
         const projectsCollection = collection(db, 'projects');
+        const { user } = (await import('../auth-store')).useAuthStore.getState();
         const newProjectData = { 
             ...projectData, 
+            userId: user?.uid || 'anonymous',
+            logoUrl: projectData.logoUrl || '/logo.png',
             spent: 0, 
             completionPercentage: 0,
-            files: []
+            isFavorite: false,
+            files: [],
+            color: projectData.color || '#3b82f6'
         };
         const docRef = await addDoc(projectsCollection, newProjectData);
         const newProject = { ...newProjectData, id: docRef.id } as Project;
@@ -104,9 +111,9 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
             projects: [...state.projects, newProject], 
             isLoading: false 
         }));
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error adding project:", error);
-        set({ error: error.message || "Failed to add project", isLoading: false });
+        set({ error: (error as Error).message || "Failed to add project", isLoading: false });
     }
   },
 
@@ -119,9 +126,9 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
             projects: state.projects.map(p => p.id === id ? { ...p, ...projectUpdate } : p),
             isLoading: false
          }));
-    } catch (error: any) {
+    } catch (error: unknown) {
          console.error("Error updating project:", error);
-         set({ error: error.message || "Failed to update project", isLoading: false });
+         set({ error: (error as Error).message || "Failed to update project", isLoading: false });
     }
   },
 
@@ -133,11 +140,41 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
             projects: state.projects.filter(p => p.id !== id),
             isLoading: false
         }));
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error deleting project:", error);
-        set({ error: error.message || "Failed to delete project", isLoading: false });
+        set({ error: (error as Error).message || "Failed to delete project", isLoading: false });
     }
   },
 
-  getProject: (id) => get().projects.find((p) => p.id === id),
+  getProject: (id: string) => get().projects.find((p) => p.id === id),
+
+  syncProjectReadme: async (id) => {
+    const project = get().projects.find(p => p.id === id);
+    if (!project || !project.githubRepo) return;
+
+    set({ isLoading: true });
+    try {
+        // Fetch README from GitHub
+        // We try common branch names: main then master
+        let readmeText = "";
+        const repo = project.githubRepo;
+        
+        const tryFetch = async (branch: string) => {
+            const url = `https://raw.githubusercontent.com/${repo}/${branch}/README.md`;
+            const res = await fetch(url);
+            if (res.ok) return await res.text();
+            return null;
+        };
+
+        readmeText = await tryFetch('main') || await tryFetch('master') || "";
+
+        if (readmeText) {
+            await get().updateProject(id, { readmeContent: readmeText });
+        }
+    } catch (error) {
+        console.error("Error syncing README:", error);
+    } finally {
+        set({ isLoading: false });
+    }
+  }
 });

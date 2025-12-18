@@ -48,10 +48,22 @@ export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDi
             deadline: project.deadline,
             budget: project.budget,
             manager: project.manager,
-            tags: project.tags
+            tags: project.tags,
+            color: project.color || '#3b82f6',
+            logoUrl: project.logoUrl || ''
         });
     }
   }, [project, open]);
+
+  const presetColors = [
+    { name: 'Blue', value: '#3b82f6' },
+    { name: 'Red', value: '#ef4444' },
+    { name: 'Green', value: '#10b981' },
+    { name: 'Yellow', value: '#f59e0b' },
+    { name: 'Violet', value: '#8b5cf6' },
+    { name: 'Pink', value: '#ec4899' },
+    { name: 'Orange', value: '#f97316' },
+  ];
 
   const handleSubmit = async () => {
       setLoading(true);
@@ -150,6 +162,40 @@ export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDi
               value={formData.budget}
               onChange={(e) => setFormData({...formData, budget: parseInt(e.target.value) || 0})}
               className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label className="text-right">Color</Label>
+            <div className="col-span-3 flex flex-wrap gap-2">
+              {presetColors.map((color) => (
+                <button
+                  key={color.value}
+                  type="button"
+                  className={`h-6 w-6 rounded-full border-2 transition-all ${formData.color === color.value ? 'border-white scale-110 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                  style={{ backgroundColor: color.value }}
+                  onClick={() => setFormData({...formData, color: color.value})}
+                  title={color.name}
+                />
+              ))}
+              <Input 
+                type="color" 
+                className="h-6 w-10 p-0 border-none bg-transparent cursor-pointer"
+                value={formData.color}
+                onChange={(e) => setFormData({...formData, color: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-logoUrl" className="text-right">
+              Logo URL
+            </Label>
+            <Input
+              id="edit-logoUrl"
+              value={formData.logoUrl}
+              onChange={(e) => setFormData({...formData, logoUrl: e.target.value})}
+              className="col-span-3"
+              placeholder="https://example.com/logo.png"
             />
           </div>
         </div>
