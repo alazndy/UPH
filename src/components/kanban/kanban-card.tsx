@@ -41,18 +41,18 @@ export function KanbanCard({ task, isCompact = false }: KanbanCardProps) {
     isDragging,
   } = useSortable({ id: task.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  const dndStyles = {
+    '--dnd-transform': CSS.Transform.toString(transform),
+    '--dnd-transition': transition,
+  } as React.CSSProperties;
 
   if (isCompact) {
     return (
       <div
         ref={setNodeRef}
-        style={style}
+        style={dndStyles}
         className={cn(
-          'flex items-center gap-2 p-2 rounded-lg bg-zinc-800/50 border border-zinc-700 cursor-grab active:cursor-grabbing',
+          'dnd-sortable-item flex items-center gap-2 p-2 rounded-lg bg-zinc-800/50 border border-zinc-700 cursor-grab active:cursor-grabbing',
           isDragging && 'opacity-50 ring-2 ring-purple-500'
         )}
         {...attributes}
@@ -73,9 +73,9 @@ export function KanbanCard({ task, isCompact = false }: KanbanCardProps) {
   return (
     <Card
       ref={setNodeRef}
-      style={style}
+      style={dndStyles}
       className={cn(
-        'bg-zinc-800/50 border-zinc-700 cursor-grab active:cursor-grabbing',
+        'dnd-sortable-item bg-zinc-800/50 border-zinc-700 cursor-grab active:cursor-grabbing',
         isDragging && 'opacity-50 ring-2 ring-purple-500'
       )}
       {...attributes}
