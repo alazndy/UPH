@@ -1,5 +1,4 @@
-'use client';
-
+import React, { useLayoutEffect, useRef } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslations } from 'next-intl';
@@ -41,18 +40,24 @@ export function KanbanCard({ task, isCompact = false }: KanbanCardProps) {
     isDragging,
   } = useSortable({ id: task.id });
 
-  const dndStyles = {
-    '--dnd-transform': CSS.Transform.toString(transform),
-    '--dnd-transition': transition,
-  } as React.CSSProperties;
+  const cardRef = useRef<HTMLDivElement | null>(null);
+
+  useLayoutEffect(() => {
+    if (cardRef.current) {
+      cardRef.current.style.transform = CSS.Transform.toString(transform) || '';
+      cardRef.current.style.transition = transition || '';
+    }
+  }, [transform, transition]);
 
   if (isCompact) {
     return (
       <div
-        ref={setNodeRef}
-        style={dndStyles}
+        ref={(node) => {
+          setNodeRef(node);
+          cardRef.current = node as HTMLDivElement;
+        }}
         className={cn(
-          'dnd-sortable-item flex items-center gap-2 p-2 rounded-lg bg-zinc-800/50 border border-zinc-700 cursor-grab active:cursor-grabbing',
+          'flex items-center gap-2 p-2 rounded-lg bg-zinc-800/50 border border-zinc-700 cursor-grab active:cursor-grabbing',
           isDragging && 'opacity-50 ring-2 ring-purple-500'
         )}
         {...attributes}
@@ -72,10 +77,12 @@ export function KanbanCard({ task, isCompact = false }: KanbanCardProps) {
 
   return (
     <Card
-      ref={setNodeRef}
-      style={dndStyles}
+      ref={(node: any) => {
+        setNodeRef(node);
+        cardRef.current = node as HTMLDivElement;
+      }}
       className={cn(
-        'dnd-sortable-item bg-zinc-800/50 border-zinc-700 cursor-grab active:cursor-grabbing',
+        'bg-zinc-800/50 border-zinc-700 cursor-grab active:cursor-grabbing',
         isDragging && 'opacity-50 ring-2 ring-purple-500'
       )}
       {...attributes}

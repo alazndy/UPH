@@ -244,11 +244,6 @@
     @apply bg-[#131118]/80 backdrop-blur-xl border-r border-[#2e2839];
   }
 
-  .dnd-sortable-item {
-    transform: var(--dnd-transform);
-    transition: var(--dnd-transition);
-  }
-
   /* Safe Area & Mobile utilities */
   .safe-area-inset-top {
     padding-top: env(safe-area-inset-top);
