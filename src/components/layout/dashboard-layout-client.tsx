@@ -8,6 +8,8 @@ import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Menu } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth-store';
+import { PageWrapper } from './page-wrapper';
+
 
 export function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -87,9 +89,9 @@ export function DashboardLayoutClient({ children }: { children: React.ReactNode 
             >
                 <SearchCommand />
                 <Header />
-                <div className="p-8">
+                <PageWrapper className="p-8">
                     {children}
-                </div>
+                </PageWrapper>
             </main>
         </div>
     );

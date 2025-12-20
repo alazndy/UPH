@@ -36,10 +36,7 @@ async function migrateVisuals() {
     const projectId = projectDoc.id;
     
     const color = colors[index % colors.length];
-    // Use github avatar if possible, otherwise a placeholder or let UI handle fallback
-    const logoUrl = data.githubRepo 
-      ? `https://github.com/${data.githubRepo.split('/')[0]}.png` 
-      : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(data.name)}`;
+    const logoUrl = data.logoUrl || '/logo.png';
     
     console.log(`Updating ${data.name} with color ${color} and logo...`);
     

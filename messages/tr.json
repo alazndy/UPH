@@ -9,7 +9,11 @@
     "logout": "Çıkış Yap",
     "newProject": "Yeni Proje",
     "searchPlaceholder": "Bir komut yazın veya arayın...",
-    "notifications": "Bildirimler"
+    "notifications": "Bildirimler",
+    "cancel": "İptal",
+    "actions": {
+      "delete": "Sil"
+    }
   },
   "Dashboard": {
     "title": "Gösterge Paneli",
@@ -29,7 +33,18 @@
   "Projects": {
     "title": "Projeler",
     "createProject": "Proje Oluştur",
+    "createDescription": "Yeni projeniz için detayları girin. İşiniz bittiğinde kaydedin.",
+    "filter": "Filtrele",
     "filterPlaceholder": "Projeleri filtrele...",
+    "addNewProject": "Yeni Proje Ekle",
+    "name": "İsim",
+    "description": "Açıklama",
+    "descriptionPlaceholder": "Kısa özet...",
+    "scope": "Kapsam",
+    "scopePlaceholder": "Proje kapsamı ve amacını yazın...",
+    "team": "Proje Takımı",
+    "color": "Renk Teması",
+    "logoUrl": "Logo URL",
     "status": "Durum",
     "progress": "İlerleme",
     "budget": "Bütçe",
@@ -40,13 +55,24 @@
     "viewDashboard": "Paneli Görüntüle",
     "actions": "İşlemler",
     "openDetails": "Detayları Aç",
+    "edit": "Düzenle",
     "editProject": "Projeyi Düzenle",
+    "editDescription": "Proje detaylarını aşağıdan güncelleyin.",
     "delete": "Sil",
     "deleteConfirmationTitle": "Kesinlikle emin misiniz?",
     "deleteConfirmationDesc": "Bu işlem geri alınamaz. <bold>{name}</bold> projesi ve ilişkili tüm veriler kalıcı olarak silinecektir.",
     "cancel": "İptal",
     "confirmDelete": "Projeyi Sil",
-    "loading": "Projeler yükleniyor..."
+    "loading": "Projeler yükleniyor...",
+    "selectStatus": "Durum seçin",
+    "selectTeam": "Takım seçin",
+    "saveChanges": "Değişiklikleri Kaydet",
+    "importFromGithub": "GitHub'dan İçe Aktar",
+    "importDescription": "Mevcut bir GitHub deposundan yeni bir proje oluşturun.",
+    "repoUrl": "Depo URL (GitHub)",
+    "importProject": "Projeyi İçe Aktar",
+    "importing": "İçe Aktarılıyor...",
+    "importInfo": "Sistem otomatik olarak Proje Adı, Açıklama ve README dosyasını çekecektir."
   },
   "Kanban": {
     "title": "Kanban Panosu",
@@ -59,6 +85,9 @@
     "done": "Tamamlandı",
     "review": "İnceleme",
     "noTasks": "Görev yok",
+    "clearFilters": "Temizle",
+    "viewDefault": "Varsayılan",
+    "viewCompact": "Kompakt",
     "priorities": {
       "low": "Düşük",
       "medium": "Orta",

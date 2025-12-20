@@ -21,8 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useProjectStore } from '@/stores/project-store';
-import { Project, ProjectPriority, ProjectStatus } from '@/types/project';
+import { Project, ProjectStatus } from '@/types/project';
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface EditProjectDialogProps {
     project: Project;
@@ -31,6 +32,7 @@ interface EditProjectDialogProps {
 }
 
 export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDialogProps) {
+  const t = useTranslations('Projects');
   const { updateProject } = useProjectStore();
   const [loading, setLoading] = useState(false);
   
@@ -81,15 +83,15 @@ export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Edit Project</DialogTitle>
+          <DialogTitle>{t('editProject')}</DialogTitle>
           <DialogDescription>
-            Update the project details below.
+            {t('editDescription')}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="edit-name" className="text-right">
-              Name
+              {t('name')}
             </Label>
             <Input
               id="edit-name"
@@ -100,7 +102,7 @@ export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDi
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="edit-description" className="text-right">
-              Description
+              {t('description')}
             </Label>
              <Input 
               id="edit-description"
@@ -111,25 +113,25 @@ export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDi
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label htmlFor="edit-scope" className="text-right pt-2">
-              Kapsam
+              {t('scope')}
             </Label>
              <Textarea 
               id="edit-scope"
-              placeholder="Proje kapsamı ve amacını yazın..."
+              placeholder={t('scopePlaceholder')}
               value={formData.scope || ''}
               onChange={(e) => setFormData({...formData, scope: e.target.value})}
               className="col-span-3 min-h-[80px]"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-             <Label htmlFor="edit-status" className="text-right">Status</Label>
+             <Label htmlFor="edit-status" className="text-right">{t('status')}</Label>
              <div className="col-span-3">
                 <Select 
                     value={formData.status} 
                     onValueChange={(v) => setFormData({...formData, status: v as ProjectStatus})}
                 >
                     <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
+                        <SelectValue placeholder={t('selectStatus')} />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="Planning">Planning</SelectItem>
@@ -142,7 +144,7 @@ export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDi
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="edit-deadline" className="text-right">
-              Deadline
+              {t('deadline')}
             </Label>
             <Input
               id="edit-deadline"
@@ -154,7 +156,7 @@ export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDi
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="edit-budget" className="text-right">
-              Budget ($)
+              {t('budget')} ($)
             </Label>
             <Input
               id="edit-budget"
@@ -165,14 +167,13 @@ export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDi
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">Color</Label>
+            <Label className="text-right">{t('color')}</Label>
             <div className="col-span-3 flex flex-wrap gap-2">
               {presetColors.map((color) => (
                 <button
                   key={color.value}
                   type="button"
-                  className={`h-6 w-6 rounded-full border-2 transition-all ${formData.color === color.value ? 'border-white scale-110 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                  style={{ backgroundColor: color.value }}
+                  className={`h-6 w-6 rounded-full border-2 transition-all bg-[${color.value}] ${formData.color === color.value ? 'border-white scale-110 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'}`}
                   onClick={() => setFormData({...formData, color: color.value})}
                   title={color.name}
                 />
@@ -188,7 +189,7 @@ export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDi
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="edit-logoUrl" className="text-right">
-              Logo URL
+              {t('logoUrl')}
             </Label>
             <Input
               id="edit-logoUrl"
@@ -202,7 +203,7 @@ export function EditProjectDialog({ project, open, onOpenChange }: EditProjectDi
         <DialogFooter>
           <Button type="submit" onClick={handleSubmit} disabled={loading || !formData.name}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save Changes
+            {t('saveChanges')}
           </Button>
         </DialogFooter>
       </DialogContent>

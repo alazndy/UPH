@@ -1,7 +1,8 @@
 import { StateCreator } from 'zustand';
 import { Project } from '@/types/project';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { RepositoryFactory } from '@/lib/repositories/factory';
+
+const projectRepository = RepositoryFactory.getProjectRepository();
 
 export interface ProjectSlice {
   projects: Project[];
@@ -14,6 +15,8 @@ export interface ProjectSlice {
   deleteProject: (id: string) => Promise<void>;
   getProject: (id: string) => Project | undefined;
   syncProjectReadme: (id: string) => Promise<void>;
+  addCadDrawing: (projectId: string, drawing: import('@/types/project').CadDrawing) => Promise<void>;
+  deleteCadDrawing: (projectId: string, drawingId: string) => Promise<void>;
 }
 
 export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
@@ -24,29 +27,15 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
   fetchProjects: async () => {
     set({ isLoading: true });
     try {
-        const querySnapshot = await getDocs(collection(db, 'projects'));
-        let projects = querySnapshot.docs.map(doc => ({ 
-            id: doc.id, 
-            ...doc.data(),
-            logoUrl: (doc.data() as { logoUrl?: string }).logoUrl || '/logo.png'
-        })) as Project[];
+        let projects = await projectRepository.all();
 
         // Filter based on Team Group Membership
-        // We need to access the Auth Store state. 
-        // Using dynamic import or direct access if possible. 
-        // For simplicity in this architecture, we'll try to get state from the window/module if accessible 
-        // or just accept that for now we are fetching all but filtering in memory.
-        
         try {
             // Get Current User and Groups from Auth Store
             const { useAuthStore } = await import('../auth-store');
             const { user, teamGroups } = useAuthStore.getState();
 
             if (user && user.role !== 'admin') {
-                // If not admin, filter projects
-                // 1. My personal projects (userId == myId)
-                // 2. Projects belonging to groups I am a member of
-                
                 const myGroupIds = teamGroups
                     .filter(g => g.memberIds.includes(user.uid))
                     .map(g => g.id);
@@ -54,9 +43,6 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
                 projects = projects.filter(p => {
                     const isMyProject = p.userId === user.uid;
                     const isGroupProject = p.teamGroupId ? myGroupIds.includes(p.teamGroupId) : false;
-                    // If no teamGroupId is set, assume it's visible to all (or just creator? Let's say public for now for backward compat)
-                    // OR strict mode: validation required.
-                    // Let's go with: Created by me OR in my group.
                     return isMyProject || isGroupProject;
                 });
             }
@@ -75,7 +61,6 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
   addProject: async (projectData) => {
     set({ isLoading: true, error: null });
     try {
-        const projectsCollection = collection(db, 'projects');
         const { user } = (await import('../auth-store')).useAuthStore.getState();
         const newProjectData = { 
             ...projectData, 
@@ -87,13 +72,9 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
             files: [],
             color: projectData.color || '#3b82f6'
         };
-        const docRef = await addDoc(projectsCollection, newProjectData);
-        const newProject = { ...newProjectData, id: docRef.id } as Project;
         
-        // Log Activity - Dynamic import or separate store call
-        // Note: Circular dependency risk if importing activity-store directly if it uses project-store. 
-        // Ideally activity logging should be decoupled or used via hook/component.
-        // For now adhering to previous pattern but being cautious.
+        const id = await projectRepository.create(newProjectData);
+        const newProject = { ...newProjectData, id } as Project;
         
         try {
             const { useActivityStore } = await import('../activity-store');
@@ -101,7 +82,7 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
                 type: 'PROJECT_CREATED',
                 title: 'New Project Created',
                 description: `Project "${projectData.name}" created.`,
-                metadata: { projectId: docRef.id }
+                metadata: { projectId: id }
             });
         } catch (e) {
             console.warn("Activity logging failed", e);
@@ -120,8 +101,7 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
   updateProject: async (id, projectUpdate) => {
     set({ isLoading: true, error: null });
     try {
-         const docRef = doc(db, 'projects', id);
-         await updateDoc(docRef, projectUpdate);
+         await projectRepository.update(id, projectUpdate);
          set(state => ({
             projects: state.projects.map(p => p.id === id ? { ...p, ...projectUpdate } : p),
             isLoading: false
@@ -135,7 +115,7 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
   deleteProject: async (id) => {
     set({ isLoading: true, error: null });
     try {
-        await deleteDoc(doc(db, 'projects', id));
+        await projectRepository.delete(id);
         set(state => ({
             projects: state.projects.filter(p => p.id !== id),
             isLoading: false
@@ -154,8 +134,6 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
 
     set({ isLoading: true });
     try {
-        // Fetch README from GitHub
-        // We try common branch names: main then master
         let readmeText = "";
         const repo = project.githubRepo;
         
@@ -175,6 +153,48 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
         console.error("Error syncing README:", error);
     } finally {
         set({ isLoading: false });
+    }
+  },
+
+  addCadDrawing: async (projectId: string, drawing: import('@/types/project').CadDrawing) => {
+    set({ isLoading: true });
+    try {
+        const project = get().projects.find(p => p.id === projectId);
+        if (!project) throw new Error('Project not found');
+
+        const updatedDrawings = [...(project.cadDrawings || []), drawing];
+        await projectRepository.update(projectId, { cadDrawings: updatedDrawings });
+        
+        set(state => ({
+            projects: state.projects.map(p => 
+                p.id === projectId ? { ...p, cadDrawings: updatedDrawings } : p
+            ),
+            isLoading: false
+        }));
+    } catch (error) {
+        console.error("Error adding CAD drawing:", error);
+        set({ error: "Failed to add CAD drawing", isLoading: false });
+    }
+  },
+
+  deleteCadDrawing: async (projectId: string, drawingId: string) => {
+    set({ isLoading: true });
+    try {
+        const project = get().projects.find(p => p.id === projectId);
+        if (!project) throw new Error('Project not found');
+
+        const updatedDrawings = (project.cadDrawings || []).filter(d => d.id !== drawingId);
+        await projectRepository.update(projectId, { cadDrawings: updatedDrawings });
+
+        set(state => ({
+            projects: state.projects.map(p => 
+                p.id === projectId ? { ...p, cadDrawings: updatedDrawings } : p
+            ),
+            isLoading: false
+        }));
+    } catch (error) {
+        console.error("Error deleting CAD drawing:", error);
+        set({ error: "Failed to delete CAD drawing", isLoading: false });
     }
   }
 });

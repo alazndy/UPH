@@ -104,7 +104,7 @@ export function CreateProjectDialog({ trigger }: CreateProjectDialogProps) {
         <DialogHeader className="relative z-10">
           <DialogTitle className="text-2xl font-black">{t('addNewProject')}</DialogTitle>
           <DialogDescription className="text-[#a69db9] text-sm">
-            Enter the details for your new project. Click save when you&apos;re done.
+            {t('createDescription')}
           </DialogDescription>
         </DialogHeader>
 
@@ -124,26 +124,26 @@ export function CreateProjectDialog({ trigger }: CreateProjectDialogProps) {
 
           <div className="space-y-2">
             <Label htmlFor="description" className="text-[10px] font-black uppercase tracking-widest text-[#a69db9] ml-1">
-              Description
+              {t('description')}
             </Label>
             <Input
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
               className="bg-white/5 border-white/10 rounded-2xl text-white placeholder-[#a69db9] focus:bg-white/10 focus:border-primary/50 transition-all"
-              placeholder="Brief summary..."
+              placeholder={t('descriptionPlaceholder')}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-[#a69db9] ml-1">Status</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-[#a69db9] ml-1">{t('status')}</Label>
               <Select 
                   value={formData.status} 
                   onValueChange={(v) => setFormData({...formData, status: v as ProjectStatus})}
               >
                   <SelectTrigger className="bg-white/5 border-white/10 rounded-2xl text-white focus:bg-white/10 focus:border-primary/50 transition-all">
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder={t('selectStatus')} />
                   </SelectTrigger>
                   <SelectContent className="glass-morph bg-[#1a1821] border-white/10 text-white">
                       <SelectItem value="Planning" className="focus:bg-white/5">Planning</SelectItem>
@@ -155,13 +155,13 @@ export function CreateProjectDialog({ trigger }: CreateProjectDialogProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-[#a69db9] ml-1">Project Team</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-[#a69db9] ml-1">{t('team')}</Label>
               <Select 
                   value={formData.teamGroupId || "personal"} 
                   onValueChange={(v) => setFormData({...formData, teamGroupId: v === "personal" ? undefined : v})}
               >
                   <SelectTrigger className="bg-white/5 border-white/10 rounded-2xl text-white focus:bg-white/10 focus:border-primary/50 transition-all">
-                      <SelectValue placeholder="Select Team" />
+                      <SelectValue placeholder={t('selectTeam')} />
                   </SelectTrigger>
                   <SelectContent className="glass-card bg-[#1a1821] border-white/10 text-white">
                       <SelectItem value="personal" className="focus:bg-white/5">Personal (Only Me)</SelectItem>
@@ -176,7 +176,7 @@ export function CreateProjectDialog({ trigger }: CreateProjectDialogProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="deadline" className="text-[10px] font-black uppercase tracking-widest text-[#a69db9] ml-1">
-                Deadline
+                {t('deadline')}
               </Label>
               <Input
                 id="deadline"
@@ -188,7 +188,7 @@ export function CreateProjectDialog({ trigger }: CreateProjectDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="budget" className="text-[10px] font-black uppercase tracking-widest text-[#a69db9] ml-1">
-                Budget ($)
+                {t('budget')} ($)
               </Label>
               <Input
                 id="budget"
@@ -201,14 +201,13 @@ export function CreateProjectDialog({ trigger }: CreateProjectDialogProps) {
           </div>
           
           <div className="space-y-2">
-            <Label className="text-[10px] font-black uppercase tracking-widest text-[#a69db9] ml-1">Color Theme</Label>
+            <Label className="text-[10px] font-black uppercase tracking-widest text-[#a69db9] ml-1">{t('color')}</Label>
             <div className="flex flex-wrap gap-3 p-1">
               {presetColors.map((color) => (
                 <button
                   key={color.value}
                   type="button"
-                  className={`h-7 w-7 rounded-full border-2 transition-all ${formData.color === color.value ? 'border-primary scale-110 shadow-lg shadow-primary/20' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                  style={{ backgroundColor: color.value }}
+                  className={`h-7 w-7 rounded-full border-2 transition-all bg-[${color.value}] ${formData.color === color.value ? 'border-primary scale-110 shadow-lg shadow-primary/20' : 'border-transparent opacity-60 hover:opacity-100'}`}
                   onClick={() => setFormData({...formData, color: color.value})}
                   title={color.name}
                 />
@@ -226,7 +225,7 @@ export function CreateProjectDialog({ trigger }: CreateProjectDialogProps) {
 
           <div className="space-y-2">
             <Label htmlFor="logoUrl" className="text-[10px] font-black uppercase tracking-widest text-[#a69db9] ml-1">
-              Logo URL (Optional)
+              {t('logoUrl')} (Optional)
             </Label>
             <Input
               id="logoUrl"

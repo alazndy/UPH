@@ -9,7 +9,11 @@
     "logout": "Logout",
     "newProject": "New Project",
     "searchPlaceholder": "Type a command or search...",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "cancel": "Cancel",
+    "actions": {
+      "delete": "Delete"
+    }
   },
   "Dashboard": {
     "title": "Dashboard",
@@ -29,7 +33,18 @@
   "Projects": {
     "title": "Projects",
     "createProject": "Create Project",
+    "createDescription": "Enter the details for your new project. Click save when you're done.",
+    "filter": "Filter",
     "filterPlaceholder": "Filter projects...",
+    "addNewProject": "Add New Project",
+    "name": "Name",
+    "description": "Description",
+    "descriptionPlaceholder": "Brief summary...",
+    "scope": "Scope",
+    "scopePlaceholder": "Write the project scope and purpose...",
+    "team": "Project Team",
+    "color": "Color Theme",
+    "logoUrl": "Logo URL",
     "status": "Status",
     "progress": "Progress",
     "budget": "Budget",
@@ -40,13 +55,24 @@
     "viewDashboard": "View Dashboard",
     "actions": "Actions",
     "openDetails": "Open Details",
+    "edit": "Edit",
     "editProject": "Edit Project",
+    "editDescription": "Update the project details below.",
     "delete": "Delete",
     "deleteConfirmationTitle": "Are you absolutely sure?",
     "deleteConfirmationDesc": "This action cannot be undone. This will permanently delete the project <bold>{name}</bold> and all associated data.",
     "cancel": "Cancel",
     "confirmDelete": "Delete Project",
-    "loading": "Loading projects..."
+    "loading": "Loading projects...",
+    "selectStatus": "Select status",
+    "selectTeam": "Select Team",
+    "saveChanges": "Save Changes",
+    "importFromGithub": "Import from GitHub",
+    "importDescription": "Create a new project from an existing GitHub repository.",
+    "repoUrl": "Repository URL",
+    "importProject": "Import Project",
+    "importing": "Importing...",
+    "importInfo": "The system will automatically pull the Project Name, Description and README file."
   },
   "Kanban": {
     "title": "Kanban Board",
@@ -59,6 +85,9 @@
     "done": "Done",
     "review": "Review",
     "noTasks": "No tasks",
+    "clearFilters": "Clear",
+    "viewDefault": "Default",
+    "viewCompact": "Compact",
     "priorities": {
       "low": "Low",
       "medium": "Medium",

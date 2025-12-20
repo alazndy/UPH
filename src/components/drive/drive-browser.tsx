@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Folder,
-  FileText,
   Upload,
   FolderPlus,
   ArrowLeft,
@@ -14,9 +12,18 @@ import {
   ExternalLink,
   HardDrive,
 } from 'lucide-react';
-import { DriveService, DriveFile, isFolder, getFileIcon } from '@/services/drive-service';
+import { DriveService, DriveFile, isFolder } from '@/services/drive-service';
+// Force TS re-check
+import { getLucideIconForFile } from '@/lib/file-icons';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import DxfViewer from '../viewer/dxf-viewer';
 
 interface DriveBrowserProps {
   accessToken?: string;
@@ -34,10 +41,14 @@ export function DriveBrowser({ accessToken, onFileSelect, initialFolderId }: Dri
   ]);
   const [newFolderName, setNewFolderName] = useState('');
   const [showNewFolder, setShowNewFolder] = useState(false);
+  const [previewFile, setPreviewFile] = useState<DriveFile | null>(null);
 
-  const driveService = accessToken ? new DriveService(accessToken) : null;
+  // Memoize drive service to prevent recreation on every render
+  const driveService = useMemo(() => 
+    accessToken ? new DriveService(accessToken) : null,
+  [accessToken]);
 
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async () => {
     if (!driveService) {
       setError('Not connected to Google Drive');
       return;
@@ -54,13 +65,13 @@ export function DriveBrowser({ accessToken, onFileSelect, initialFolderId }: Dri
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [driveService, currentFolderId]);
 
   useEffect(() => {
     if (accessToken) {
       fetchFiles();
     }
-  }, [accessToken, currentFolderId]);
+  }, [accessToken, fetchFiles]);
 
   const handleFolderClick = (folder: DriveFile) => {
     setFolderStack([...folderStack, { id: folder.id, name: folder.name }]);
@@ -100,12 +111,24 @@ export function DriveBrowser({ accessToken, onFileSelect, initialFolderId }: Dri
     const file = event.target.files?.[0];
     if (!file || !driveService) return;
 
+    const toastId = toast.loading(`Uploading ${file.name}...`);
+    
     try {
-      await driveService.uploadFile(file, currentFolderId);
-      toast.success('File uploaded');
+      if (file.size > 5 * 1024 * 1024) {
+        // Use resumable upload for files > 5MB
+        await driveService.uploadFileResumable(file, currentFolderId, (progress) => {
+          toast.loading(`Uploading ${file.name}... ${Math.round(progress)}%`, { id: toastId });
+        });
+      } else {
+        // Use simple upload for smaller files
+        await driveService.uploadFile(file, currentFolderId);
+      }
+      
+      toast.success('File uploaded successfully', { id: toastId });
       fetchFiles();
-    } catch {
-      toast.error('Failed to upload file');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to upload file', { id: toastId });
     }
   };
 
@@ -225,11 +248,26 @@ export function DriveBrowser({ accessToken, onFileSelect, initialFolderId }: Dri
                   if (isFolder(file)) {
                     handleFolderClick(file);
                   } else {
-                    onFileSelect?.(file);
+                    const isDxf = file.name.toLowerCase().endsWith('.dxf');
+                    const isDwg = file.name.toLowerCase().endsWith('.dwg');
+                    
+                    if (isDxf) {
+                      setPreviewFile(file);
+                    } else if (isDwg) {
+                      toast.info('DWG viewing requires backend conversion. Please convert to DXF for instant preview.', {
+                        duration: 5000,
+                        action: {
+                          label: 'Learn More',
+                          onClick: () => window.open('https://cloudconvert.com/dwg-to-dxf', '_blank')
+                        }
+                      });
+                    } else {
+                      onFileSelect?.(file);
+                    }
                   }
                 }}
               >
-                <span className="text-xl">{getFileIcon(file.mimeType)}</span>
+                {getLucideIconForFile(file.mimeType)}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{file.name}</p>
                   {file.modifiedTime && (
@@ -244,6 +282,8 @@ export function DriveBrowser({ accessToken, onFileSelect, initialFolderId }: Dri
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
+                    title="Open in Google Drive"
+                    aria-label="Open in Google Drive"
                   >
                     <Button variant="ghost" size="icon" className="h-6 w-6">
                       <ExternalLink className="h-3 w-3" />
@@ -255,6 +295,31 @@ export function DriveBrowser({ accessToken, onFileSelect, initialFolderId }: Dri
           </div>
         )}
       </CardContent>
+
+      <Dialog open={!!previewFile} onOpenChange={(open) => !open && setPreviewFile(null)}>
+        <DialogContent className="max-w-4xl h-[80vh] flex flex-col bg-zinc-900 border-zinc-700">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+               <span className="truncate max-w-[500px]">{previewFile?.name}</span>
+               <span className="text-xs font-normal text-muted-foreground bg-zinc-800 px-2 py-0.5 rounded">DXF Preview</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 min-h-0 bg-black rounded-md border border-zinc-800 relative">
+             {previewFile && (
+                <DxfViewer 
+                    // Use a proxy or proper download link. 
+                    // Google Drive 'webContentLink' usually downloads, 'webViewLink' is HTML.
+                    // For preview, we need the raw content. 
+                    // Assuming 'thumbnailLink' hack or just trying webContentLink.
+                    // Ideally, we fetch content via Drive API 'alt=media' but current DriveFile interface might just have links.
+                    // Passing webContentLink directly might fail CORS without proxy. 
+                    // For this MVP, we pass the link and DxfViewer will try to fetch it.
+                    fileUrl={previewFile.webContentLink || ''} 
+                />
+             )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

@@ -8,6 +8,7 @@ export interface DriveFile {
   size?: string;
   modifiedTime?: string;
   webViewLink?: string;
+  webContentLink?: string; // Download link
   iconLink?: string;
   parents?: string[];
 }
@@ -52,7 +53,7 @@ export class DriveService {
     const params = new URLSearchParams({
       q: query,
       pageSize: pageSize.toString(),
-      fields: 'files(id,name,mimeType,size,modifiedTime,webViewLink,iconLink,parents),nextPageToken',
+      fields: 'files(id,name,mimeType,size,modifiedTime,webViewLink,webContentLink,iconLink,parents),nextPageToken',
       orderBy: 'folder,name',
     });
 
@@ -61,7 +62,7 @@ export class DriveService {
 
   async getFile(fileId: string): Promise<DriveFile> {
     const params = new URLSearchParams({
-      fields: 'id,name,mimeType,size,modifiedTime,webViewLink,iconLink,parents',
+      fields: 'id,name,mimeType,size,modifiedTime,webViewLink,webContentLink,iconLink,parents',
     });
 
     return this.request<DriveFile>(`/files/${fileId}?${params}`);
@@ -98,7 +99,7 @@ export class DriveService {
     formData.append('file', file);
 
     const response = await fetch(
-      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,size,modifiedTime,webViewLink,iconLink',
+      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,size,modifiedTime,webViewLink,webContentLink,iconLink',
       {
         method: 'POST',
         headers: {
@@ -113,6 +114,82 @@ export class DriveService {
     }
 
     return response.json();
+  }
+
+  async uploadFileResumable(
+    file: File, 
+    parentId?: string,
+    onProgress?: (progress: number) => void
+  ): Promise<DriveFile> {
+    const metadata: Record<string, unknown> = {
+      name: file.name,
+      mimeType: file.type, 
+    };
+
+    if (parentId) {
+      metadata.parents = [parentId];
+    }
+
+    // 1. Initiate Resumable Upload
+    const initResponse = await fetch(
+      'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', 
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.token}`,
+          'Content-Type': 'application/json',
+          'X-Upload-Content-Type': file.type || 'application/octet-stream',
+        },
+        body: JSON.stringify(metadata),
+      }
+    );
+
+    if (!initResponse.ok) {
+       throw new Error(`Failed to initiate upload: ${initResponse.statusText}`);
+    }
+
+    const uploadUrl = initResponse.headers.get('Location');
+    if (!uploadUrl) {
+        throw new Error('Failed to get upload location');
+    }
+
+    // 2. Upload File Content via XHR to support progress
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', uploadUrl, true);
+        xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+
+        if (xhr.upload && onProgress) {
+             xhr.upload.onprogress = (progressEvent) => {
+                if (progressEvent.lengthComputable) {
+                    const percentComplete = (progressEvent.loaded / progressEvent.total) * 100;
+                    onProgress(percentComplete);
+                }
+            };
+        }
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    resolve(response);
+                } catch (_e) {
+                    console.warn('Ignored JSON parse error during upload callback', _e);
+                    // Sometimes Drive returns empty body on success for certain operations? 
+                    // Usually for update. For create (upload), it should return file metadata.
+                    // If JSON parse fails but status is OK, we might want to fetch file metadata separately 
+                    // or define what to return.
+                     reject(new Error('Invalid JSON response from Drive'));
+                }
+            } else {
+                reject(new Error(`Upload failed with status ${xhr.status}`));
+            }
+        };
+
+        xhr.onerror = () => reject(new Error('Network error during upload'));
+
+        xhr.send(file);
+    });
   }
 
   async deleteFile(fileId: string): Promise<void> {
@@ -130,16 +207,8 @@ export function isFolder(file: DriveFile): boolean {
   return file.mimeType === 'application/vnd.google-apps.folder';
 }
 
-// Get file icon based on mime type
-export function getFileIcon(mimeType: string): string {
-  if (mimeType.includes('folder')) return '📁';
-  if (mimeType.includes('image')) return '🖼️';
-  if (mimeType.includes('video')) return '🎬';
-  if (mimeType.includes('audio')) return '🎵';
-  if (mimeType.includes('pdf')) return '📄';
-  if (mimeType.includes('spreadsheet') || mimeType.includes('excel')) return '📊';
-  if (mimeType.includes('document') || mimeType.includes('word')) return '📝';
-  if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return '📽️';
-  if (mimeType.includes('zip') || mimeType.includes('archive')) return '📦';
-  return '📄';
+// Deprecated: UI components should use Lucide icons directly based on mimeType
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getFileIcon(_mimeType: string): string {
+  return 'file'; // Placeholder, handled in UI
 }

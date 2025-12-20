@@ -206,6 +206,7 @@
 @layer utilities {
   .glass-panel {
     background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
     box-shadow: 0 4px 30px var(--glass-shadow);
@@ -218,6 +219,7 @@
 
   .glass-card {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
     @apply shadow-lg transition-all duration-500 rounded-4xl;
@@ -226,6 +228,7 @@
   /* Static version for containers that shouldn't hover or jump */
   .glass-morph {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     border: 1px solid var(--glass-border);
     @apply shadow-2xl rounded-4xl;

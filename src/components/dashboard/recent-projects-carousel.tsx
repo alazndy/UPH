@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface RecentProjectsCarouselProps {
   projects: Project[];
@@ -24,9 +25,15 @@ export function RecentProjectsCarousel({ projects }: RecentProjectsCarouselProps
             <Link href={`/projects/${project.id}`}>
               <div className="glass-card p-5 border-[#2a4234] bg-[#1a2c22]/50 hover:bg-[#244732]/30 transition-all duration-300 h-full relative overflow-hidden group/card">
                 <div className="flex items-center gap-3 mb-4">
-                  <Avatar className="h-10 w-10 border border-border/50 bg-background/50">
+                  <Avatar className="h-10 w-10 border border-border/50 bg-background/50 relative overflow-hidden">
                     {project.logoUrl ? (
-                      <img src={project.logoUrl} alt={project.name} className="h-full w-full object-cover" />
+                      <Image 
+                        src={project.logoUrl} 
+                        alt={project.name} 
+                        fill 
+                        className="object-cover"
+                        sizes="40px"
+                      />
                     ) : (
                       <AvatarFallback className="text-white font-bold" style={{ backgroundColor: project.color || '#3b82f6' }}>
                         {project.name.charAt(0)}

@@ -1,7 +1,8 @@
 import { StateCreator } from 'zustand';
 import { ProjectTask, Project, Subtask, TaskComment } from '@/types/project';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { RepositoryFactory } from '@/lib/repositories/factory';
+
+const projectRepository = RepositoryFactory.getProjectRepository();
 
 export interface TaskSlice {
   tasks: Record<string, ProjectTask[]>; // projectId -> tasks map
@@ -17,6 +18,7 @@ export interface TaskSlice {
   toggleSubtask: (projectId: string, taskId: string, subtaskId: string) => Promise<void>;
   deleteSubtask: (projectId: string, taskId: string, subtaskId: string) => Promise<void>;
   
+  // Comments
   addComment: (projectId: string, taskId: string, text: string) => Promise<void>;
   deleteComment: (projectId: string, taskId: string, commentId: string) => Promise<void>;
   
@@ -33,9 +35,7 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
 
   fetchProjectTasks: async (projectId) => {
       try {
-          const tasksRef = collection(db, 'projects', projectId, 'tasks');
-          const snapshot = await getDocs(tasksRef);
-          const projectTasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ProjectTask));
+          const projectTasks = await projectRepository.getTasks(projectId);
           
           set(state => ({
               tasks: {
@@ -50,9 +50,8 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
 
   addTask: async (projectId, task) => {
       try {
-          const tasksRef = collection(db, 'projects', projectId, 'tasks');
-          const docRef = await addDoc(tasksRef, task);
-          const newTask: ProjectTask = { ...task, id: docRef.id };
+          const id = await projectRepository.addTask(projectId, task);
+          const newTask: ProjectTask = { ...task, id };
           
           set(state => ({
               tasks: {
@@ -67,8 +66,7 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
 
   toggleTask: async (projectId, taskId, currentCompleted) => {
       try {
-          const taskRef = doc(db, 'projects', projectId, 'tasks', taskId);
-          await updateDoc(taskRef, { completed: !currentCompleted });
+          await projectRepository.updateTask(projectId, taskId, { completed: !currentCompleted });
           
           set(state => ({
               tasks: {
@@ -85,9 +83,8 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
 
   updateTaskStatus: async (projectId, taskId, status) => {
       try {
-          const taskRef = doc(db, 'projects', projectId, 'tasks', taskId);
           const updates = { status, completed: status === 'done' };
-          await updateDoc(taskRef, updates);
+          await projectRepository.updateTask(projectId, taskId, updates);
           
           set(state => ({
               tasks: {
@@ -104,8 +101,7 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
 
   deleteTask: async (projectId, taskId) => {
       try {
-           const taskRef = doc(db, 'projects', projectId, 'tasks', taskId);
-           await deleteDoc(taskRef);
+           await projectRepository.deleteTask(projectId, taskId);
            
            set(state => ({
                tasks: {
@@ -130,7 +126,7 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
       const updatedSubtasks = [...(task.subtasks || []), newSubtask];
 
       try {
-          await updateDoc(doc(db, 'projects', projectId, 'tasks', taskId), { subtasks: updatedSubtasks });
+          await projectRepository.updateSubtasks(projectId, taskId, updatedSubtasks);
           set(state => ({
               tasks: {
                   ...state.tasks,
@@ -153,7 +149,7 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
       );
 
       try {
-          await updateDoc(doc(db, 'projects', projectId, 'tasks', taskId), { subtasks: updatedSubtasks });
+          await projectRepository.updateSubtasks(projectId, taskId, updatedSubtasks);
           set(state => ({
               tasks: {
                   ...state.tasks,
@@ -174,7 +170,7 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
       const updatedSubtasks = task.subtasks.filter(s => s.id !== subtaskId);
 
       try {
-          await updateDoc(doc(db, 'projects', projectId, 'tasks', taskId), { subtasks: updatedSubtasks });
+          await projectRepository.updateSubtasks(projectId, taskId, updatedSubtasks);
           set(state => ({
               tasks: {
                   ...state.tasks,
@@ -196,13 +192,13 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
           id: Date.now().toString(),
           text,
           createdAt: new Date().toISOString(),
-          userId: 'current-user', // Should be fetched from auth store or context
+          userId: 'current-user', 
           userName: 'You'
       };
       const updatedComments = [...(task.comments || []), newComment];
 
       try {
-          await updateDoc(doc(db, 'projects', projectId, 'tasks', taskId), { comments: updatedComments });
+          await projectRepository.updateComments(projectId, taskId, updatedComments);
           set(state => ({
               tasks: {
                   ...state.tasks,
@@ -223,7 +219,7 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
       const updatedComments = task.comments.filter(c => c.id !== commentId);
 
       try {
-          await updateDoc(doc(db, 'projects', projectId, 'tasks', taskId), { comments: updatedComments });
+          await projectRepository.updateComments(projectId, taskId, updatedComments);
           set(state => ({
               tasks: {
                   ...state.tasks,
@@ -240,7 +236,6 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
   syncGitHubIssues: async (projectId) => {
       console.log("Syncing GitHub issues for project:", projectId);
       
-      // Mock Data mimicking GitHub API response
       const mockIssues = [
           { title: "Fix login page responsiveness", state: "open" },
           { title: "Update dependency versions", state: "open" },
@@ -248,29 +243,26 @@ export const createTaskSlice: StateCreator<TaskSlice> = (set, get) => ({
       ];
 
       const currentTasks = get().tasks[projectId] || [];
-      const tasksRef = collection(db, 'projects', projectId, 'tasks');
 
       try {
           for (const issue of mockIssues) {
-              // Simple duplicate check by title to avoid spamming
               if (currentTasks.some(t => t.title === issue.title)) continue;
 
               const newTask: Omit<ProjectTask, 'id'> = {
                   title: issue.title,
                   completed: issue.state === 'closed',
                   status: issue.state === 'closed' ? 'done' : 'todo',
-                  dueDate: new Date(Date.now() + 86400000 * 7).toISOString() // Next week
+                  dueDate: new Date(Date.now() + 86400000 * 7).toISOString() 
               };
 
-              const docRef = await addDoc(tasksRef, newTask);
-              const taskWithId = { ...newTask, id: docRef.id };
+              const id = await projectRepository.addTask(projectId, newTask);
+              const taskWithId = { ...newTask, id };
 
-              // Update local state immediately for responsiveness
               set(state => ({
                   tasks: {
                       ...state.tasks,
                       [projectId]: [...(state.tasks[projectId] || []), taskWithId]
-                  }
+                   }
               }));
           }
           console.log("GitHub sync complete");

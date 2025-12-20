@@ -10,6 +10,7 @@ import {
   User as FirebaseUser
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { INITIAL_TEAM_MEMBERS } from '@/lib/mock-team-data';
 
 interface AuthState {
   user: AppUser | null;
@@ -138,11 +139,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       console.log('Onboarding completed');
   },
 
-  // Mock Team Implementation (Local State)
-  teamMembers: [
-      { uid: '1', email: 'ali@firma.com', displayName: 'Ali Yılmaz', role: 'admin', status: 'active', avatarUrl: '' },
-      { uid: '2', email: 'ayse@firma.com', displayName: 'Ayşe Demir', role: 'manager', status: 'active', avatarUrl: '' },
-  ],
+  // Team Implementation (from mock config - replace with Firebase in production)
+  teamMembers: INITIAL_TEAM_MEMBERS,
 
   inviteMember: async (email, role) => {
       // Simulate API call

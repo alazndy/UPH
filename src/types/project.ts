@@ -52,6 +52,16 @@ export interface ThreeDModel {
     size?: string;
 }
 
+export interface CadDrawing {
+    id: string;
+    name: string;
+    fileUrl: string;
+    uploadedAt: string;
+    type: 'dxf' | 'dwg' | 'other';
+    fileSize?: string;
+    webContentLink?: string; // For previews if available
+}
+
 export interface Project {
     id: string;
     userId: string; // Added user ID
@@ -76,6 +86,8 @@ export interface Project {
     pcbDesigns?: PCBDesign[];
     // 3D Models
     threeDModels?: ThreeDModel[];
+    // CAD Drawings (DXF, DWG)
+    cadDrawings?: CadDrawing[];
     // GitHub Integration
     githubRepo?: string;
     githubSyncEnabled?: boolean;

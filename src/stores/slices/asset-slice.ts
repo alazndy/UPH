@@ -1,8 +1,9 @@
 import { StateCreator } from 'zustand';
-import { Project, ProjectFile, WeaveDesign, PCBDesign, ThreeDModel } from '@/types/project';
-import { db } from '@/lib/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { ProjectFile, WeaveDesign, PCBDesign, ThreeDModel } from '@/types/project';
+import { RepositoryFactory } from '@/lib/repositories/factory';
 import { ProjectSlice } from './project-slice';
+
+const projectRepository = RepositoryFactory.getProjectRepository();
 
 // Combined slice for Files, Weave, PCB, and 3D Models
 export interface AssetSlice {
@@ -32,11 +33,11 @@ export const createAssetSlice: StateCreator<AssetSlice & ProjectSlice, [], [], A
       const updatedFiles = [...(project.files || []), newFile];
       
       try {
-          await updateDoc(doc(db, 'projects', projectId), { files: updatedFiles });
+          await projectRepository.update(projectId, { files: updatedFiles });
            set(state => ({
               projects: state.projects.map(p => p.id === projectId ? { ...p, files: updatedFiles } : p)
           }));
-      } catch (error: any) {
+      } catch (error: unknown) {
            console.error("Error adding file:", error);
       }
   },
@@ -48,11 +49,11 @@ export const createAssetSlice: StateCreator<AssetSlice & ProjectSlice, [], [], A
       const updatedFiles = (project.files || []).filter(f => f.id !== fileId);
       
       try {
-          await updateDoc(doc(db, 'projects', projectId), { files: updatedFiles });
+          await projectRepository.update(projectId, { files: updatedFiles });
           set(state => ({
               projects: state.projects.map(p => p.id === projectId ? { ...p, files: updatedFiles } : p)
           }));
-      } catch (error: any) {
+      } catch (error: unknown) {
            console.error("Error deleting file:", error);
       }
   },
@@ -65,11 +66,11 @@ export const createAssetSlice: StateCreator<AssetSlice & ProjectSlice, [], [], A
       const updatedDesigns = [...(project.weaveDesigns || []), newDesign];
       
       try {
-          await updateDoc(doc(db, 'projects', projectId), { weaveDesigns: updatedDesigns });
+          await projectRepository.update(projectId, { weaveDesigns: updatedDesigns });
            set(state => ({
               projects: state.projects.map(p => p.id === projectId ? { ...p, weaveDesigns: updatedDesigns } : p)
           }));
-      } catch (error: any) {
+      } catch (error: unknown) {
            console.error("Error adding Weave design:", error);
       }
   },
@@ -81,11 +82,11 @@ export const createAssetSlice: StateCreator<AssetSlice & ProjectSlice, [], [], A
       const updatedDesigns = (project.weaveDesigns || []).filter(d => d.id !== designId);
       
       try {
-          await updateDoc(doc(db, 'projects', projectId), { weaveDesigns: updatedDesigns });
+          await projectRepository.update(projectId, { weaveDesigns: updatedDesigns });
           set(state => ({
               projects: state.projects.map(p => p.id === projectId ? { ...p, weaveDesigns: updatedDesigns } : p)
           }));
-      } catch (error: any) {
+      } catch (error: unknown) {
            console.error("Error deleting Weave design:", error);
       }
   },
@@ -98,11 +99,11 @@ export const createAssetSlice: StateCreator<AssetSlice & ProjectSlice, [], [], A
       const updatedDesigns = [...(project.pcbDesigns || []), newDesign];
       
       try {
-          await updateDoc(doc(db, 'projects', projectId), { pcbDesigns: updatedDesigns });
+          await projectRepository.update(projectId, { pcbDesigns: updatedDesigns });
           set(state => ({
               projects: state.projects.map(p => p.id === projectId ? { ...p, pcbDesigns: updatedDesigns } : p)
           }));
-      } catch (error: any) {
+      } catch (error: unknown) {
            console.error("Error adding PCB design:", error);
       }
   },
@@ -114,11 +115,11 @@ export const createAssetSlice: StateCreator<AssetSlice & ProjectSlice, [], [], A
       const updatedDesigns = (project.pcbDesigns || []).filter(d => d.id !== designId);
       
       try {
-          await updateDoc(doc(db, 'projects', projectId), { pcbDesigns: updatedDesigns });
+          await projectRepository.update(projectId, { pcbDesigns: updatedDesigns });
           set(state => ({
               projects: state.projects.map(p => p.id === projectId ? { ...p, pcbDesigns: updatedDesigns } : p)
           }));
-      } catch (error: any) {
+      } catch (error: unknown) {
            console.error("Error deleting PCB design:", error);
       }
   },
@@ -131,11 +132,11 @@ export const createAssetSlice: StateCreator<AssetSlice & ProjectSlice, [], [], A
       const updatedModels = [...(project.threeDModels || []), newModel];
       
       try {
-          await updateDoc(doc(db, 'projects', projectId), { threeDModels: updatedModels });
+          await projectRepository.update(projectId, { threeDModels: updatedModels });
           set(state => ({
               projects: state.projects.map(p => p.id === projectId ? { ...p, threeDModels: updatedModels } : p)
           }));
-      } catch (error: any) {
+      } catch (error: unknown) {
            console.error("Error adding 3D model:", error);
       }
   },
@@ -147,11 +148,11 @@ export const createAssetSlice: StateCreator<AssetSlice & ProjectSlice, [], [], A
       const updatedModels = (project.threeDModels || []).filter(m => m.id !== modelId);
       
       try {
-          await updateDoc(doc(db, 'projects', projectId), { threeDModels: updatedModels });
+          await projectRepository.update(projectId, { threeDModels: updatedModels });
           set(state => ({
               projects: state.projects.map(p => p.id === projectId ? { ...p, threeDModels: updatedModels } : p)
           }));
-      } catch (error: any) {
+      } catch (error: unknown) {
            console.error("Error deleting 3D model:", error);
       }
   }

@@ -9,17 +9,17 @@ service firebase.storage {
     }
     
     match /weave-designs/{allPaths=**} {
-      allow read, write: if true;
+      allow read, write: if isAuthenticated();
     }
     match /3d-models/{allPaths=**} {
-      allow read, write: if true;
+      allow read, write: if isAuthenticated();
     }
     match /pcb-designs/{allPaths=**} {
-      allow read, write: if true;
+      allow read, write: if isAuthenticated();
     }
     
     match /projects/{allPaths=**} {
-      allow read, write: if true;
+      allow read, write: if isAuthenticated();
     }
     
     // Default deny

@@ -6,9 +6,10 @@ import { createAssetSlice, AssetSlice } from './slices/asset-slice';
 // Combined State Type
 export type ProjectState = ProjectSlice & TaskSlice & AssetSlice;
 
-export const useProjectStore = create<ProjectState>()((...a) => ({
-  ...createProjectSlice(...a),
-  ...createTaskSlice(...a),
-  // @ts-ignore - AssetSlice depends on ProjectSlice state which is available in the combined store but type inference is tricky here w/o full generic chain
-  ...createAssetSlice(...a),
+// Use proper type composition with StateCreator generics
+// The slices are designed to be composed - AssetSlice specifies its dependency on ProjectSlice
+export const useProjectStore = create<ProjectState>()((...args) => ({
+  ...createProjectSlice(...args),
+  ...createTaskSlice(...args),
+  ...createAssetSlice(...(args as Parameters<typeof createAssetSlice>)),
 }));

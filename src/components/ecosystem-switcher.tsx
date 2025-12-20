@@ -18,7 +18,7 @@ const apps = [
     {
         name: "T-HUB",
         description: "Unified Project Hub",
-        url: "http://localhost:3001",
+        url: "http://localhost:3000",
         icon: LayoutGrid,
         color: "text-purple-500",
         bg: "bg-purple-500/10",
@@ -27,7 +27,7 @@ const apps = [
     {
         name: "ENV-I",
         description: "Inventory Management",
-        url: "http://localhost:3000",
+        url: "http://localhost:3001",
         icon: Package,
         color: "text-emerald-500",
         bg: "bg-emerald-500/10",
@@ -36,7 +36,7 @@ const apps = [
     {
         name: "T-WEAVE",
         description: "Technical Design Tool",
-        url: "http://localhost:3003",
+        url: "http://localhost:3004",
         icon: Share2,
         color: "text-orange-500",
         bg: "bg-orange-500/10",

@@ -18,6 +18,7 @@ import { fetchReadme } from '@/lib/github';
 import { Github, Loader2, BookOpen, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 interface ImportProjectDialogProps {
   open: boolean;
@@ -25,6 +26,7 @@ interface ImportProjectDialogProps {
 }
 
 export function ImportProjectDialog({ open, onOpenChange }: ImportProjectDialogProps) {
+  const t = useTranslations('Projects');
   const [repoUrl, setRepoUrl] = useState('');
   const [isImporting, setIsImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
@@ -81,8 +83,9 @@ export function ImportProjectDialog({ open, onOpenChange }: ImportProjectDialogP
         handleClose();
         router.push(`/projects/${newProject.id}`);
 
-    } catch (e: any) {
-        setImportError(e.message || "Import işlemi sırasında bir hata oluştu.");
+    } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : "Import işlemi sırasında bir hata oluştu.";
+        setImportError(errorMessage);
     } finally {
         setIsImporting(false);
     }
@@ -101,16 +104,16 @@ export function ImportProjectDialog({ open, onOpenChange }: ImportProjectDialogP
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Github className="h-5 w-5" />
-            Import from GitHub
+            {t('importFromGithub')}
           </DialogTitle>
           <DialogDescription>
-            Create a new project from an existing GitHub repository.
+            {t('importDescription')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="import-url">Repository URL</Label>
+            <Label htmlFor="import-url">{t('repoUrl')}</Label>
             <Input
               id="import-url"
               placeholder="https://github.com/owner/repo"
@@ -131,18 +134,20 @@ export function ImportProjectDialog({ open, onOpenChange }: ImportProjectDialogP
           <div className="bg-muted/50 p-3 rounded-md text-sm text-muted-foreground flex gap-2">
             <BookOpen className="h-4 w-4 mt-0.5 shrink-0" />
             <p>
-                Sistem otomatik olarak Proje Adı, Açıklama ve <strong>README</strong> dosyasını çekecektir.
+                {t.rich('importInfo', {
+                    strong: (chunks) => <strong>{chunks}</strong>
+                })}
             </p>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>Cancel</Button>
+          <Button variant="outline" onClick={handleClose}>{t('cancel')}</Button>
           <Button onClick={handleImport} disabled={!repoUrl || isImporting}>
             {isImporting ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Importing...</>
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('importing')}</>
             ) : (
-              <>Import Project</>
+              <>{t('importProject')}</>
             )}
           </Button>
         </DialogFooter>

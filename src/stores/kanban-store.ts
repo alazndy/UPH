@@ -4,14 +4,15 @@ import {
   collectionGroup, 
   getDocs, 
   query, 
-  where,
   limit,
+  orderBy,
   Timestamp,
   doc,
   updateDoc,
   deleteDoc,
   addDoc,
-  collection
+  collection,
+  writeBatch
 } from 'firebase/firestore';
 
 export type TaskStatus = 'todo' | 'in-progress' | 'review' | 'done';
@@ -45,6 +46,7 @@ interface KanbanState {
   addTask: (projectId: string, task: Omit<KanbanTask, 'id' | 'createdAt' | 'updatedAt' | 'order' | 'projectId'>) => Promise<void>;
   updateTask: (projectId: string, taskId: string, updates: Partial<KanbanTask>) => Promise<void>;
   deleteTask: (projectId: string, taskId: string) => Promise<void>;
+  batchReorder: (tasks: KanbanTask[]) => Promise<void>;
 }
 
 const defaultColumns: KanbanColumn[] = [
@@ -58,12 +60,36 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   columns: defaultColumns,
   isLoading: false,
 
+  batchReorder: async (updatedTasks) => {
+    try {
+      const batch = writeBatch(db);
+      
+      updatedTasks.forEach((task, index) => {
+        const taskRef = doc(db, 'projects', task.projectId, 'tasks', task.id);
+        batch.update(taskRef, { 
+          order: index, 
+          status: task.status, // Ensure status is synced if moved between columns
+          updatedAt: new Date() 
+        });
+      });
+
+      await batch.commit();
+      
+      // Optimistically update local state or refetch
+      // For simplicity/safety, we refetch to ensure server state matches
+      get().fetchGlobalTasks(); 
+    } catch (error) {
+      console.error("Error batch reordering tasks:", error);
+    }
+  },
+
   fetchGlobalTasks: async () => {
     set({ isLoading: true });
     try {
       // Fetch all tasks from all projects using collectionGroup
       // Requires 'tasks' subcollection to be named consistently
-      const q = query(collectionGroup(db, 'tasks'), limit(100));
+      // Added orderBy to get most recent tasks and filter out old garbage
+      const q = query(collectionGroup(db, 'tasks'), orderBy('createdAt', 'desc'), limit(100));
       const snapshot = await getDocs(q);
       
       const tasks: KanbanTask[] = [];
@@ -72,6 +98,8 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
         // We need to know projectId. Firestore doc ref has parent path.
         // path: projects/{projectId}/tasks/{taskId}
         const projectId = doc.ref.parent.parent?.id || 'unknown';
+
+        if (!data.title) return; // Skip malformed tasks
 
         tasks.push({
             id: doc.id,
@@ -102,7 +130,6 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
 
   moveTask: async (task, toStatus, newOrder) => {
     // Optimistic Update
-    const currentColumns = get().columns;
     // ... logic for optimistic update omitted for brevity, focusing on persistence
     
     try {

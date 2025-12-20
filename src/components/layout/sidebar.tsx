@@ -1,7 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { motion } from 'framer-motion';
+
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -72,8 +75,14 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
     <div className="space-y-4 py-6 flex flex-col h-full glass-sidebar text-sidebar-foreground transition-all duration-300">
       <div className="px-6 py-2 flex-1 flex flex-col">
         <Link href="/dashboard" className={cn("flex items-center mb-10 transition-all duration-300", isCollapsed ? "px-0 justify-center" : "px-0")}>
-            <div className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-primary to-purple-600 shadow-xl transition-transform hover:scale-105">
-             <img src="/logo.png" alt="T-HUB Logo" className="w-6 h-6 object-contain dark:brightness-0 dark:invert" />
+            <div className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-linear-to-br from-primary to-purple-600 shadow-xl transition-transform hover:scale-105">
+             <Image 
+               src="/logo.png" 
+               alt="T-HUB Logo" 
+               width={24} 
+               height={24} 
+               className="object-contain dark:brightness-0 dark:invert" 
+             />
           </div>
           {!isCollapsed && (
               <div className="ml-3 flex flex-col">
@@ -85,41 +94,62 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
           )}
         </Link>
         
-        <div className="space-y-2 flex-1">
+        <motion.div 
+          className="space-y-2 flex-1"
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: { opacity: 0, x: -10 },
+            show: {
+              opacity: 1,
+              x: 0,
+              transition: {
+                staggerChildren: 0.05
+              }
+            }
+          }}
+        >
           {routes.map((route) => (
-            <Link
+            <motion.div 
               key={route.href}
-              href={route.href}
-              className={cn(
-                'group relative flex items-center p-3 w-full font-medium rounded-xl transition-all duration-300',
-                pathname === route.href 
-                    ? 'bg-primary/10 text-primary dark:text-white' 
-                    : 'text-sidebar-foreground hover:bg-black/5 dark:hover:bg-white/3 hover:text-foreground dark:hover:text-white',
-                isCollapsed && "justify-center"
-              )}
-              title={isCollapsed ? route.label : undefined}
+              variants={{
+                hidden: { opacity: 0, x: -10 },
+                show: { opacity: 1, x: 0 }
+              }}
             >
-              {/* Active Indicator Glow */}
-              {pathname === route.href && (
-                <div className="absolute left-0 w-1 h-6 bg-primary rounded-r-full shadow-lg dark:shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
-              )}
-              
-              <route.icon className={cn('h-5 w-5 transition-all duration-300', 
-                pathname === route.href ? "text-primary scale-110" : "text-sidebar-foreground group-hover:text-primary group-hover:scale-110", 
-                !isCollapsed && "ml-2 mr-3"
-              )} />
-              
-              {!isCollapsed && (
-                <span className="text-sm transition-opacity duration-300">
-                  {route.label}
-                </span>
-              )}
+              <Link
+                href={route.href}
+                className={cn(
+                  'group relative flex items-center p-3 w-full font-medium rounded-xl transition-all duration-300',
+                  pathname === route.href 
+                      ? 'bg-primary/10 text-primary dark:text-white' 
+                      : 'text-sidebar-foreground hover:bg-black/5 dark:hover:bg-white/3 hover:text-foreground dark:hover:text-white',
+                  isCollapsed && "justify-center"
+                )}
+                title={isCollapsed ? route.label : undefined}
+              >
+                {/* Active Indicator Glow */}
+                {pathname === route.href && (
+                  <div className="absolute left-0 w-1 h-6 bg-primary rounded-r-full shadow-lg dark:shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
+                )}
+                
+                <route.icon className={cn('h-5 w-5 transition-all duration-300', 
+                  pathname === route.href ? "text-primary scale-110" : "text-sidebar-foreground group-hover:text-primary group-hover:scale-110", 
+                  !isCollapsed && "ml-2 mr-3"
+                )} />
+                
+                {!isCollapsed && (
+                  <span className="text-sm transition-opacity duration-300">
+                    {route.label}
+                  </span>
+                )}
 
-              {/* Hover Glow Effect */}
-              <div className="absolute inset-0 rounded-xl bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
-            </Link>
+                {/* Hover Glow Effect */}
+                <div className="absolute inset-0 rounded-xl bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
+              </Link>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       <div className="px-6 py-4 space-y-4">

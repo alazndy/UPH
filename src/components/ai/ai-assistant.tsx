@@ -102,7 +102,7 @@ export function AIAssistant({ projectId, projectName, projectDescription }: AIAs
     }}>
       <DialogTrigger asChild>
         <Button 
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-linear-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700"
           size="icon"
         >
           <Sparkles className="h-6 w-6" />
@@ -209,8 +209,8 @@ export function AIAssistant({ projectId, projectName, projectDescription }: AIAs
               </div>
             ) : typeof result === 'string' ? (
               <>
-                <div className="prose prose-sm dark:prose-invert max-h-[300px] overflow-y-auto p-4 bg-muted/50 rounded-lg">
-                  <div dangerouslySetInnerHTML={{ __html: result.replace(/\n/g, '<br/>') }} />
+                <div className="prose prose-sm dark:prose-invert max-h-[300px] overflow-y-auto p-4 bg-muted/50 rounded-lg whitespace-pre-wrap">
+                  {result}
                 </div>
                 <Button variant="outline" onClick={() => setMode('menu')} className="w-full">
                   Back

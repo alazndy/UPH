@@ -7,10 +7,12 @@ import { KanbanCard } from './kanban-card';
 import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 interface KanbanColumnProps {
   column: KanbanColumnType;
   onAddTask?: () => void;
+  isCompact?: boolean;
 }
 
 const columnColors: Record<string, string> = {
@@ -21,9 +23,7 @@ const columnColors: Record<string, string> = {
   'done': 'border-t-green-500',
 };
 
-import { useTranslations } from 'next-intl';
-
-export function KanbanColumn({ column, onAddTask }: KanbanColumnProps) {
+export function KanbanColumn({ column, onAddTask, isCompact = false }: KanbanColumnProps) {
   const t = useTranslations('Kanban');
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
@@ -69,13 +69,16 @@ export function KanbanColumn({ column, onAddTask }: KanbanColumnProps) {
       </div>
 
       {/* Tasks */}
-      <div className="flex-1 p-2 space-y-2 overflow-y-auto min-h-[200px] max-h-[calc(100vh-300px)]">
+      <div className={cn(
+        'flex-1 p-2 overflow-y-auto min-h-[200px] max-h-[calc(100vh-300px)]',
+        isCompact ? 'space-y-1' : 'space-y-2'
+      )}>
         <SortableContext
           items={column.tasks.map(t => t.id)}
           strategy={verticalListSortingStrategy}
         >
           {column.tasks.map(task => (
-            <KanbanCard key={task.id} task={task} />
+            <KanbanCard key={task.id} task={task} isCompact={isCompact} />
           ))}
         </SortableContext>
         
