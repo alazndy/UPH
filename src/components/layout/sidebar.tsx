@@ -15,7 +15,12 @@ import {
   LogOut,
   Plus,
   Columns3,
-  BarChart3
+  BarChart3,
+  Rocket,
+  ShieldAlert,
+  ShieldCheck,
+  Users,
+  CloudSync
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -27,10 +32,13 @@ interface SidebarProps {
 
 import { useTranslations } from 'next-intl';
 
+import { useFeatureStore } from '@/stores/feature-store';
+
 export function Sidebar({ isCollapsed = false }: SidebarProps) {
   const pathname = usePathname();
   const logout = useAuthStore((state) => state.logout);
   const t = useTranslations('Common');
+  const features = useFeatureStore((state) => state.features);
 
   const routes = [
     {
@@ -38,38 +46,112 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       icon: LayoutDashboard,
       href: '/dashboard',
       color: 'text-sky-500',
+      id: 'dashboard' // Core feature, always on
     },
     {
       label: t('projects'),
       icon: FolderKanban,
       href: '/projects',
       color: 'text-violet-500',
+      id: 'projects' // Core feature
+    },
+    {
+      label: 'Değişim Talepleri (ECR)',
+      icon: Settings,
+      href: '/engineering/ecr',
+      color: 'text-blue-500',
+      id: 'ecm'
+    },
+    {
+      label: 'Değişim Emirleri (ECO)',
+      icon: Rocket,
+      href: '/engineering/eco',
+      color: 'text-purple-500',
+      id: 'ecm'
+    },
+    {
+      label: 'Risk Zekası (RAID)',
+      icon: ShieldAlert,
+      href: '/analytics/risk',
+      color: 'text-red-500',
+      id: 'ecm'
+    },
+    {
+      label: 'Kaynak Planlama',
+      icon: Users,
+      href: '/planning/capacity',
+      color: 'text-amber-500',
+      id: 'projects' // Reusing projects id or could create 'capacity'
     },
     {
       label: t('kanban'),
       icon: Columns3,
       href: '/kanban',
       color: 'text-orange-500',
+      id: 'kanban'
     },
     {
       label: t('analytics'),
       icon: BarChart3,
       href: '/analytics',
       color: 'text-emerald-500',
+      id: 'risk-management' // Mapped to risk for now
     },
     {
       label: t('inventory'),
       icon: Package,
       href: '/inventory',
       color: 'text-pink-700',
+      id: 'inventory'
+    },
+    {
+      label: 'Değişim Emirleri (ECO)',
+      icon: Rocket,
+      href: '/engineering/eco',
+      color: 'text-purple-500',
+      id: 'ecm'
+    },
+    {
+      label: 'Risk Zekası (RAID)',
+      icon: ShieldAlert,
+      href: '/analytics/risk',
+      color: 'text-red-500',
+      id: 'ecm'
+    },
+    {
+      label: 'Kaynak Planlama',
+      icon: Users,
+      href: '/planning/capacity',
+      color: 'text-amber-500',
+      id: 'projects'
+    },
+    {
+      label: 'Güvenlik & Audit',
+      icon: ShieldCheck,
+      href: '/settings/security',
+      color: 'text-emerald-500',
+      id: 'settings'
+    },
+    {
+      label: 'Sistem Durumu',
+      icon: CloudSync,
+      href: '/settings/status',
+      color: 'text-blue-500',
+      id: 'settings'
     },
     {
       label: t('settings'),
       icon: Settings,
       href: '/settings',
       color: 'text-slate-500',
+      id: 'settings'
     },
-  ];
+  ].filter(route => {
+    // Core routes are always enabled
+    if (['dashboard', 'projects', 'settings'].includes(route.id)) return true;
+    const feature = features.find(f => f.id === route.id);
+    return feature ? feature.enabled : true;
+  });
 
   return (
     <div className="space-y-4 py-6 flex flex-col h-full glass-sidebar text-sidebar-foreground transition-all duration-300">

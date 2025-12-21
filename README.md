@@ -11,6 +11,7 @@
 ## ✨ Öne Çıkan Özellikler
 
 ### 📊 Proje Yönetimi
+
 - **📈 Dashboard**: Aktif projeler, bütçe takibi ve görev durumlarının üst düzey görünümü
 - **📅 Gantt Zaman Çizelgesi**: `gantt-task-react` ile interaktif zamanlama ve bağımlılık takibi
 - **🎯 Kanban Panosu**: Agile iş akışları için sürükle-bırak görev yönetimi
@@ -19,13 +20,15 @@
   - Gerçek zamanlı senkronizasyon
 
 ### 💰 Finansal İstihbarat
+
 - **💵 Gerçek Zamanlı Maliyet Hesaplama**: BOM (Malzeme Listesi) ve envanter atamalarına göre otomatik maliyet hesaplama
-- **📊 Finansal Dashboard**: 
+- **📊 Finansal Dashboard**:
   - Maliyet dağılımı (Malzeme vs İşçilik) için pasta grafikleri
   - Bütçe vs Gerçekleşen için çubuk grafikleri (`recharts`)
 - **📈 Karlılık Analizi**: Sözleşme değeri, marjlar ve net kar takibi
 
 ### 🔌 Mühendislik Entegrasyonu
+
 - **🔗 BOM Otomasyonu**: Weave tasarımlarından BOM'ları doğrudan içe aktarma ve stoktan otomatik düşme
 - **🎨 Tasarım Görüntüleyici**: Weave şematiklerini, PCB tasarımlarını ve 3D modelleri proje bağlamında önizleme
 - **📐 CAD Çizim Desteği**: DXF/DWG dosyalarını görüntüleme ve yönetme
@@ -34,14 +37,16 @@
   - Zoom ve pan kontrolleri
 
 ### ☁️ Google Drive Entegrasyonu
+
 - **📁 Dosya Tarayıcısı**: Proje dosyalarını doğrudan Drive'dan yönetme
-- **📤 Yüklemeler**: 
+- **📤 Yüklemeler**:
   - Küçük dosyalar için basit yükleme (<5MB)
   - Büyük dosyalar için devam ettirilebilir yükleme (>5MB)
   - Gerçek zamanlı ilerleme takibi
 - **🔍 Önizleme**: DXF/DWG dosyalarını tarayıcıda doğrudan görüntüleme
 
 ### 🔗 GitHub Entegrasyonu
+
 - Commit'leri ve PR'ları proje görevlerine bağlama
 - Kod değişikliklerini proje zaman çizelgesiyle senkronize etme
 
@@ -49,15 +54,15 @@
 
 ## 🛠️ Teknoloji Yığını
 
-| Kategori | Teknoloji | Açıklama |
-|:---------|:----------|:---------|
-| **Framework** | [Next.js 15](https://nextjs.org/) | App Router, Server Components, TypeScript |
-| **Stil** | [Tailwind CSS](https://tailwindcss.com/) | Utility-first CSS + [shadcn/ui](https://ui.shadcn.com/) |
-| **Görselleştirme** | `recharts`, `gantt-task-react` | Finansal grafikler ve proje zaman çizelgesi |
-| **3D Render** | `@react-three/fiber`, `@react-three/drei` | CAD dosyası görselleştirme |
-| **Backend** | [Firebase](https://firebase.google.com/) | Firestore, Authentication, Storage |
-| **State Yönetimi** | [Zustand](https://github.com/pmndrs/zustand) | Hafif global state yönetimi |
-| **Uluslararasılaştırma** | `next-intl` | Çoklu dil desteği (TR/EN) |
+| Kategori                 | Teknoloji                                    | Açıklama                                                |
+| :----------------------- | :------------------------------------------- | :------------------------------------------------------ |
+| **Framework**            | [Next.js 15](https://nextjs.org/)            | App Router, Server Components, TypeScript               |
+| **Stil**                 | [Tailwind CSS](https://tailwindcss.com/)     | Utility-first CSS + [shadcn/ui](https://ui.shadcn.com/) |
+| **Görselleştirme**       | `recharts`, `gantt-task-react`               | Finansal grafikler ve proje zaman çizelgesi             |
+| **3D Render**            | `@react-three/fiber`, `@react-three/drei`    | CAD dosyası görselleştirme                              |
+| **Backend**              | [Firebase](https://firebase.google.com/)     | Firestore, Authentication, Storage                      |
+| **State Yönetimi**       | [Zustand](https://github.com/pmndrs/zustand) | Hafif global state yönetimi                             |
+| **Uluslararasılaştırma** | `next-intl`                                  | Çoklu dil desteği (TR/EN)                               |
 
 ---
 
@@ -72,19 +77,22 @@
 ### Kurulum
 
 1. **Depoyu klonlayın:**
+
    ```bash
    git clone <repository-url>
    cd UPH-main
    ```
 
 2. **Bağımlılıkları yükleyin:**
+
    ```bash
    pnpm install
    ```
 
 3. **Ortam Değişkenlerini Ayarlayın:**
-   
+
    `.env.local` dosyası oluşturun:
+
    ```env
    NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
@@ -95,6 +103,7 @@
    ```
 
 4. **Geliştirme sunucusunu başlatın:**
+
    ```bash
    pnpm dev
    ```
@@ -153,6 +162,7 @@ UPH-main/
 Bir projenin **Timeline** sekmesinde bulunur. Görev dizilerini görselleştirir.
 
 **Özellikler:**
+
 - Görev bağımlılıkları
 - Kritik yol analizi
 - Sürükle-bırak ile tarih ayarlama
@@ -167,6 +177,7 @@ Bir projenin **Timeline** sekmesinde bulunur. Görev dizilerini görselleştirir
 - **Projeksiyonlar**: Yapılandırılabilir bir marj (%25 varsayılan) temelinde kar tahmini
 
 **Grafikler:**
+
 - Maliyet Dağılımı (Pasta Grafik)
 - Bütçe vs Gerçekleşen (Çubuk Grafik)
 - Zaman İçinde Harcama Trendi (Çizgi Grafik)
@@ -176,6 +187,7 @@ Bir projenin **Timeline** sekmesinde bulunur. Görev dizilerini görselleştirir
 **Kanban** sekmesinde bulunur. Agile görev yönetimi sağlar.
 
 **Özellikler:**
+
 - Sürükle-bırak görev taşıma
 - Öncelik filtreleme (Düşük, Orta, Yüksek)
 - Kompakt ve detaylı görünüm modları
@@ -186,11 +198,13 @@ Bir projenin **Timeline** sekmesinde bulunur. Görev dizilerini görselleştirir
 **CAD Drawings** sekmesinde bulunur. DXF/DWG dosyalarını yönetir.
 
 **Desteklenen Öğeler:**
+
 - Çizgiler (LINE)
 - Poliçizgiler (LWPOLYLINE, POLYLINE)
 - Daireler (CIRCLE)
 
 **Kontroller:**
+
 - Zoom: Fare tekerleği
 - Pan: Sağ tıklayıp sürükle
 - Sıfırla: Görünümü merkeze al
@@ -218,6 +232,7 @@ Bir projenin **Timeline** sekmesinde bulunur. Görev dizilerini görselleştirir
 ### v2.0.0 (2025-01-20)
 
 **Yeni Özellikler:**
+
 - ✨ Google Drive entegrasyonu eklendi
 - ✨ DXF/DWG dosya görüntüleyici eklendi
 - ✨ Devam ettirilebilir dosya yükleme desteği
@@ -225,12 +240,14 @@ Bir projenin **Timeline** sekmesinde bulunur. Görev dizilerini görselleştirir
 - ✨ Proje detay sayfası yeniden yapılandırıldı
 
 **İyileştirmeler:**
+
 - 🔧 TypeScript tip güvenliği iyileştirildi
 - 🔧 Drive Service için hata yönetimi geliştirildi
 - 🔧 DXF parser için tip tanımları eklendi
 - 🔧 Weave Canvas Viewer performansı optimize edildi
 
 **Düzeltmeler:**
+
 - 🐛 Drive Service `uploadFileResumable` metodu eklendi
 - 🐛 DxfViewer tip hataları düzeltildi
 - 🐛 Kanban kartı sürükle-bırak işlevi düzeltildi
@@ -260,5 +277,5 @@ Bu proje MIT Lisansı altında lisanslanmıştır.
 
 - **T-Weave**: Şematik tasarım uygulaması
 - **ENV-I**: Envanter yönetim sistemi
-- **Dokümantasyon**: [Wiki](./docs)
+- **Dokümantasyon**: [Wiki](./docs/wiki/Home.md)
 - **Sorun Bildirimi**: [GitHub Issues](./issues)

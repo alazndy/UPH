@@ -45,8 +45,8 @@ export default function InventoryPage() {
   }, [fetchInventory]);
 
   const filteredProducts = products.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            product.category.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = (product.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                            (product.category?.toLowerCase() || '').includes(searchTerm.toLowerCase());
       const matchesLowStock = showLowStockOnly ? product.stock <= (product.minStock || 3) : true;
       
       return matchesSearch && matchesLowStock;

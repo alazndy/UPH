@@ -9,6 +9,8 @@ import { MaintenanceSettings } from '@/components/settings/maintenance-settings'
 import { IntegrationsSettings } from '@/components/settings/integrations-settings';
 import { AppearanceSettings } from '@/components/settings/appearance-settings';
 
+import { FeatureSettings } from '@/components/settings/feature-settings';
+
 export default function SettingsPage() {
   const t = useTranslations('Settings');
 
@@ -21,6 +23,7 @@ export default function SettingsPage() {
       <Tabs defaultValue="profile" className="space-y-4">
         <TabsList>
           <TabsTrigger value="profile">{t('tabs.profile')}</TabsTrigger>
+          <TabsTrigger value="features">Dönüşüm & Özellikler</TabsTrigger>
           <TabsTrigger value="system">{t('tabs.system')}</TabsTrigger>
           <TabsTrigger value="appearance">Görünüm</TabsTrigger>
           <TabsTrigger value="integrations">{t('integrations.title')}</TabsTrigger>
@@ -30,6 +33,10 @@ export default function SettingsPage() {
 
         <TabsContent value="profile">
             <ProfileSettings />
+        </TabsContent>
+
+        <TabsContent value="features">
+            <FeatureSettings />
         </TabsContent>
 
         <TabsContent value="system">

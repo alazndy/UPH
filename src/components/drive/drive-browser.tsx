@@ -23,7 +23,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import DxfViewer from '../viewer/dxf-viewer';
+import dynamic from 'next/dynamic';
+
+const DxfViewer = dynamic(() => import('../viewer/dxf-viewer'), { 
+  loading: () => <div className="h-full w-full flex items-center justify-center bg-zinc-900 border border-zinc-700 rounded-md"><Loader2 className="h-8 w-8 animate-spin text-zinc-500" /></div>,
+  ssr: false 
+});
 
 interface DriveBrowserProps {
   accessToken?: string;
