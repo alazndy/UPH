@@ -6,6 +6,7 @@ export type DispositionCode = 'scrap' | 'use_as_is' | 'rework';
 
 export interface ECR {
   id: string;
+  projectId?: string; // Optional: links ECR to a specific project
   identifier: string; // ECR-2025-001
   title: string;
   description: string;
@@ -38,6 +39,7 @@ export interface RevisedItem {
 
 export interface ECO {
   id: string;
+  projectId?: string; // Optional: links ECO to a specific project
   identifier: string; // ECO-2025-001
   ecrId?: string; // Optional reference to originating ECR
   title: string;

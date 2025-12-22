@@ -30,7 +30,12 @@ import {
 import { ECOPriority } from '@/types/engineering';
 import { toast } from 'sonner';
 
-export function AddECRDialog() {
+interface AddECRDialogProps {
+  projectId?: string;
+  trigger?: React.ReactNode;
+}
+
+export function AddECRDialog({ projectId, trigger }: AddECRDialogProps) {
   const [open, setOpen] = useState(false);
   const addECR = useECMStore((state) => state.addECR);
   
@@ -54,6 +59,7 @@ export function AddECRDialog() {
         ...formData,
         status: 'open',
         requestorId: 'current-user', // In real app, get from auth store
+        projectId, // Optional: associates ECR with a project
       });
       
       toast.success('Değişim talebi başarıyla oluşturuldu.');
@@ -64,7 +70,7 @@ export function AddECRDialog() {
         priority: 'routine',
         departmentId: 'dept-eng'
       });
-    } catch (error) {
+    } catch {
       toast.error('Talep oluşturulurken bir hata oluştu.');
     }
   };
@@ -72,9 +78,11 @@ export function AddECRDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg border-0 px-6">
-          <Plus className="h-4 w-4 mr-2" /> Yeni Talep (ECR)
-        </Button>
+        {trigger || (
+          <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg border-0 px-6">
+            <Plus className="h-4 w-4 mr-2" /> Yeni Talep (ECR)
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] bg-zinc-950 border-white/10 rounded-3xl shadow-2xl">
         <form onSubmit={handleSubmit}>

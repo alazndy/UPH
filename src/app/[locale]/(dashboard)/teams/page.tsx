@@ -61,20 +61,20 @@ export default function TeamsPage() {
                             
                             <div className="flex items-center justify-between mt-4">
                                 <div className="flex -space-x-2">
-                                    {team.members.slice(0, 4).map((member, i) => (
+                                    {(team.members || []).slice(0, 4).map((member, i) => (
                                         <Avatar key={i} className="h-8 w-8 border-2 border-background">
                                             <AvatarImage src={member.photoURL} />
-                                            <AvatarFallback>{member.displayName.charAt(0)}</AvatarFallback>
+                                            <AvatarFallback>{member.displayName?.charAt(0) || '?'}</AvatarFallback>
                                         </Avatar>
                                     ))}
-                                    {team.members.length > 4 && (
+                                    {(team.members?.length || 0) > 4 && (
                                         <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium">
-                                            +{team.members.length - 4}
+                                            +{(team.members?.length || 0) - 4}
                                         </div>
                                     )}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                    {t('members', {count: team.members.length})}
+                                    {t('members', {count: team.members?.length || 0})}
                                 </div>
                             </div>
 

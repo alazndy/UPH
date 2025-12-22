@@ -91,7 +91,8 @@ export function StatsCards({
             </div>
             <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
               <div 
-                className={`h-full bg-linear-to-r from-green-500 to-emerald-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] w-[${Math.round(budgetProgress)}%]`}
+                className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                style={{ width: `${Math.round(budgetProgress)}%` }}
               />
             </div>
           </div>

@@ -45,10 +45,10 @@ export function ActivityFeed({ t, activities }: ActivityFeedProps) {
                       </p> 
                       <div className="flex items-center gap-2 pt-1">
                          <div className="h-4 w-4 rounded-full bg-zinc-800 text-[8px] flex items-center justify-center font-bold text-zinc-400">
-                            {activity.userName.charAt(0)}
+                            {activity.userName?.charAt(0) || '?'}
                          </div>
                          <p className="text-[10px] text-muted-foreground/60" suppressHydrationWarning>
-                            <span className="text-zinc-600 dark:text-zinc-400">{activity.userName}</span> • {activity.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            <span className="text-zinc-600 dark:text-zinc-400">{activity.userName || 'Unknown'}</span> • {activity.timestamp instanceof Date ? activity.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'N/A'}
                          </p>
                       </div>
                     </div>

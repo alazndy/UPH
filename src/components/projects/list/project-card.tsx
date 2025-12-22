@@ -112,9 +112,10 @@ export function ProjectCard({ project, t, onEdit, onDelete, onToggleFavorite }: 
              </div>
            ) : (
              <div 
-               className={`h-12 w-12 rounded-2xl border border-white/10 flex items-center justify-center shrink-0 bg-[${project.color || '#3b82f6'}22]`}
+               className="h-12 w-12 rounded-2xl border border-white/10 flex items-center justify-center shrink-0"
+               style={{ backgroundColor: `${project.color || '#3b82f6'}22` }}
              >
-               <div className={`h-6 w-6 rounded-lg bg-[${project.color || '#3b82f6'}]`} />
+               <div className="h-6 w-6 rounded-lg" style={{ backgroundColor: project.color || '#3b82f6' }} />
              </div>
            )}
            <div className="min-w-0">
@@ -145,7 +146,8 @@ export function ProjectCard({ project, t, onEdit, onDelete, onToggleFavorite }: 
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${project.completionPercentage}%` }}
-            className={`h-full rounded-full transition-all duration-1000 bg-[${project.color || '#3b82f6'}] shadow-[0_0_10px_${project.color || '#3b82f6'}88]`}
+            className="h-full rounded-full transition-all duration-1000"
+            style={{ backgroundColor: project.color || '#3b82f6', boxShadow: `0 0 10px ${project.color || '#3b82f6'}88` }}
           />
         </div>
       </div>

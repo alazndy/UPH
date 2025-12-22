@@ -32,7 +32,12 @@ import {
 import { ECOPriority, DispositionCode, RevisedItem } from '@/types/engineering';
 import { toast } from 'sonner';
 
-export function AddECODialog() {
+interface AddECODialogProps {
+  projectId?: string;
+  trigger?: React.ReactNode;
+}
+
+export function AddECODialog({ projectId, trigger }: AddECODialogProps) {
   const [open, setOpen] = useState(false);
   const { addECO, ecrs } = useECMStore();
   
@@ -81,12 +86,13 @@ export function AddECODialog() {
         status: 'open',
         requestorId: 'current-user',
         revisedItems: revisedItems as RevisedItem[],
+        projectId, // Optional: associates ECO with a project
       });
       
       toast.success('Değişim emri başarıyla oluşturuldu.');
       setOpen(false);
       resetForm();
-    } catch (error) {
+    } catch {
       toast.error('Emir oluşturulurken bir hata oluştu.');
     }
   };
@@ -105,9 +111,11 @@ export function AddECODialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg border-0 px-6">
-          <Plus className="h-4 w-4 mr-2" /> Yeni Emir (ECO)
-        </Button>
+        {trigger || (
+          <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg border-0 px-6">
+            <Plus className="h-4 w-4 mr-2" /> Yeni Emir (ECO)
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px] bg-zinc-950 border-white/10 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>

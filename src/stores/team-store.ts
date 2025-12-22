@@ -24,6 +24,7 @@ interface TeamState {
   createTeam: (name: string, description: string, creatorId: string) => Promise<void>;
   addMember: (teamId: string, email: string, role: UserRole) => Promise<void>;
   removeMember: (teamId: string, memberId: string) => Promise<void>;
+  updateMemberRole: (teamId: string, memberId: string, newRole: UserRole) => Promise<void>;
   setActiveTeam: (teamId: string) => void;
 }
 
@@ -172,6 +173,25 @@ export const useTeamStore = create<TeamState>((set, get) => ({
           }));
       } catch (error: any) {
           console.error("Error removing member:", error);
+      }
+  },
+
+  updateMemberRole: async (teamId, memberId, newRole) => {
+      try {
+          const teamRef = doc(db, 'teams', teamId);
+          const team = get().teams.find(t => t.id === teamId);
+          if (!team) return;
+
+          const updatedMembers = team.members.map(m => 
+              m.userId === memberId ? { ...m, role: newRole } : m
+          );
+          await updateDoc(teamRef, { members: updatedMembers });
+          
+          set(state => ({
+              teams: state.teams.map(t => t.id === teamId ? { ...t, members: updatedMembers } : t)
+          }));
+      } catch (error: any) {
+          console.error("Error updating member role:", error);
       }
   }
 }));

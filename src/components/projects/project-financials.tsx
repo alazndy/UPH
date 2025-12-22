@@ -4,7 +4,7 @@
 import React, { useMemo } from 'react';
 import { Project } from '@/types/project';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProjectUsage, Product } from '@/lib/types';
+import { ProjectUsage, Product } from '@/types/inventory';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { DollarSign, TrendingUp, TrendingDown, PieChart as PieChartIcon, Wallet } from 'lucide-react';
 
@@ -19,7 +19,7 @@ export function ProjectFinancials({ project, projectInventory, allProducts }: Pr
     // Calculate Material Cost from Inventory Assignments
     const materialCost = useMemo(() => {
         return projectInventory.reduce((total, usage) => {
-            const product = allProducts.find(p => p.id === usage.inventoryId);
+            const product = allProducts.find(p => p.id === usage.productId);
             const price = product?.price || 0;
             return total + (price * usage.quantity);
         }, 0);

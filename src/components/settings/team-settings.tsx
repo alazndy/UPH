@@ -47,7 +47,7 @@ import {
 export function TeamSettings() {
     const { 
         teams, addMember, removeMember, activeTeamId, fetchUserTeams,
-        createTeam
+        createTeam, updateMemberRole
     } = useTeamStore();
     
     // Derived state for current view (simplified for prototype)
@@ -60,12 +60,15 @@ export function TeamSettings() {
     const deleteGroup = async () => {};
     const addMemberToGroup = async () => {};
     const removeMemberFromGroup = async () => {};
-    const updateMemberRole = async () => {}; // TODO: Implement in store
+    const handleUpdateMemberRole = async (memberId: string, newRole: UserRole) => {
+        if (activeTeam) await updateMemberRole(activeTeam.id, memberId, newRole);
+    };
     const inviteMember = async (email: string, role: UserRole) => {
         if (activeTeam) await addMember(activeTeam.id, email, role);
     };
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteRole, setInviteRole] = useState<UserRole>('viewer');
+    const [inviteOpen, setInviteOpen] = useState(false);
 
     const [createGroupOpen, setCreateGroupOpen] = useState(false);
     const [newGroupName, setNewGroupName] = useState('');
@@ -174,7 +177,7 @@ export function TeamSettings() {
                                             <DropdownMenuSub>
                                                 <DropdownMenuSubTrigger>Rolü Değiştir</DropdownMenuSubTrigger>
                                                 <DropdownMenuSubContent>
-                                                    <DropdownMenuRadioGroup value={member.role} onValueChange={(v) => updateMemberRole(member.uid, v as UserRole)}>
+                                                    <DropdownMenuRadioGroup value={member.role} onValueChange={(v) => handleUpdateMemberRole(member.userId, v as UserRole)}>
                                                         <DropdownMenuRadioItem value="admin">Admin</DropdownMenuRadioItem>
                                                         <DropdownMenuRadioItem value="manager">Manager</DropdownMenuRadioItem>
                                                         <DropdownMenuRadioItem value="viewer">Viewer</DropdownMenuRadioItem>

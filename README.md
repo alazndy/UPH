@@ -1,287 +1,259 @@
-# 🚀 T-HUB (Unified Project Hub)
+# UPH - Unified Project Hub
 
-**TEK Ekosistemi**'nin yönetim merkezi olan **T-HUB**, tüm projelerinizi, görevlerinizi ve finansal akışınızı tek bir yerden yönetmenizi sağlar.
+<div align="center">
 
-![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
-![Version](https://img.shields.io/badge/Version-2.0.0-purple?style=for-the-badge)
-![Tech](https://img.shields.io/badge/Tech-Next.js%2015%20%7C%20Firebase%20%7C%20TypeScript-black?style=for-the-badge)
+![UPH Logo](https://via.placeholder.com/150?text=UPH)
+
+**Mühendislik Projeleri İçin Merkezi Yönetim Platformu**
+
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-orange?logo=firebase)](https://firebase.google.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
+
+[Demo](#) • [Dokümantasyon](#) • [Kurulum](#kurulum) • [Özellikler](#özellikler)
+
+</div>
 
 ---
 
-## ✨ Öne Çıkan Özellikler
+## 📖 Hakkında
 
-### 📊 Proje Yönetimi
+UPH (Unified Project Hub), mühendislik ve üretim şirketleri için tasarlanmış kapsamlı bir proje yönetim platformudur. T-Ecosystem ailesinin merkezi uygulamasıdır.
 
-- **📈 Dashboard**: Aktif projeler, bütçe takibi ve görev durumlarının üst düzey görünümü
-- **📅 Gantt Zaman Çizelgesi**: `gantt-task-react` ile interaktif zamanlama ve bağımlılık takibi
-- **🎯 Kanban Panosu**: Agile iş akışları için sürükle-bırak görev yönetimi
-  - Filtre ve görünüm seçenekleri
-  - Öncelik bazlı renk kodlaması
-  - Gerçek zamanlı senkronizasyon
+### Neden UPH?
 
-### 💰 Finansal İstihbarat
+- 🎯 **Merkezi Yönetim**: Tüm projeleriniz tek bir yerden
+- 📊 **EVM Metrikleri**: Earned Value Management ile performans takibi
+- 🔧 **ECR/ECO Sistemi**: Mühendislik değişiklik yönetimi
+- 🤝 **Ekip İşbirliği**: Gerçek zamanlı takım koordinasyonu
+- 🔗 **Ekosistem Entegrasyonu**: ENV-I, Weave, Renderci, T-SA ile bağlantı
 
-- **💵 Gerçek Zamanlı Maliyet Hesaplama**: BOM (Malzeme Listesi) ve envanter atamalarına göre otomatik maliyet hesaplama
-- **📊 Finansal Dashboard**:
-  - Maliyet dağılımı (Malzeme vs İşçilik) için pasta grafikleri
-  - Bütçe vs Gerçekleşen için çubuk grafikleri (`recharts`)
-- **📈 Karlılık Analizi**: Sözleşme değeri, marjlar ve net kar takibi
+---
 
-### 📉 Risk ve EVM Yönetimi
+## ✨ Özellikler
 
-- **🛡️ RAID Log**: Riskler, Varsayımlar, Sorunlar ve Bağımlılıkların merkezi takibi.
-- **📊 Risk Matrisi**: Olasılık ve etkiye dayalı görsel 5x5 risk haritası.
-- **📈 EVM Analizi**: Kazanılmış Değer (Earned Value) yöntemi ile proje bütçe ve zaman performansının (CPI/SPI) takibi.
+### Proje Yönetimi
 
-### 🔌 Mühendislik Entegrasyonu
+- Proje oluşturma ve düzenleme
+- Durum takibi (Planning, Active, On Hold, Completed)
+- Öncelik belirleme
+- Etiketleme sistemi
+- Favori projeler
 
-- **🔗 BOM Otomasyonu**: Weave tasarımlarından BOM'ları doğrudan içe aktarma ve stoktan otomatik düşme
-- **🎨 Tasarım Görüntüleyici**: Weave şematiklerini, PCB tasarımlarını ve 3D modelleri proje bağlamında önizleme
-- **📐 CAD Çizim Desteği**: DXF/DWG dosyalarını görüntüleme ve yönetme
-  - React Three Fiber ile 3D görselleştirme
-  - Çizgi, poliçizgi ve daire desteği
-  - Zoom ve pan kontrolleri
+### Görev Yönetimi
 
-### ☁️ Google Drive Entegrasyonu
+- Alt görevler
+- Kanban panosu
+- Görev durumları
+- Yorumlar
+- Tarih takibi
 
-- **📁 Dosya Tarayıcısı**: Proje dosyalarını doğrudan Drive'dan yönetme
-- **📤 Yüklemeler**:
-  - Küçük dosyalar için basit yükleme (<5MB)
-  - Büyük dosyalar için devam ettirilebilir yükleme (>5MB)
-  - Gerçek zamanlı ilerleme takibi
-- **🔍 Önizleme**: DXF/DWG dosyalarını tarayıcıda doğrudan görüntüleme
+### Mühendislik Değişiklik Yönetimi
 
-### 🔗 GitHub Entegrasyonu
+- **ECR** (Engineering Change Request)
+  - Değişiklik talepleri
+  - Etki analizi
+  - Onay süreci
+- **ECO** (Engineering Change Order)
+  - Değişiklik emirleri
+  - Revizyon takibi
+  - MRP entegrasyonu
 
-- Commit'leri ve PR'ları proje görevlerine bağlama
-- Kod değişikliklerini proje zaman çizelgesiyle senkronize etme
+### Risk ve Performans
+
+- **RAID Log** (Risk, Assumption, Issue, Dependency)
+- **EVM Metrikleri** (CPI, SPI, EAC, ETC)
+- Risk matrisi
+- Performans göstergeleri
+
+### Bütçe Yönetimi
+
+- Bütçe planlaması
+- Harcama takibi
+- Bütçe kullanım oranı
+- Maliyet analizi
+
+### Fatura Sistemi
+
+- Fatura oluşturma
+- Müşteri yönetimi
+- Ödeme takibi
+- PDF export
+
+### Zaman Takibi
+
+- Proje bazlı zaman girişi
+- Haftalık raporlar
+- Fatura entegrasyonu
+
+### Entegrasyonlar
+
+- **GitHub**: Commit, PR, Issue takibi
+- **Google Drive**: Dosya yönetimi
+- **ENV-I**: Stok durumu
+- **Weave**: Tasarım dosyaları
+- **T-SA**: AI analiz
 
 ---
 
 ## 🛠️ Teknoloji Yığını
 
-| Kategori                 | Teknoloji                                    | Açıklama                                                |
-| :----------------------- | :------------------------------------------- | :------------------------------------------------------ |
-| **Framework**            | [Next.js 15](https://nextjs.org/)            | App Router, Server Components, TypeScript               |
-| **Stil**                 | [Tailwind CSS](https://tailwindcss.com/)     | Utility-first CSS + [shadcn/ui](https://ui.shadcn.com/) |
-| **Görselleştirme**       | `recharts`, `gantt-task-react`               | Finansal grafikler ve proje zaman çizelgesi             |
-| **3D Render**            | `@react-three/fiber`, `@react-three/drei`    | CAD dosyası görselleştirme                              |
-| **Backend**              | [Firebase](https://firebase.google.com/)     | Firestore, Authentication, Storage                      |
-| **State Yönetimi**       | [Zustand](https://github.com/pmndrs/zustand) | Hafif global state yönetimi                             |
-| **Uluslararasılaştırma** | `next-intl`                                  | Çoklu dil desteği (TR/EN)                               |
+| Kategori  | Teknoloji          |
+| --------- | ------------------ |
+| Framework | Next.js 16         |
+| Dil       | TypeScript 5       |
+| State     | Zustand            |
+| UI        | Shadcn/ui          |
+| Stil      | Tailwind CSS 4     |
+| Animasyon | Framer Motion      |
+| Backend   | Firebase Firestore |
+| Auth      | Firebase Auth      |
+| Storage   | Firebase Storage   |
+| AI        | Google Gemini      |
 
 ---
 
-## 🚀 Başlangıç
+## 📦 Kurulum
 
-### Ön Gereksinimler
+### Gereksinimler
 
-- **Node.js** (v18+)
-- **pnpm** (önerilen paket yöneticisi)
-- **Firebase Projesi** (Firestore, Authentication, Storage etkin)
+- Node.js 18+
+- pnpm
 
-### Kurulum
+### Adımlar
 
-1. **Depoyu klonlayın:**
+```bash
+# Repo'yu klonla
+git clone https://github.com/your-repo/UPH.git
+cd UPH-main
 
-   ```bash
-   git clone <repository-url>
-   cd UPH-main
-   ```
+# Bağımlılıkları yükle
+pnpm install
 
-2. **Bağımlılıkları yükleyin:**
-
-   ```bash
-   pnpm install
-   ```
-
-3. **Ortam Değişkenlerini Ayarlayın:**
-
-   `.env.local` dosyası oluşturun:
-
-   ```env
-   NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-   ```
-
-4. **Geliştirme sunucusunu başlatın:**
-
-   ```bash
-   pnpm dev
-   ```
-
-5. Tarayıcınızda [http://localhost:3002](http://localhost:3002) adresini açın.
-
----
-
-## 📂 Proje Yapısı
-
+# Geliştirme sunucusunu başlat
+pnpm dev
 ```
-UPH-main/
-├── src/
-│   ├── app/                      # Next.js App Router
-│   │   ├── [locale]/             # Uluslararasılaştırma rotaları
-│   │   │   ├── (dashboard)/      # Ana uygulama düzeni
-│   │   │   │   ├── dashboard/    # Yönetici özeti
-│   │   │   │   ├── projects/     # Proje listesi ve detayları
-│   │   │   │   ├── inventory/    # Envanter yönetimi
-│   │   │   │   └── kanban/       # Kanban panosu
-│   │   └── api/                  # API rotaları (proxy'ler)
-│   ├── components/               # UI Bileşenleri
-│   │   ├── projects/             # Proje özgü bileşenler
-│   │   │   ├── project-detail/   # Proje detay sekmeleri
-│   │   │   ├── weave-viewer/     # Weave tasarım görüntüleyici
-│   │   │   └── list/             # Proje liste görünümleri
-│   │   ├── drive/                # Google Drive entegrasyonu
-│   │   ├── viewer/               # Dosya görüntüleyiciler (DXF, 3D)
-│   │   ├── kanban/               # Kanban bileşenleri
-│   │   └── ui/                   # Temel UI bileşenleri (shadcn)
-│   ├── stores/                   # Zustand Store'ları
-│   │   ├── slices/               # Store dilimleri (modüler)
-│   │   ├── project-store.ts      # Proje state yönetimi
-│   │   ├── kanban-store.ts       # Kanban state yönetimi
-│   │   └── auth-store.ts         # Kimlik doğrulama state
-│   ├── services/                 # İş Mantığı Servisleri
-│   │   ├── drive-service.ts      # Google Drive API
-│   │   └── github-service.ts     # GitHub API
-│   ├── lib/                      # Yardımcı Fonksiyonlar
-│   │   ├── repositories/         # Veri erişim katmanı
-│   │   ├── firebase.ts           # Firebase yapılandırması
-│   │   └── utils.ts              # Genel yardımcılar
-│   └── types/                    # TypeScript Tanımları
-│       ├── project.ts            # Proje tipleri
-│       └── dxf-parser.d.ts       # DXF parser tip tanımları
-└── public/                       # Statik Varlıklar
-    └── ecosystem-logo.png        # Ekosistem logosu
+
+### Ortam Değişkenleri
+
+`.env.local` dosyası oluşturun:
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_key
 ```
 
 ---
 
-## 🧩 Modül Detayları
+## 📁 Proje Yapısı
 
-### 📅 Zaman Çizelgesi (Gantt)
-
-Bir projenin **Timeline** sekmesinde bulunur. Görev dizilerini görselleştirir.
-
-**Özellikler:**
-
-- Görev bağımlılıkları
-- Kritik yol analizi
-- Sürükle-bırak ile tarih ayarlama
-- Otomatik tarih hesaplama
-
-### 💰 Finansallar
-
-**Financials** sekmesinde bulunur. Şunları toplar:
-
-- **Malzeme Maliyeti**: Tüm bağlı envanter öğelerinin (fiyat × miktar) toplamı
-- **İşçilik/Genel Gider**: (Toplam Harcanan - Malzeme Maliyeti) olarak hesaplanır
-- **Projeksiyonlar**: Yapılandırılabilir bir marj (%25 varsayılan) temelinde kar tahmini
-
-**Grafikler:**
-
-- Maliyet Dağılımı (Pasta Grafik)
-- Bütçe vs Gerçekleşen (Çubuk Grafik)
-- Zaman İçinde Harcama Trendi (Çizgi Grafik)
-
-### 🎯 Kanban Panosu
-
-**Kanban** sekmesinde bulunur. Agile görev yönetimi sağlar.
-
-**Özellikler:**
-
-- Sürükle-bırak görev taşıma
-- Öncelik filtreleme (Düşük, Orta, Yüksek)
-- Kompakt ve detaylı görünüm modları
-- Gerçek zamanlı senkronizasyon
-
-### 📐 CAD Çizim Görüntüleyici
-
-**CAD Drawings** sekmesinde bulunur. DXF/DWG dosyalarını yönetir.
-
-**Desteklenen Öğeler:**
-
-- Çizgiler (LINE)
-- Poliçizgiler (LWPOLYLINE, POLYLINE)
-- Daireler (CIRCLE)
-
-**Kontroller:**
-
-- Zoom: Fare tekerleği
-- Pan: Sağ tıklayıp sürükle
-- Sıfırla: Görünümü merkeze al
+```
+src/
+├── app/                    # Next.js App Router
+│   └── [locale]/
+│       └── (dashboard)/
+│           ├── analytics/
+│           ├── dashboard/
+│           ├── engineering/
+│           ├── inventory/
+│           ├── invoices/
+│           ├── kanban/
+│           ├── planning/
+│           ├── projects/
+│           ├── settings/
+│           ├── teams/
+│           ├── templates/
+│           └── time-tracking/
+├── components/             # React bileşenleri
+├── stores/                 # Zustand store'ları
+├── types/                  # TypeScript tip tanımları
+├── lib/                    # Yardımcı fonksiyonlar
+└── services/               # API servisleri
+```
 
 ---
 
-## 🔄 Ekosistem Entegrasyonu
+## 🎨 Ekran Görüntüleri
 
-### T-Weave ile Entegrasyon
+### Dashboard
 
-- **📤 Tasarım İçe Aktarma**: Weave'den `.tsproj` dosyalarını doğrudan içe aktarma
-- **🎨 Tasarım Önizleme**: Weave tasarımlarını proje bağlamında görüntüleme
-- **📋 BOM Senkronizasyonu**: Weave BOM'larını otomatik olarak proje malzemelerine dönüştürme
+![Dashboard](https://via.placeholder.com/800x450?text=Dashboard)
 
-### ENV-I ile Entegrasyon
+### Proje Detay
 
-- **📦 Envanter Bağlama**: Proje malzemelerini ENV-I ürünlerine bağlama
-- **📊 Stok Takibi**: Gerçek zamanlı stok seviyesi görünürlüğü
-- **💰 Maliyet Hesaplama**: ENV-I fiyatlarına dayalı otomatik maliyet hesaplama
+![Project](https://via.placeholder.com/800x450?text=Project+Detail)
 
----
+### Kanban
 
-## 🆕 Son Güncellemeler
-
-### v2.0.0 (2025-01-20)
-
-**Yeni Özellikler:**
-
-- ✨ Google Drive entegrasyonu eklendi
-- ✨ DXF/DWG dosya görüntüleyici eklendi
-- ✨ Devam ettirilebilir dosya yükleme desteği
-- ✨ Kanban panosu filtreleme ve görünüm seçenekleri
-- ✨ Proje detay sayfası yeniden yapılandırıldı
-
-**İyileştirmeler:**
-
-- 🔧 TypeScript tip güvenliği iyileştirildi
-- 🔧 Drive Service için hata yönetimi geliştirildi
-- 🔧 DXF parser için tip tanımları eklendi
-- 🔧 Weave Canvas Viewer performansı optimize edildi
-
-**Düzeltmeler:**
-
-- 🐛 Drive Service `uploadFileResumable` metodu eklendi
-- 🐛 DxfViewer tip hataları düzeltildi
-- 🐛 Kanban kartı sürükle-bırak işlevi düzeltildi
+![Kanban](https://via.placeholder.com/800x450?text=Kanban+Board)
 
 ---
 
-## 🤝 Katkıda Bulunma
+## 📊 Store Yapısı
 
-Katkılarınızı bekliyoruz! Lütfen depoyu fork'layın ve Pull Request gönderin.
+| Store             | İşlev               |
+| ----------------- | ------------------- |
+| ProjectStore      | Proje yönetimi      |
+| TeamStore         | Ekip yönetimi       |
+| ECMStore          | ECR/ECO yönetimi    |
+| RiskStore         | RAID yönetimi       |
+| InvoiceStore      | Fatura yönetimi     |
+| TimeStore         | Zaman takibi        |
+| InventoryStore    | Envanter görünümü   |
+| GitHubStore       | GitHub entegrasyonu |
+| NotificationStore | Bildirimler         |
+| SettingsStore     | Ayarlar             |
 
-### Geliştirme Kuralları
+---
 
-- TypeScript strict mode kullanın
-- Tüm bileşenler için tip tanımları yazın
-- Commit mesajları için [Conventional Commits](https://www.conventionalcommits.org/) kullanın
-- Kod değişikliklerinden önce `pnpm lint` çalıştırın
+## 🔗 T-Ecosystem Entegrasyonu
+
+UPH, T-Ecosystem'in merkez noktasıdır:
+
+```
+                    ┌─────────┐
+                    │   UPH   │
+                    │ (Merkez)│
+                    └────┬────┘
+         ┌───────────────┼───────────────┐
+         │               │               │
+    ┌────┴────┐    ┌────┴────┐    ┌────┴────┐
+    │  ENV-I  │    │  Weave  │    │   T-SA  │
+    │  (Stok) │    │(Tasarım)│    │  (AI)   │
+    └─────────┘    └────┬────┘    └─────────┘
+                        │
+                  ┌─────┴─────┐
+                  │ Renderci  │
+                  │  (3D)     │
+                  └───────────┘
+```
 
 ---
 
 ## 📄 Lisans
 
-Bu proje MIT Lisansı altında lisanslanmıştır.
+Bu proje özel lisans altındadır.
 
 ---
 
-## 🔗 Bağlantılar
+## 👥 Katkıda Bulunma
 
-- **T-Weave**: Şematik tasarım uygulaması
-- **ENV-I**: Envanter yönetim sistemi
-- **Dokümantasyon**: [Wiki](./wiki/RISK_EVM.md)
-- **Sorun Bildirimi**: [GitHub Issues](./issues)
+1. Fork yapın
+2. Feature branch oluşturun (`git checkout -b feature/amazing`)
+3. Commit yapın (`git commit -m 'Add amazing feature'`)
+4. Push yapın (`git push origin feature/amazing`)
+5. Pull Request açın
+
+---
+
+<div align="center">
+
+**T-Ecosystem** tarafından ❤️ ile geliştirildi
+
+</div>

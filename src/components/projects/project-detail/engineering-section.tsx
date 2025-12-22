@@ -5,6 +5,9 @@ import { Product } from '@/types/inventory';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import dynamic from 'next/dynamic';
 import { BOMExtractor } from './bom-extractor';
+import { ProjectECRList } from './project-ecr-list';
+import { ProjectECOList } from './project-eco-list';
+import { ProjectResources } from './project-resources';
 
 const ProjectDesigns = dynamic(() => import('@/components/projects/project-designs').then(mod => mod.ProjectDesigns));
 const ProjectPCBDesigns = dynamic(() => import('@/components/projects/project-pcb-designs').then(mod => mod.ProjectPCBDesigns));
@@ -25,8 +28,11 @@ export function EngineeringSection({
   products
 }: EngineeringSectionProps) {
   return (
-    <Tabs defaultValue="designs" className="w-full">
-      <TabsList className="grid w-full grid-cols-5 lg:w-[500px]">
+    <Tabs defaultValue="ecr" className="w-full">
+      <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 lg:w-[900px]">
+        <TabsTrigger value="ecr">ECR</TabsTrigger>
+        <TabsTrigger value="eco">ECO</TabsTrigger>
+        <TabsTrigger value="resources">Kaynaklar</TabsTrigger>
         {weaveEnabled && <TabsTrigger value="designs">Weave</TabsTrigger>}
         <TabsTrigger value="pcb">PCB</TabsTrigger>
         <TabsTrigger value="cad">CAD</TabsTrigger>
@@ -34,7 +40,19 @@ export function EngineeringSection({
         {weaveEnabled && <TabsTrigger value="bom">BOM</TabsTrigger>}
       </TabsList>
 
-      <div className="mt-4">
+      <div className="mt-6">
+        {/* ECR/ECO/Resources - Project Scoped */}
+        <TabsContent value="ecr">
+          <ProjectECRList projectId={project.id} />
+        </TabsContent>
+        <TabsContent value="eco">
+          <ProjectECOList projectId={project.id} />
+        </TabsContent>
+        <TabsContent value="resources">
+          <ProjectResources projectId={project.id} projectName={project.name} />
+        </TabsContent>
+
+        {/* Design Assets */}
         {weaveEnabled && (
           <TabsContent value="designs">
             <ProjectDesigns project={project} />
@@ -62,3 +80,4 @@ export function EngineeringSection({
     </Tabs>
   );
 }
+

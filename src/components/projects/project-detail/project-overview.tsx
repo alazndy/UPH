@@ -1,6 +1,7 @@
 'use client';
 
-import { Project, ProjectUsage } from '@/types/project';
+import { Project } from '@/types/project';
+import { ProjectUsage } from '@/types/inventory';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -85,9 +86,9 @@ export function ProjectOverview({
       </div>
 
       {/* GitHub Stats Integration */}
-      {system.integrations.github && (
+      {system.integrations.github && project.githubRepo && (
         <div className="animate-fade-in-up">
-          <GitHubStats repoUrl="https://github.com/example/repo" />
+          <GitHubStats repoUrl={`https://github.com/${project.githubRepo}`} />
         </div>
       )}
 

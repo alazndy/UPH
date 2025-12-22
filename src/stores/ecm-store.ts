@@ -17,6 +17,10 @@ interface ECMState {
   ecos: ECO[];
   isLoading: boolean;
   
+  // Selectors
+  getProjectECRs: (projectId: string) => ECR[];
+  getProjectECOs: (projectId: string) => ECO[];
+  
   // Actions
   fetchECMData: () => Promise<void>;
   addECR: (ecr: Omit<ECR, 'id' | 'createdAt' | 'updatedAt' | 'identifier'>) => Promise<void>;
@@ -30,6 +34,7 @@ interface ECMState {
 const mockECRs: ECR[] = [
   {
     id: 'ecr-1',
+    projectId: 'proj-1', // Linked to first project
     identifier: 'ECR-2025-001',
     title: 'Ana İşlemci Isınma Sorunu',
     description: 'Yük altında işlemci sıcaklığı 90 dereceyi geçiyor. Soğutucu bloğun revize edilmesi gerekiyor.',
@@ -50,6 +55,7 @@ const mockECRs: ECR[] = [
 const mockECOs: ECO[] = [
   {
     id: 'eco-1',
+    projectId: 'proj-1', // Linked to first project
     identifier: 'ECO-2025-001',
     ecrId: 'ecr-1',
     title: 'Soğutucu Blok Revizyonu V2',
@@ -81,6 +87,10 @@ export const useECMStore = create<ECMState>((set, get) => ({
   ecrs: mockECRs,
   ecos: mockECOs,
   isLoading: false,
+
+  // Selectors
+  getProjectECRs: (projectId: string) => get().ecrs.filter(e => e.projectId === projectId),
+  getProjectECOs: (projectId: string) => get().ecos.filter(e => e.projectId === projectId),
 
   fetchECMData: async () => {
     // In production, this would fetch from Firestore

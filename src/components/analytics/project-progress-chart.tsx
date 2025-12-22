@@ -14,10 +14,10 @@ import {
 import { useProjectStore } from '@/stores/project-store';
 
 const statusColors: Record<string, string> = {
-  planning: '#6366f1',
-  active: '#22c55e',
-  'on-hold': '#f59e0b',
-  completed: '#8b5cf6',
+  Planning: '#6366f1',
+  Active: '#22c55e',
+  'On Hold': '#f59e0b',
+  Completed: '#8b5cf6',
 };
 
 export function ProjectProgressChart() {
@@ -36,9 +36,9 @@ export function ProjectProgressChart() {
   }, [] as { status: string; count: number }[]);
 
   // Ensure all statuses are represented
-  const allStatuses = ['planning', 'active', 'on-hold', 'completed'];
+  const allStatuses = ['Planning', 'Active', 'On Hold', 'Completed'];
   const chartData = allStatuses.map(status => ({
-    status: status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' '),
+    status,
     count: statusData.find(d => d.status === status)?.count || 0,
     rawStatus: status,
   }));
