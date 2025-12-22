@@ -5,7 +5,7 @@ import { Project, ProjectFile } from '@/types/project';
 import { useProjectStore } from '@/stores/project-store';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Upload, FileText, Image as ImageIcon, File, Download } from 'lucide-react';
+import { Trash2, Upload, FileText, Image as ImageIcon, File, Download, Zap, Cpu } from 'lucide-react';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 
@@ -46,6 +46,38 @@ const FileItem = memo(({
                         <Download className="h-3 w-3" />
                     </a>
                 </Button>
+                
+                {/* Integration Buttons */}
+                {file.type === 'PDF' && (
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                        title="T-SA ile Analiz Et"
+                        onClick={() => {
+                            const url = `http://localhost:5173/?integrate=tsa&fileUrl=${encodeURIComponent(file.url)}&fileName=${encodeURIComponent(file.name)}&projectId=${projectId}`;
+                            window.open(url, '_blank');
+                        }}
+                    >
+                        <Zap className="h-3 w-3" />
+                    </Button>
+                )}
+
+                {(file.type === 'Image' || file.name.match(/\.(glb|gltf|obj|stl)$/i)) && (
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50"
+                        title="Renderci Muhittin'e Gönder"
+                        onClick={() => {
+                            const url = `http://localhost:5174/?integrate=render&fileUrl=${encodeURIComponent(file.url)}&fileName=${encodeURIComponent(file.name)}&projectId=${projectId}`;
+                            window.open(url, '_blank');
+                        }}
+                    >
+                        <Cpu className="h-3 w-3" />
+                    </Button>
+                )}
+
                 <Button 
                     variant="ghost" 
                     size="icon" 

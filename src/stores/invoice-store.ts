@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Invoice, InvoiceItem, InvoiceStatus, InvoiceSettings, PaymentRecord } from '@/types/invoice';
+import { emailService } from '@/services/email-service';
 
 interface InvoiceState {
   invoices: Invoice[];
@@ -227,8 +228,8 @@ export const useInvoiceStore = create<InvoiceStore>((set, get) => ({
     const invoice = get().getInvoiceById(id);
     if (!invoice) return;
     
-    // TODO: Implement actual email sending
-    console.log(`Sending reminder for invoice ${invoice.invoiceNumber}`);
+    // Use the email service
+    await emailService.sendInvoiceReminder(id, invoice.customerEmail || 'unknown@example.com');
     
     await get().updateInvoice(id, {
       remindersSent: invoice.remindersSent + 1,

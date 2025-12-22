@@ -15,6 +15,33 @@
       "delete": "Sil"
     }
   },
+  "Forge": {
+    "title": "Forge Üretim Sistemi",
+    "subtitle": "Üretim Takip ve Yönetim Sistemi (MES)",
+    "newJob": "Yeni İş Emri Oluştur",
+    "activeJobs": "Aktif Üretim Listesi",
+    "activeJobsDesc": "Atölyede devam eden iş emirleri ve durumları.",
+    "stats": {
+        "active": "Aktif İş Emirleri",
+        "efficiency": "Üretim Verimliliği",
+        "delays": "Gecikmeler",
+        "completed": "Tamamlanan (Bu Ay)"
+    }
+  },
+  "Flux": {
+    "title": "Flux IoT Monitör",
+    "subtitle": "IoT Cihaz Yönetimi ve İzleme",
+    "newDevice": "Yeni Cihaz Ekle",
+    "refresh": "Yenile",
+    "connectedDevices": "Bağlı Cihazlar",
+    "connectedDevicesDesc": "Sistemdeki IoT cihazlarının anlık durumu.",
+    "stats": {
+        "online": "Çevrimiçi Cihazlar",
+        "power": "Toplam Güç Tüketimi",
+        "temp": "Ortalama Sıcaklık",
+        "load": "Sistem Yükü"
+    }
+  },
   "Dashboard": {
     "title": "Gösterge Paneli",
     "recentProjects": "Son Projeler",

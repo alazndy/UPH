@@ -15,6 +15,33 @@
       "delete": "Delete"
     }
   },
+  "Forge": {
+    "title": "Forge Production System",
+    "subtitle": "Manufacturing Execution System (MES)",
+    "newJob": "New Work Order",
+    "activeJobs": "Active Production List",
+    "activeJobsDesc": "Work orders in progress and their status.",
+    "stats": {
+        "active": "Active Orders",
+        "efficiency": "Efficiency",
+        "delays": "Delays",
+        "completed": "Completed (Month)"
+    }
+  },
+  "Flux": {
+    "title": "Flux IoT Monitor",
+    "subtitle": "IoT Device Management & Monitoring",
+    "newDevice": "Add New Device",
+    "refresh": "Refresh",
+    "connectedDevices": "Connected Devices",
+    "connectedDevicesDesc": "Real-time status of IoT devices.",
+    "stats": {
+        "online": "Online Devices",
+        "power": "Total Power",
+        "temp": "Avg Temperature",
+        "load": "System Load"
+    }
+  },
   "Dashboard": {
     "title": "Dashboard",
     "recentProjects": "Recent Projects",

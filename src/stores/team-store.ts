@@ -110,10 +110,52 @@ export const useTeamStore = create<TeamState>((set, get) => ({
   },
 
   addMember: async (teamId, email, role) => {
-      // This requires finding user by email first (Function needed or query users collection)
-      // For prototype, we'll just mock the user lookup or assume exact email match in users collection
-      console.log("Mock adding member:", email);
-      // Implementation pending user-by-email lookup
+    set({ isLoading: true });
+    try {
+      // In a real app, query 'users' collection by email
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email));
+      const snapshot = await getDocs(q);
+      
+      let user: any;
+      if (!snapshot.empty) {
+        user = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+      } else {
+        // Mock user if not found for prototype
+        user = {
+          id: `user-${crypto.randomUUID()}`,
+          email,
+          displayName: email.split('@')[0],
+        };
+      }
+
+      const teamRef = doc(db, 'teams', teamId);
+      const team = get().teams.find(t => t.id === teamId);
+      if (!team) throw new Error("Team not found");
+
+      const newMember: TeamMember = {
+        userId: user.id || user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        role,
+        joinedAt: new Date(),
+        avatarUrl: user.photoURL
+      };
+
+      const updatedMembers = [...team.members, newMember];
+      await updateDoc(teamRef, { 
+        members: updatedMembers,
+        memberIds: [...(team.memberIds || []), newMember.userId]
+      });
+
+      set(state => ({
+        teams: state.teams.map(t => t.id === teamId ? { ...t, members: updatedMembers } : t),
+        isLoading: false
+      }));
+    } catch (error: any) {
+      console.error("Error adding member:", error);
+      set({ error: error.message, isLoading: false });
+    }
   },
 
   removeMember: async (teamId, memberId) => {

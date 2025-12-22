@@ -5,6 +5,7 @@ export interface TeamMember {
   email: string;
   displayName: string;
   photoURL?: string;
+  avatarUrl?: string;
   role: UserRole;
   joinedAt: Date;
 }
@@ -17,5 +18,6 @@ export interface Team {
   createdAt: Date;
   updatedAt: Date;
   members: TeamMember[];
+  memberIds?: string[];
   avatarUrl?: string;
 }

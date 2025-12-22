@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuthStore } from '@/stores/auth-store';
+import { useTeamStore } from '@/stores/team-store';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,11 +46,24 @@ import {
 
 export function TeamSettings() {
     const { 
-        teamMembers, inviteMember, removeMember, updateMemberRole,
-        teamGroups, createGroup, deleteGroup, addMemberToGroup, removeMemberFromGroup
-    } = useAuthStore();
+        teams, addMember, removeMember, activeTeamId, fetchUserTeams,
+        createTeam
+    } = useTeamStore();
     
-    const [inviteOpen, setInviteOpen] = useState(false);
+    // Derived state for current view (simplified for prototype)
+    const activeTeam = teams.find(t => t.id === activeTeamId) || teams[0];
+    const teamMembers = activeTeam?.members || [];
+    
+    // Mock groups for now as team-store doesn't implement groups yet
+    const teamGroups: any[] = [];
+    const createGroup = async () => {};
+    const deleteGroup = async () => {};
+    const addMemberToGroup = async () => {};
+    const removeMemberFromGroup = async () => {};
+    const updateMemberRole = async () => {}; // TODO: Implement in store
+    const inviteMember = async (email: string, role: UserRole) => {
+        if (activeTeam) await addMember(activeTeam.id, email, role);
+    };
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteRole, setInviteRole] = useState<UserRole>('viewer');
 
@@ -168,7 +181,7 @@ export function TeamSettings() {
                                                     </DropdownMenuRadioGroup>
                                                 </DropdownMenuSubContent>
                                             </DropdownMenuSub>
-                                            <DropdownMenuItem className="text-destructive" onClick={() => removeMember(member.uid)}><Trash2 className="w-4 h-4 mr-2" />Ekipten Çıkar</DropdownMenuItem>
+                                            <DropdownMenuItem className="text-destructive" onClick={() => activeTeam && removeMember(activeTeam.id, member.userId)}><Trash2 className="w-4 h-4 mr-2" />Ekipten Çıkar</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </div>

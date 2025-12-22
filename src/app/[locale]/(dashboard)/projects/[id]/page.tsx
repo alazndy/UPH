@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useState, useEffect, useMemo } from 'react';
+import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
 
 // Sub-components
@@ -31,6 +32,7 @@ import { ProjectOverview } from '@/components/projects/project-detail/project-ov
 import { ManagementSection } from '@/components/projects/project-detail/management-section';
 import { EngineeringSection } from '@/components/projects/project-detail/engineering-section';
 import { FilesSection } from '@/components/projects/project-detail/files-section';
+import { RiskSection } from '@/components/projects/project-detail/risk-section';
 
 // Lazy loaded dialogs and assistants
 const ConnectGitHubDialog = dynamic(() => import('@/components/projects/connect-github-dialog').then(mod => mod.ConnectGitHubDialog));
@@ -43,7 +45,16 @@ export default function ProjectDetailPage() {
     const router = useRouter();
     const id = params.id as string;
     
-    const { getProject, deleteProject, fetchProjectTasks, fetchProjects, isLoading, syncGitHubIssues, syncProjectReadme } = useProjectStore();
+    const { 
+        getProject, 
+        deleteProject, 
+        fetchProjectTasks, 
+        fetchProjects, 
+        isLoading, 
+        syncGitHubIssues, 
+        syncProjectReadme,
+        addFile 
+    } = useProjectStore();
     const project = getProject(id);
     
     const { projectUsages, fetchInventory, products } = useInventoryStore();
@@ -69,6 +80,91 @@ export default function ProjectDetailPage() {
             fetchProjectTasks(id);
         }
     }, [id, fetchProjects, fetchProjectTasks, fetchInventory]);
+
+    // Ecosystem Integration: Listen for results from T-SA and Renderci
+    useEffect(() => {
+        const handleMessage = async (event: MessageEvent) => {
+            const data = event.data;
+            if (!data || !data.type) return;
+
+            if (data.type === 'tsa_result' && data.projectId === id) {
+                toast.success('T-SA Analiz Sonucu Alındı', {
+                    description: 'Analiz raporu projeye kaydediliyor...'
+                });
+                
+                const reportName = `TSA_Analiz_${new Date().toLocaleDateString()}.json`;
+                await addFile(id, {
+                    name: reportName,
+                    type: 'JSON',
+                    url: 'data:application/json;base64,' + btoa(JSON.stringify(data.result)),
+                    size: JSON.stringify(data.result).length,
+                    uploadedAt: new Date().toISOString(),
+                    category: 'Reports'
+                });
+            }
+
+            if (data.type === 'render_result' && data.projectId === id) {
+                toast.success('Render Görüntüsü Alındı', {
+                    description: 'Görüntü projeye kaydediliyor...'
+                });
+
+                const imageName = `Render_${new Date().toLocaleDateString()}_${Math.floor(Math.random() * 1000)}.png`;
+                await addFile(id, {
+                    name: imageName,
+                    type: 'Image',
+                    url: data.resultImageUrl,
+                    size: data.resultImageUrl.length,
+                    uploadedAt: new Date().toISOString(),
+                    category: 'Visuals'
+                });
+            }
+        };
+
+        const checkUrlParams = async () => {
+            const searchParams = new URLSearchParams(window.location.search);
+            const integratedResult = searchParams.get('integrated_result');
+            const resultDataRaw = searchParams.get('data');
+
+            if (integratedResult && resultDataRaw) {
+                try {
+                    const resultData = JSON.parse(decodeURIComponent(resultDataRaw));
+                    
+                    if (integratedResult === 'tsa') {
+                        toast.success('T-SA Analiz Sonucu Alındı (Yönlendirme ile)');
+                        await addFile(id, {
+                            name: `TSA_Analiz_Redirect_${new Date().toLocaleDateString()}.json`,
+                            type: 'JSON',
+                            url: 'data:application/json;base64,' + btoa(JSON.stringify(resultData)),
+                            size: JSON.stringify(resultData).length,
+                            uploadedAt: new Date().toISOString(),
+                            category: 'Reports'
+                        });
+                    } else if (integratedResult === 'render') {
+                        toast.success('Render Görüntüsü Alındı (Yönlendirme ile)');
+                        await addFile(id, {
+                            name: `Render_Redirect_${new Date().toLocaleDateString()}.png`,
+                            type: 'Image',
+                            url: resultData, // Assuming it's the image URL/data
+                            size: resultData.length,
+                            uploadedAt: new Date().toISOString(),
+                            category: 'Visuals'
+                        });
+                    }
+
+                    // Clear URL parameters
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, '', newUrl);
+                } catch (e) {
+                    console.error("Failed to parse integrated result data", e);
+                }
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+        checkUrlParams();
+
+        return () => window.removeEventListener('message', handleMessage);
+    }, [id, addFile]);
 
     const handleDelete = async () => {
         if (project) {
@@ -109,10 +205,11 @@ export default function ProjectDetailPage() {
             />
 
             <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+                <TabsList className="grid w-full grid-cols-5 lg:w-[750px]">
                     <TabsTrigger value="overview">Proje Özeti</TabsTrigger>
                     <TabsTrigger value="management">Yönetim</TabsTrigger>
                     <TabsTrigger value="engineering">Mühendislik</TabsTrigger>
+                    <TabsTrigger value="risk">Risk & EVM</TabsTrigger>
                     <TabsTrigger value="files">Dosyalar</TabsTrigger>
                 </TabsList>
 
@@ -145,6 +242,10 @@ export default function ProjectDetailPage() {
                         envEnabled={envEnabled}
                         products={products}
                     />
+                </TabsContent>
+
+                <TabsContent value="risk">
+                    <RiskSection projectId={id} />
                 </TabsContent>
 
                 <TabsContent value="files">

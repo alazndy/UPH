@@ -158,4 +158,89 @@ Format as markdown.`;
   }
 }
 
+export interface ProjectAnalysis {
+  healthScore: number;
+  swot: {
+    strengths: string[];
+    weaknesses: string[];
+    opportunities: string[];
+    threats: string[];
+  };
+  recommendations: string[];
+  summary: string;
+}
+
+export async function analyzeProject(
+  projectName: string,
+  description: string,
+  tasks: Array<{ title: string; status: string }>,
+  risks: Array<{ title: string; type: string }>
+): Promise<ProjectAnalysis> {
+  // Mock analysis
+  if (USE_MOCK || !genAI) {
+    return {
+      healthScore: 85,
+      swot: {
+        strengths: ['Clear project scope definition', 'Initial tasks are well-defined'],
+        weaknesses: ['Risk planning could be more detailed'],
+        opportunities: ['Potential for automation in workflow'],
+        threats: ['External dependencies might delay timeline']
+      },
+      recommendations: [
+        'Review and prioritize high-impact risks',
+        'Break down large tasks into smaller subtasks',
+        'Schedule a team sync to align on milestones'
+      ],
+      summary: 'Project demonstrates a strong foundation. Focus on detailed risk management to ensure smooth execution.'
+    };
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    const prompt = `Analyze this project and provide a health report.
+
+Project: ${projectName}
+Description: ${description}
+Task Count: ${tasks.length}
+Risk Count: ${risks.length}
+
+Tasks Sample: ${tasks.slice(0, 5).map(t => t.title).join(', ')}
+Risks Sample: ${risks.slice(0, 5).map(r => r.title).join(', ')}
+
+Return a JSON object with this structure:
+{
+  "healthScore": number (0-100),
+  "swot": {
+    "strengths": string[],
+    "weaknesses": string[],
+    "opportunities": string[],
+    "threats": string[]
+  },
+  "recommendations": string[],
+  "summary": string
+}`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    
+    // Parse JSON
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]);
+    }
+    throw new Error('Invalid response format');
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    // Return mock on error
+    return {
+      healthScore: 70,
+      swot: { strengths: [], weaknesses: ['API Error'], opportunities: [], threats: [] },
+      recommendations: ['Check API configuration'],
+      summary: 'Analysis failed due to connection error. Using default fallback.'
+    };
+  }
+}
+
 export { USE_MOCK };

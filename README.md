@@ -27,6 +27,12 @@
   - Bütçe vs Gerçekleşen için çubuk grafikleri (`recharts`)
 - **📈 Karlılık Analizi**: Sözleşme değeri, marjlar ve net kar takibi
 
+### 📉 Risk ve EVM Yönetimi
+
+- **🛡️ RAID Log**: Riskler, Varsayımlar, Sorunlar ve Bağımlılıkların merkezi takibi.
+- **📊 Risk Matrisi**: Olasılık ve etkiye dayalı görsel 5x5 risk haritası.
+- **📈 EVM Analizi**: Kazanılmış Değer (Earned Value) yöntemi ile proje bütçe ve zaman performansının (CPI/SPI) takibi.
+
 ### 🔌 Mühendislik Entegrasyonu
 
 - **🔗 BOM Otomasyonu**: Weave tasarımlarından BOM'ları doğrudan içe aktarma ve stoktan otomatik düşme
@@ -277,5 +283,5 @@ Bu proje MIT Lisansı altında lisanslanmıştır.
 
 - **T-Weave**: Şematik tasarım uygulaması
 - **ENV-I**: Envanter yönetim sistemi
-- **Dokümantasyon**: [Wiki](./docs/wiki/Home.md)
+- **Dokümantasyon**: [Wiki](./wiki/RISK_EVM.md)
 - **Sorun Bildirimi**: [GitHub Issues](./issues)

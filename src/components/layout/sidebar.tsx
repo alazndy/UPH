@@ -21,7 +21,9 @@ import {
   ShieldAlert,
   ShieldCheck,
   Users,
-  CloudSync
+  CloudSync,
+  Hammer,
+  Activity
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -104,6 +106,20 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       href: '/inventory',
       color: 'text-pink-700',
       id: 'inventory'
+    },
+    {
+      label: 'Forge (Üretim)',
+      icon: Hammer,
+      href: '/forge',
+      color: 'text-orange-600',
+      id: 'forge'
+    },
+    {
+      label: 'Flux (IoT)',
+      icon: Activity,
+      href: '/flux',
+      color: 'text-cyan-500',
+      id: 'flux'
     },
     {
       label: 'Güvenlik & Audit',
