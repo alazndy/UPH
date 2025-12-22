@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { PremiumButton } from '@/components/ui/premium-button';
 import {
   LayoutDashboard,
   FolderKanban,
@@ -105,27 +106,6 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       id: 'inventory'
     },
     {
-      label: 'Değişim Emirleri (ECO)',
-      icon: Rocket,
-      href: '/engineering/eco',
-      color: 'text-purple-500',
-      id: 'ecm'
-    },
-    {
-      label: 'Risk Zekası (RAID)',
-      icon: ShieldAlert,
-      href: '/analytics/risk',
-      color: 'text-red-500',
-      id: 'ecm'
-    },
-    {
-      label: 'Kaynak Planlama',
-      icon: Users,
-      href: '/planning/capacity',
-      color: 'text-amber-500',
-      id: 'projects'
-    },
-    {
       label: 'Güvenlik & Audit',
       icon: ShieldCheck,
       href: '/settings/security',
@@ -199,59 +179,55 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
                 show: { opacity: 1, x: 0 }
               }}
             >
-              <Link
-                href={route.href}
+              <PremiumButton
+                variant={pathname === route.href ? "premium" : "glass"}
+                size="sm"
                 className={cn(
                   'group relative flex items-center p-3 w-full font-medium rounded-xl transition-all duration-300',
                   pathname === route.href 
-                      ? 'bg-primary/10 text-primary dark:text-white' 
-                      : 'text-sidebar-foreground hover:bg-black/5 dark:hover:bg-white/3 hover:text-foreground dark:hover:text-white',
+                      ? 'text-white' 
+                      : 'text-sidebar-foreground hover:text-foreground dark:hover:text-white hover:bg-white/5',
                   isCollapsed && "justify-center"
                 )}
                 title={isCollapsed ? route.label : undefined}
+                asChild
               >
-                {/* Active Indicator Glow */}
-                {pathname === route.href && (
-                  <div className="absolute left-0 w-1 h-6 bg-primary rounded-r-full shadow-lg dark:shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
-                )}
-                
-                <route.icon className={cn('h-5 w-5 transition-all duration-300', 
-                  pathname === route.href ? "text-primary scale-110" : "text-sidebar-foreground group-hover:text-primary group-hover:scale-110", 
-                  !isCollapsed && "ml-2 mr-3"
-                )} />
-                
-                {!isCollapsed && (
-                  <span className="text-sm transition-opacity duration-300">
-                    {route.label}
-                  </span>
-                )}
-
-                {/* Hover Glow Effect */}
-                <div className="absolute inset-0 rounded-xl bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
-              </Link>
+                <Link href={route.href}>
+                  <route.icon className={cn('h-5 w-5 transition-all duration-300', 
+                    pathname === route.href ? "text-white scale-110" : "text-sidebar-foreground group-hover:text-primary group-hover:scale-110", 
+                    !isCollapsed && "ml-1 mr-3"
+                  )} />
+                  
+                  {!isCollapsed && (
+                    <span className="text-sm transition-opacity duration-300">
+                      {route.label}
+                    </span>
+                  )}
+                </Link>
+              </PremiumButton>
             </motion.div>
           ))}
         </motion.div>
       </div>
 
       <div className="px-6 py-4 space-y-4">
-         {!isCollapsed ? (
+             {!isCollapsed ? (
              <div className="glass-panel rounded-2xl p-4 border-sidebar-border/50">
                 <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">Workspace</p>
-                <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg dark:shadow-[0_0_15px_rgba(82,17,212,0.3)] border-0 transition-all hover:scale-[1.02]">
+                <PremiumButton className="w-full text-white rounded-xl shadow-lg border-0 transition-all bg-gradient-to-r from-primary to-purple-600 hover:opacity-90">
                    <Plus className="h-4 w-4 mr-2" /> {t('newProject')}
-                </Button>
+                </PremiumButton>
              </div>
          ) : (
-            <Button size="icon" variant="ghost" className="w-full h-12 glass-panel rounded-xl border-sidebar-border/50" title={t('newProject')}>
-              <Plus className="h-5 w-5 text-primary" />
-            </Button>
+            <PremiumButton size="icon" className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-purple-600 hover:opacity-90" title={t('newProject')}>
+              <Plus className="h-5 w-5 text-white" />
+            </PremiumButton>
          )}
 
          <div className="pt-4 border-t border-sidebar-border/30">
             <Button 
+                variant="ghost"
                 onClick={() => logout()} 
-                variant="ghost" 
                 className={cn("w-full justify-start text-sidebar-foreground hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-colors", isCollapsed && "justify-center")}
                 title={t('logout')}
             >
