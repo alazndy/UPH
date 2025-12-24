@@ -9,7 +9,8 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import { 

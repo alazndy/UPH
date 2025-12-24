@@ -1,7 +1,7 @@
 'use client';
 
-import { Project, ProjectUsage } from '@/types/project';
-import { Product } from '@/types/inventory';
+import { Project } from '@/types/project';
+import { Product, ProjectUsage } from '@/types/inventory';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';

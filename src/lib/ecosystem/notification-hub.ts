@@ -108,7 +108,7 @@ export function getNotificationPreferences(userId: string): NotificationPreferen
       push: { enabled: true, categories: ['deadline', 'alert', 'reminder'] },
       slack: { enabled: false, categories: ['alert', 'status'] },
       inApp: { enabled: true, categories: ['deadline', 'alert', 'reminder', 'status', 'collaboration', 'system'] },
-      sms: { enabled: false, categories: ['urgent'] },
+      sms: { enabled: false, categories: ['alert'] },
     },
     quietHours: { enabled: true, start: '22:00', end: '08:00' },
   };

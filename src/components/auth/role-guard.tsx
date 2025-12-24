@@ -17,7 +17,7 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
 
   useEffect(() => {
     if (!isLoading && user) {
-      if (!allowedRoles.includes(user.role)) {
+      if (!user.role || !allowedRoles.includes(user.role)) {
         router.push("/unauthorized"); // Create this page later or redirect to dashboard
       }
     }
@@ -31,7 +31,7 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
     );
   }
 
-  if (!user || !allowedRoles.includes(user.role)) {
+  if (!user || !user.role || !allowedRoles.includes(user.role)) {
     return null; // or loading/unauthorized message
   }
 

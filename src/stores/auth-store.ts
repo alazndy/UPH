@@ -7,7 +7,8 @@ import {
   GithubAuthProvider,
   signOut as firebaseSignOut, 
   onAuthStateChanged,
-  User as FirebaseUser
+  User as FirebaseUser,
+  Unsubscribe
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { INITIAL_TEAM_MEMBERS } from '@/lib/mock-team-data';
@@ -22,6 +23,7 @@ interface AuthState {
   loginWithGoogle: () => Promise<void>;
   loginWithGithub: () => Promise<void>;
   logout: () => Promise<void>;
+  initializeAuth: () => Unsubscribe;
   completeOnboarding: () => Promise<void>;
 
   // Team Management
@@ -146,15 +148,19 @@ export const useAuthStore = create<AuthState>((set) => ({
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      const newMember: import('@/types').TeamMember = {
-          uid: Date.now().toString(),
-          email,
-          displayName: email.split('@')[0], // Placeholder name
-          role,
-          status: 'pending',
-          avatarUrl: ''
-      };
+      const displayName = email.split('@')[0]; // Derive displayName from email
+      const uid = Date.now().toString(); // Generate a unique ID for the new member
 
+      const newMember: import('@/types').TeamMember = {
+          uid: uid,
+          userId: uid, // Assuming userId is the same as uid for new members
+          email, 
+          displayName, 
+          role, 
+          status: 'pending',
+          avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}`,
+          joinedAt: new Date()
+      };
       set(state => ({
           teamMembers: [...state.teamMembers, newMember]
       }));

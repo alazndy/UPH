@@ -50,8 +50,6 @@ export function VersionHistory({
     deleteVersion,
   } = useFileVersionStore();
 
-  const [selectedVersion, setSelectedVersion] = useState<FileVersion | null>(null);
-
   useEffect(() => {
     if (open && fileId) {
       fetchVersionedFile(fileId);
@@ -61,14 +59,14 @@ export function VersionHistory({
 
   const handleRestore = async (versionId: string) => {
     if (confirm("Bu versiyonu geri yüklemek istediğinize emin misiniz? Bu işlem yeni bir versiyon oluşturacak.")) {
-      await restoreVersion(versionId, userId);
+      await restoreVersion(fileId, versionId, userId);
       await fetchVersions(fileId);
     }
   };
 
   const handleDelete = async (versionId: string) => {
     if (confirm("Bu versiyonu silmek istediğinize emin misiniz?")) {
-      await deleteVersion(versionId);
+      await deleteVersion(fileId, versionId);
       await fetchVersions(fileId);
     }
   };
@@ -84,7 +82,8 @@ export function VersionHistory({
     await fetchVersionedFile(fileId);
   };
 
-  const formatFileSize = (bytes: number) => {
+  const formatFileSize = (bytes?: number) => {
+    if (!bytes) return '-';
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
@@ -99,7 +98,7 @@ export function VersionHistory({
             Versiyon Geçmişi
           </DialogTitle>
           <DialogDescription>
-            {currentFile?.fileName || "Dosya"} için versiyon geçmişi
+            {currentFile?.originalName || "Dosya"} için versiyon geçmişi
           </DialogDescription>
         </DialogHeader>
 
@@ -109,9 +108,9 @@ export function VersionHistory({
             <div className="flex items-center gap-4">
               <FileText className="h-8 w-8 text-muted-foreground" />
               <div>
-                <h4 className="font-medium">{currentFile.fileName}</h4>
+                <h4 className="font-medium">{currentFile.originalName}</h4>
                 <div className="flex gap-3 text-sm text-muted-foreground">
-                  <span>Versiyon {currentFile.currentVersion}</span>
+                  <span>Versiyon {currentFile.currentVersionNumber}</span>
                   <span>{formatFileSize(currentFile.fileSize)}</span>
                   <span>{currentFile.mimeType}</span>
                 </div>
@@ -180,7 +179,7 @@ export function VersionHistory({
                       </Badge>
                     </TableCell>
                     <TableCell className="max-w-xs truncate">
-                      {version.changeDescription || "-"}
+                      {version.comment || "-"}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {version.uploadedByName || version.uploadedBy}

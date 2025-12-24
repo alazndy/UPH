@@ -88,12 +88,12 @@ export async function GET(request: NextRequest) {
     let entries = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
-        id: doc.id,
         ...data,
+        id: doc.id,
         startTime: data.startTime?.toDate?.()?.toISOString() || null,
         endTime: data.endTime?.toDate?.()?.toISOString() || null,
         createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
-      };
+      } as Record<string, unknown>;
     });
     
     // Client-side filtering
@@ -102,16 +102,16 @@ export async function GET(request: NextRequest) {
     }
     if (startDate) {
       const start = new Date(startDate);
-      entries = entries.filter(e => new Date(e.startTime) >= start);
+      entries = entries.filter(e => new Date(String(e.startTime)) >= start);
     }
     if (endDate) {
       const end = new Date(endDate);
-      entries = entries.filter(e => new Date(e.startTime) <= end);
+      entries = entries.filter(e => new Date(String(e.startTime)) <= end);
     }
     
     // Calculate totals
-    const totalMinutes = entries.reduce((sum, e) => sum + (e.duration || 0), 0);
-    const billableMinutes = entries.filter(e => e.billable).reduce((sum, e) => sum + (e.duration || 0), 0);
+    const totalMinutes = entries.reduce((sum, e) => sum + (Number(e.duration) || 0), 0);
+    const billableMinutes = entries.filter(e => e.billable).reduce((sum, e) => sum + (Number(e.duration) || 0), 0);
     
     return NextResponse.json({
       success: true,

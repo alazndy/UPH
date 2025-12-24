@@ -19,6 +19,19 @@ export const GoogleDriveService = {
     }
   },
 
+  async connect() {
+      // Mock connection for now
+      return new Promise<any>((resolve) => {
+          setTimeout(() => {
+              resolve({
+                  user: "Mock Google User",
+                  displayName: "Mock Google User",
+                  email: "mock@gmail.com"
+              });
+          }, 1000);
+      });
+  },
+
   async listFiles(folderId: string) {
     const token = this.getToken();
     if (!token) throw new Error('Not authenticated with Google');

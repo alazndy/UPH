@@ -1,4 +1,4 @@
-export type NotificationType = 'info' | 'success' | 'warning' | 'error';
+export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'urgent';
 export type NotificationActionType = 'task_assigned' | 'comment_added' | 'project_invite' | 'system_alert';
 
 export interface Notification {

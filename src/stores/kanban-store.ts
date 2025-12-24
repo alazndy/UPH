@@ -15,7 +15,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 
-export type TaskStatus = 'todo' | 'in-progress' | 'review' | 'done';
+export type TaskStatus = 'backlog' | 'todo' | 'in-progress' | 'review' | 'done';
 
 export interface KanbanTask {
   id: string;
@@ -50,6 +50,7 @@ interface KanbanState {
 }
 
 const defaultColumns: KanbanColumn[] = [
+  { id: 'backlog', title: 'Backlog', tasks: [] },
   { id: 'todo', title: 'To Do', tasks: [] },
   { id: 'in-progress', title: 'In Progress', tasks: [] },
   { id: 'review', title: 'Review', tasks: [] },

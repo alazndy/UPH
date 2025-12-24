@@ -1,14 +1,32 @@
 export type ProjectStatus = 'Planning' | 'Active' | 'On Hold' | 'Completed';
 export type ProjectPriority = 'Low' | 'Medium' | 'High';
+export type ProjectType = 'Scrum' | 'Kanban' | 'Waterfall';
 
 export type TaskStatus = 'todo' | 'in-progress' | 'review' | 'done';
+
+export interface Subtask {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+export interface TaskComment {
+  id: string;
+  text: string;
+  userId: string;
+  userName: string;
+  createdAt: string | Date;
+}
 
 export interface ProjectTask {
     id: string;
     title: string;
+    description?: string;
     completed: boolean;
     status: TaskStatus;
     dueDate?: string;
+    subtasks?: Subtask[];
+    comments?: TaskComment[];
 }
 
 export interface ProjectFile {
@@ -17,6 +35,8 @@ export interface ProjectFile {
     url: string;
     type: string;
     uploadedAt: string;
+    size?: number;
+    category?: string;
 }
 
 // Weave Final Design Reference
@@ -75,6 +95,10 @@ export interface Project {
     deadline?: string;
     budget: number;
     spent: number;
+    // Computed properties for UI
+    progress?: number; 
+    createdAt?: string | Date;
+    updatedAt?: string | Date;
     manager: string;
     completionPercentage: number;
     tags: string[];

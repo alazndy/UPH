@@ -88,11 +88,11 @@ export async function GET(request: NextRequest) {
     
     const snapshot = await getDocs(q);
     const projects = snapshot.docs.map(doc => ({
-      id: doc.id,
       ...doc.data(),
+      id: doc.id,
       createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || null,
       updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString() || null,
-    }));
+    } as Record<string, unknown>));
     
     // Filter by status client-side if provided (Firestore limitation)
     const filteredProjects = status 

@@ -1,6 +1,15 @@
 'use client';
 
-import { useRiskStore } from '@/stores/risk-store';
+import { useEffect } from 'react';
+import { useRAIDStore } from '@/stores/raid-store';
+import { useEVMStore } from '@/stores/evm-store';
+import { 
+  RAID_TYPE_COLORS, 
+  RAID_TYPE_LABELS, 
+  STATUS_COLORS,
+  calculateRiskScore,
+  getRiskScoreColor
+} from '@/types/raid';
 import { 
   Card, 
   CardContent, 
@@ -11,14 +20,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { 
   ShieldAlert, 
-  LineChart, 
   TrendingUp, 
-  TrendingDown, 
   Target,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
-import { format } from 'date-fns';
-import { tr } from 'date-fns/locale';
 import { 
   Table, 
   TableBody, 
@@ -29,15 +35,32 @@ import {
 } from '@/components/ui/table';
 
 export default function RiskIntelligencePage() {
-  const { raidEntries, evmHistory, calculateProjectSummary } = useRiskStore();
-  const summary = calculateProjectSummary('proj-1');
-  const currentEVM = evmHistory[0];
+  const { items, isLoading, subscribeToItems, unsubscribeAll, getByType, getOpenItems } = useRAIDStore();
+  const { projectEVMs, getPortfolioSummary } = useEVMStore();
+  
+  useEffect(() => {
+    subscribeToItems();
+    return () => unsubscribeAll();
+  }, [subscribeToItems, unsubscribeAll]);
+
+  const summary = getPortfolioSummary();
+  const risks = getByType('risk');
+  const openItems = getOpenItems();
+  const highRisks = risks.filter(r => (r.riskScore || 0) >= 15);
 
   const getMetricColor = (val: number) => {
     if (val >= 1) return 'text-emerald-400';
     if (val >= 0.9) return 'text-amber-400';
     return 'text-red-400';
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 space-y-8 p-8 pt-6">
@@ -53,7 +76,7 @@ export default function RiskIntelligencePage() {
         </div>
       </div>
 
-      {/* EVM Summary Cards */}
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="bg-zinc-950/50 border-white/10">
           <CardContent className="pt-6">
@@ -63,8 +86,8 @@ export default function RiskIntelligencePage() {
                </div>
                <div>
                   <p className="text-xs text-muted-foreground">CPI (Maliyet Performansı)</p>
-                  <p className={`text-2xl font-bold ${getMetricColor(summary.currentCPI)}`}>
-                    {summary.currentCPI.toFixed(2)}
+                  <p className={`text-2xl font-bold ${getMetricColor(summary.avgCPI)}`}>
+                    {summary.avgCPI.toFixed(2)}
                   </p>
                </div>
             </div>
@@ -82,8 +105,8 @@ export default function RiskIntelligencePage() {
                </div>
                <div>
                   <p className="text-xs text-muted-foreground">SPI (Zaman Performansı)</p>
-                  <p className={`text-2xl font-bold ${getMetricColor(summary.currentSPI)}`}>
-                    {summary.currentSPI.toFixed(2)}
+                  <p className={`text-2xl font-bold ${getMetricColor(summary.avgSPI)}`}>
+                    {summary.avgSPI.toFixed(2)}
                   </p>
                </div>
             </div>
@@ -101,7 +124,7 @@ export default function RiskIntelligencePage() {
                </div>
                <div>
                   <p className="text-xs text-muted-foreground">Kritik Riskler</p>
-                  <p className="text-2xl font-bold text-white">{summary.highRisksCount}</p>
+                  <p className="text-2xl font-bold text-white">{highRisks.length}</p>
                </div>
             </div>
             <p className="text-[10px] text-muted-foreground mt-2">
@@ -117,8 +140,8 @@ export default function RiskIntelligencePage() {
                   <Target className="h-5 w-5 text-amber-500" />
                </div>
                <div>
-                  <p className="text-xs text-muted-foreground">Açık Sorunlar</p>
-                  <p className="text-2xl font-bold text-white">{summary.openIssuesCount}</p>
+                  <p className="text-xs text-muted-foreground">Açık Öğeler</p>
+                  <p className="text-2xl font-bold text-white">{openItems.length}</p>
                </div>
             </div>
             <p className="text-[10px] text-muted-foreground mt-2">
@@ -141,7 +164,11 @@ export default function RiskIntelligencePage() {
                 const row = 5 - Math.floor(i / 5);
                 const col = (i % 5) + 1;
                 const score = row * col;
-                const hasRisk = raidEntries.some(e => e.type === 'risk' && e.impact === col && e.probability === row);
+                const hasRisk = risks.some(r => {
+                  const impactVal = r.impact === 'low' ? 1 : r.impact === 'medium' ? 2 : r.impact === 'high' ? 3 : 4;
+                  const probVal = r.probability === 'rare' ? 1 : r.probability === 'unlikely' ? 2 : r.probability === 'possible' ? 3 : r.probability === 'likely' ? 4 : 5;
+                  return impactVal === col && probVal === row;
+                });
                 
                 let bgColor = 'bg-zinc-900/50';
                 if (score >= 15) bgColor = 'bg-red-500/20 text-red-400';
@@ -178,47 +205,66 @@ export default function RiskIntelligencePage() {
             <CardDescription>Risk, Varsayım, Sorun ve Bağımlılık Takibi</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader className="bg-white/5">
-                <TableRow className="border-white/10">
-                  <TableHead className="w-[80px]">Tip</TableHead>
-                  <TableHead>Başlık</TableHead>
-                  <TableHead>Durum</TableHead>
-                  <TableHead>Skor</TableHead>
-                  <TableHead>Sahibi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {raidEntries.map((entry) => (
-                  <TableRow key={entry.id} className="border-white/10 hover:bg-white/5 transition-colors cursor-pointer">
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize text-[10px]">
-                        {entry.type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      <div className="flex flex-col">
-                        <span className="font-medium text-white">{entry.title}</span>
-                        <span className="text-[10px] text-muted-foreground">{entry.description}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-[10px] border-none bg-zinc-900">
-                        {entry.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                       {entry.score ? (
-                         <span className={`font-mono text-xs font-bold ${entry.score >= 15 ? 'text-red-400' : 'text-emerald-400'}`}>
-                           {entry.score}
-                         </span>
-                       ) : '-'}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">User {entry.ownerId}</TableCell>
+            {items.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">
+                <p>Henüz RAID kaydı yok</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader className="bg-white/5">
+                  <TableRow className="border-white/10">
+                    <TableHead className="w-[80px]">Tip</TableHead>
+                    <TableHead>Başlık</TableHead>
+                    <TableHead>Durum</TableHead>
+                    <TableHead>Skor</TableHead>
+                    <TableHead>Sahip</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {items.map((entry) => (
+                    <TableRow key={entry.id} className="border-white/10 hover:bg-white/5 transition-colors cursor-pointer">
+                      <TableCell>
+                        <Badge 
+                          variant="outline" 
+                          className="capitalize text-[10px]"
+                          style={{ borderColor: RAID_TYPE_COLORS[entry.type], color: RAID_TYPE_COLORS[entry.type] }}
+                        >
+                          {RAID_TYPE_LABELS[entry.type]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-white">{entry.title}</span>
+                          <span className="text-[10px] text-muted-foreground">{entry.description}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant="outline" 
+                          className="text-[10px] border-none bg-zinc-900"
+                          style={{ color: STATUS_COLORS[entry.status] }}
+                        >
+                          {entry.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                         {entry.riskScore ? (
+                           <span 
+                             className="font-mono text-xs font-bold"
+                             style={{ color: getRiskScoreColor(entry.riskScore) }}
+                           >
+                             {entry.riskScore}
+                           </span>
+                         ) : '-'}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {entry.owner || '-'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
       </div>

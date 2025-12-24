@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useGitHubStore, parseGitHubUrl } from '@/stores/github-store';
 import { useProjectStore } from '@/stores/project-store';
+import { useAuthStore } from '@/stores/auth-store';
 import { fetchReadme } from '@/lib/github';
 import { Github, Loader2, BookOpen, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -33,6 +34,7 @@ export function ImportProjectDialog({ open, onOpenChange }: ImportProjectDialogP
   
   const { connectRepo, error: storeError, clearRepo } = useGitHubStore();
   const { addProject } = useProjectStore();
+  const { user } = useAuthStore();
   const router = useRouter();
 
   const handleImport = async () => {
@@ -61,7 +63,7 @@ export function ImportProjectDialog({ open, onOpenChange }: ImportProjectDialogP
         }
 
         // 3. Create Project
-        const newProject = await addProject({
+        const projectId = await addProject({
             name: repoInfo.name,
             description: repoInfo.description || readmeContent.slice(0, 150) + "..." || "GitHub'dan import edildi.",
             status: 'Planning',
@@ -69,19 +71,17 @@ export function ImportProjectDialog({ open, onOpenChange }: ImportProjectDialogP
             startDate: new Date().toISOString(),
             deadline: undefined,
             budget: 0,
-            spent: 0,
-            completionPercentage: 0,
             tags: [repoInfo.language || 'GitHub'],
-            members: [],
             githubRepo: repoInfo.full_name,
             githubSyncEnabled: true,
             lastGithubSync: new Date().toISOString(),
-            scope: readmeContent // Save entire README as scope/details
+            scope: readmeContent, // Save entire README as scope/details
+            manager: user?.displayName || 'Unknown Manager'
         });
 
-        toast.success(`Proj başarıyla oluşturuldu: ${newProject.name}`);
+        toast.success(`Proj başarıyla oluşturuldu: ${repoInfo.name}`);
         handleClose();
-        router.push(`/projects/${newProject.id}`);
+        router.push(`/projects/${projectId}`);
 
     } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : "Import işlemi sırasında bir hata oluştu.";

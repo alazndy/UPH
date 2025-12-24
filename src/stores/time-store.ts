@@ -48,6 +48,7 @@ interface TimeActions {
   getActiveEntry: () => TimeEntry | null;
   getEntriesByProject: (projectId: string) => TimeEntry[];
   getTotalHoursToday: (userId: string) => number;
+  createManualEntry: (entry: Omit<TimeEntry, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'breaks'>) => Promise<string>;
 }
 
 type TimeStore = TimeState & TimeActions;
@@ -516,4 +517,6 @@ export const useTimeStore = create<TimeStore>((set, get) => ({
     
     return Math.round(minutes / 60 * 100) / 100;
   },
+
+  createManualEntry: (entry) => get().addManualEntry(entry),
 }));

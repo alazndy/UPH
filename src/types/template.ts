@@ -10,6 +10,7 @@ export interface TaskTemplate {
   assigneeRole?: string; // Role to assign when created
   checklistItems?: string[];
   daysOffset?: number; // Days after project start
+  tags?: string[];
 }
 
 export interface MaterialTemplate {

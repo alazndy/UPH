@@ -65,7 +65,7 @@ export function TimeEntryForm({
       manualDuration: false,
       billable: true,
       hourlyRate: 0,
-      tags: "",
+      tags: "" as string, // Force string type for input compatibility
     },
   });
 
@@ -110,9 +110,9 @@ export function TimeEntryForm({
     endDate.setHours(endH, endM, 0, 0);
 
     await createManualEntry({
-      userId,
-      projectId,
-      taskId,
+      userId: userId as string,
+      projectId: projectId || "", // Fallback to empty string if undefined
+      taskId: taskId || undefined, // undefined is strict here
       description: data.description,
       startTime: startDate,
       endTime: endDate,

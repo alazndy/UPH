@@ -76,12 +76,11 @@ export function IssueSync({ owner, repo, token, projectId }: IssueSyncProps) {
         ? 'low'
         : 'medium';
 
-    addTask({
+    addTask(projectId, {
       title: `#${issue.number}: ${issue.title}`,
       description: `Synced from GitHub issue. View at: ${issue.html_url}`,
       status: 'todo' as TaskStatus,
       priority,
-      projectId,
     });
 
     toast.success(`Issue #${issue.number} synced to Kanban!`);

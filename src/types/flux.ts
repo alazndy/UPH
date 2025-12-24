@@ -5,7 +5,8 @@ export interface FluxDevice {
     name: string;
     location: string;
     status: FluxDeviceStatus;
-    temperature: number; // Celsius
+    temperature?: number; // Celsius
+    temp?: number; // Alias for temperature
     load: number; // Percentage 0-100
     powerConsumption?: number; // kW
     uptime: string;
@@ -19,4 +20,12 @@ export interface FluxStats {
     totalPower: number; // kW
     avgTemp: number; // Celsius
     systemLoad: number; // Percentage
+}
+
+export interface FluxStatCard {
+    title: string;
+    value: string;
+    icon: React.ComponentType<{ className?: string }>;
+    color: string;
+    bg: string;
 }

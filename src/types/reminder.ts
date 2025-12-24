@@ -14,6 +14,7 @@ export interface Reminder {
   title: string;
   message: string;
   triggerDate: Date;
+  scheduledFor?: Date; // Alias for triggerDate
   repeatInterval?: 'daily' | 'weekly' | 'monthly' | 'none';
   repeatUntil?: Date;
   channels: ReminderChannel[];
@@ -26,13 +27,27 @@ export interface Reminder {
 }
 
 export interface ReminderSettings {
+  id?: string;
   userId: string;
+  enabled?: boolean; // Master switch
+  
+  // Deadlines
   enableDeadlineReminders: boolean;
-  deadlineReminderDays: number[]; // e.g., [1, 3, 7] for 1, 3, 7 days before
+  deadlineReminderDays: number[]; // e.g., [1, 3, 7]
+  deadlineWarningDays?: number[]; // Alias
+  
+  // Overdue
   enableOverdueReminders: boolean;
   overdueReminderFrequency: 'daily' | 'every_3_days' | 'weekly';
+  overdueCheckInterval?: 'daily' | 'every_3_days' | 'weekly'; // Alias
+  
+  // Milestones
   enableMilestoneReminders: boolean;
+  
+  // Channels
   defaultChannels: ReminderChannel[];
+  channels?: ReminderChannel[]; // Alias
+  
   quietHoursStart?: string; // "22:00"
   quietHoursEnd?: string; // "08:00"
 }

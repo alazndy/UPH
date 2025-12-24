@@ -40,13 +40,14 @@ const TYPE_LABELS: Record<ReminderType, { label: string; icon: any; color: strin
   overdue: { label: "Gecikmiş", icon: AlertTriangle, color: "text-red-500" },
   milestone: { label: "Kilometre Taşı", icon: CheckCircle, color: "text-green-500" },
   custom: { label: "Özel", icon: Bell, color: "text-purple-500" },
+  follow_up: { label: "Takip", icon: Bell, color: "text-orange-500" },
 };
 
 const CHANNEL_LABELS: Record<ReminderChannel, string> = {
   email: "E-posta",
   push: "Push Bildirim",
-  inApp: "Uygulama İçi",
-  sms: "SMS",
+  in_app: "Uygulama İçi",
+  slack: "Slack",
 };
 
 export function ReminderDialog({
@@ -85,13 +86,14 @@ export function ReminderDialog({
   const handleSnooze = async (id: string) => {
     const minutes = parseInt(prompt("Kaç dakika ertelemek istersiniz?", "30") || "0");
     if (minutes > 0) {
-      await snoozeReminder(id, minutes);
+      const snoozeDate = new Date(Date.now() + minutes * 60000);
+      await snoozeReminder(id, snoozeDate);
     }
   };
 
   const handleUpdateSettings = async (updates: Partial<ReminderSettings>) => {
     if (settings) {
-      await updateSettings(settings.id, updates);
+      await updateSettings(userId, updates);
     }
   };
 
@@ -113,7 +115,7 @@ export function ReminderDialog({
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="outline">{typeInfo.label}</Badge>
                   <span className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(reminder.scheduledFor), { 
+                    {formatDistanceToNow(new Date(reminder.scheduledFor || reminder.triggerDate), { 
                       addSuffix: true, 
                       locale: tr 
                     })}
@@ -233,14 +235,14 @@ export function ReminderDialog({
                     {[1, 2, 3, 5, 7, 14].map((day) => (
                       <Button
                         key={day}
-                        variant={settings.deadlineWarningDays.includes(day) ? "default" : "outline"}
+                        variant={settings.deadlineReminderDays.includes(day) ? "default" : "outline"}
                         size="sm"
                         onClick={() => {
-                          const current = settings.deadlineWarningDays;
+                          const current = settings.deadlineReminderDays;
                           const newDays = current.includes(day)
                             ? current.filter((d) => d !== day)
                             : [...current, day].sort((a, b) => a - b);
-                          handleUpdateSettings({ deadlineWarningDays: newDays });
+                          handleUpdateSettings({ deadlineReminderDays: newDays });
                         }}
                       >
                         {day} gün
@@ -251,19 +253,18 @@ export function ReminderDialog({
 
                 {/* Overdue Check Interval */}
                 <div className="space-y-2">
-                  <Label>Gecikme Kontrol Aralığı</Label>
+                  <Label>Gecikme Hatırlatma Sıklığı</Label>
                   <Select
-                    value={String(settings.overdueCheckInterval)}
-                    onValueChange={(v) => handleUpdateSettings({ overdueCheckInterval: Number(v) })}
+                    value={settings.overdueReminderFrequency}
+                    onValueChange={(v: "daily" | "every_3_days" | "weekly") => handleUpdateSettings({ overdueReminderFrequency: v })}
                   >
                     <SelectTrigger className="w-48">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="60">Her saat</SelectItem>
-                      <SelectItem value="360">Her 6 saat</SelectItem>
-                      <SelectItem value="720">Her 12 saat</SelectItem>
-                      <SelectItem value="1440">Günde bir</SelectItem>
+                      <SelectItem value="daily">Her gün</SelectItem>
+                      <SelectItem value="every_3_days">3 Günde bir</SelectItem>
+                      <SelectItem value="weekly">Haftalık</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -277,13 +278,13 @@ export function ReminderDialog({
                         <Label htmlFor={channel}>{CHANNEL_LABELS[channel]}</Label>
                         <Switch
                           id={channel}
-                          checked={settings.channels.includes(channel)}
+                          checked={settings.defaultChannels.includes(channel)}
                           onCheckedChange={(checked) => {
-                            const current = settings.channels;
+                            const current = settings.defaultChannels;
                             const newChannels = checked
                               ? [...current, channel]
                               : current.filter((c) => c !== channel);
-                            handleUpdateSettings({ channels: newChannels });
+                            handleUpdateSettings({ defaultChannels: newChannels });
                           }}
                         />
                       </div>

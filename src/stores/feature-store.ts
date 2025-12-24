@@ -33,7 +33,7 @@ const initialFeatures: Feature[] = [
     name: 'Malzeme Listesi (BOM)',
     description: 'Ürün ağaçlarını ve revizyonlarını yönetin.',
     category: 'engineering',
-    enabled: false,
+    enabled: true,
     path: '/bom'
   },
   // Project Management Category
@@ -50,7 +50,8 @@ const initialFeatures: Feature[] = [
     name: 'Gantt Şeması',
     description: 'Proje zaman çizelgesini izleyin.',
     category: 'projects',
-    enabled: false
+    enabled: true,
+    path: '/gantt'
   },
   // Inventory Category
   {
@@ -84,7 +85,8 @@ const initialFeatures: Feature[] = [
     name: 'Kazanılmış Değer Yönetimi (EVM)',
     description: 'Proje finansal performansını analiz edin.',
     category: 'finance',
-    enabled: false
+    enabled: true,
+    path: '/analytics/evm'
   }
 ];
 

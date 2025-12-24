@@ -37,10 +37,24 @@ export default function AnalyticsPage() {
       Tags: p.tags.join(', '),
     }));
     
+    const options = {
+      title: 'Proje Raporu',
+      filename: 'projects-report',
+      columns: [
+        { header: 'Ad', key: 'Name' },
+        { header: 'Durum', key: 'Status' },
+        { header: 'Bütçe', key: 'Budget' },
+        { header: 'Harcanan', key: 'Spent' },
+        { header: 'İlerleme', key: 'Progress' },
+        { header: 'Etiketler', key: 'Tags' },
+      ],
+      data,
+    };
+    
     if (format === 'excel') {
-      exportToExcel(data, 'projects-report');
+      exportToExcel(options);
     } else {
-      exportToCSV(data, 'projects-report');
+      exportToCSV(options);
     }
   };
 
@@ -49,16 +63,31 @@ export default function AnalyticsPage() {
       Name: p.name,
       SKU: p.partNumber || p.barcode || '',
       Stock: p.stock,
-      'Min Stock': p.minStock || 5,
+      MinStock: p.minStock || 5,
       Price: p.price || 0,
       Value: (p.stock * (p.price || 0)),
       Category: p.category || '',
     }));
     
+    const options = {
+      title: 'Envanter Raporu',
+      filename: 'inventory-report',
+      columns: [
+        { header: 'Ad', key: 'Name' },
+        { header: 'SKU', key: 'SKU' },
+        { header: 'Stok', key: 'Stock' },
+        { header: 'Min Stok', key: 'MinStock' },
+        { header: 'Fiyat', key: 'Price' },
+        { header: 'Değer', key: 'Value' },
+        { header: 'Kategori', key: 'Category' },
+      ],
+      data,
+    };
+    
     if (format === 'excel') {
-      exportToExcel(data, 'inventory-report');
+      exportToExcel(options);
     } else {
-      exportToCSV(data, 'inventory-report');
+      exportToCSV(options);
     }
   };
 

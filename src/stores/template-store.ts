@@ -43,6 +43,7 @@ interface TemplateActions {
   getTemplateById: (id: string) => ProjectTemplate | undefined;
   getTemplatesByCategory: (category: string) => ProjectTemplate[];
   getPopularTemplates: (limit?: number) => ProjectTemplate[];
+  createTemplate: (template: Omit<ProjectTemplate, 'id' | 'createdAt' | 'updatedAt' | 'usageCount'>) => Promise<string>;
 }
 
 type TemplateStore = TemplateState & TemplateActions;
@@ -276,4 +277,6 @@ export const useTemplateStore = create<TemplateStore>((set, get) => ({
       .sort((a, b) => b.usageCount - a.usageCount)
       .slice(0, limit);
   },
+  
+  createTemplate: (template) => get().addTemplate(template),
 }));

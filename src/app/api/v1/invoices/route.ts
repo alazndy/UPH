@@ -87,13 +87,13 @@ export async function GET(request: NextRequest) {
     let invoices = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
-        id: doc.id,
         ...data,
+        id: doc.id,
         issueDate: data.issueDate?.toDate?.()?.toISOString() || null,
         dueDate: data.dueDate?.toDate?.()?.toISOString() || null,
         paidDate: data.paidDate?.toDate?.()?.toISOString() || null,
         createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
-      };
+      } as Record<string, unknown>;
     });
     
     // Client-side filtering
@@ -105,9 +105,9 @@ export async function GET(request: NextRequest) {
     }
     
     // Calculate totals
-    const totalAmount = invoices.reduce((sum, i) => sum + (i.total || 0), 0);
-    const paidAmount = invoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + (i.total || 0), 0);
-    const pendingAmount = invoices.filter(i => ['sent', 'viewed', 'overdue'].includes(i.status)).reduce((sum, i) => sum + (i.total || 0), 0);
+    const totalAmount = invoices.reduce((sum, i) => sum + (Number(i.total) || 0), 0);
+    const paidAmount = invoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + (Number(i.total) || 0), 0);
+    const pendingAmount = invoices.filter(i => ['sent', 'viewed', 'overdue'].includes(String(i.status))).reduce((sum, i) => sum + (Number(i.total) || 0), 0);
     
     return NextResponse.json({
       success: true,

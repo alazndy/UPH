@@ -6,6 +6,7 @@ export type Permission =
   | 'read:audit' | 'manage:users';
 
 export type ExtendedRole = 'owner' | 'admin' | 'manager' | 'engineer' | 'auditor' | 'viewer';
+export type UserRole = ExtendedRole;
 
 export interface RoleDefinition {
   name: ExtendedRole;

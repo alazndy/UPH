@@ -58,7 +58,7 @@ export function InvoiceForm({
   projectId,
   projectName,
 }: InvoiceFormProps) {
-  const { createInvoice, updateInvoice, loading } = useInvoiceStore();
+  const { addInvoice, updateInvoice, loading, generateInvoiceNumber } = useInvoiceStore();
   const isEdit = !!invoice;
 
   const [items, setItems] = useState<Omit<InvoiceItem, "id" | "total">[]>(
@@ -147,15 +147,17 @@ export function InvoiceForm({
       taxAmount,
       subtotal,
       total,
-      currency: data.currency,
+      currency: data.currency as "TRY" | "EUR" | "USD" | "GBP",
       notes: data.notes || undefined,
       termsAndConditions: data.termsAndConditions || undefined,
+      status: (invoice?.status || 'draft') as any, // Default to draft for new, keep existing for edit
+      invoiceNumber: invoice?.invoiceNumber || generateInvoiceNumber(),
     };
 
     if (isEdit && invoice) {
       await updateInvoice(invoice.id, invoiceData);
     } else {
-      await createInvoice(invoiceData);
+      await addInvoice(invoiceData);
     }
 
     onOpenChange(false);

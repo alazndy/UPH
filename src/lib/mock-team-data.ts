@@ -6,19 +6,23 @@ import { TeamMember, TeamGroup } from '@/types';
 export const INITIAL_TEAM_MEMBERS: TeamMember[] = [
   { 
     uid: '1', 
+    userId: '1',
     email: 'ali@firma.com', 
     displayName: 'Ali Yılmaz', 
     role: 'admin', 
     status: 'active', 
-    avatarUrl: '' 
+    avatarUrl: '',
+    joinedAt: new Date('2024-01-01')
   },
   { 
     uid: '2', 
+    userId: '2',
     email: 'ayse@firma.com', 
     displayName: 'Ayşe Demir', 
     role: 'manager', 
     status: 'active', 
-    avatarUrl: '' 
+    avatarUrl: '',
+    joinedAt: new Date('2024-01-15')
   },
 ];
 

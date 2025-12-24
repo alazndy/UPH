@@ -35,16 +35,8 @@ export function AddProductDialog() {
 
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
-    category: tForm('stockItem'), // Default value. Or should it be key? The select uses values text content. It seems hardcoded.
-    // The previous code had "Stok Malzemesi" as default. The store expects this. Ideally category should be an enum or key. 
-    // If I translate the value, I might break logic if the store uses it for filtering or logic.
-    // Looking at InventoryPage, filter is by name or category string match.
-    // Ideally categories should be standard.
-    // For now I will keep the VALUES as they were if they are used by backend/store, or translate them if they are just display strings.
-    // The previous code had "Stok Malzemesi" hardcoded in Turkish even in English dialog? Or was it just hardcoded?
-    // Let's look at the View content again.
-    // It was 'Stok Malzemesi'. So it seems categories are hardcoded Turkish strings internally currently?
-    // "category": 'Stok Malzemesi',
+    // We use hardcoded Turkish values for category to match the Type definition and Store expectation
+    category: 'Stok Malzemesi', 
     manufacturer: '',
     stock: 0,
     price: 0,

@@ -247,7 +247,7 @@ export const useInvoiceStore = create<InvoiceStore>((set, get) => ({
       
       if (snapshot.docs.length > 0) {
         const data = snapshot.docs[0].data();
-        set({ settings: { id: snapshot.docs[0].id, ...data } as InvoiceSettings });
+        set({ settings: { id: snapshot.docs[0].id, ...data } as unknown as InvoiceSettings });
       } else {
         // Create default settings
         const defaultSettings: InvoiceSettings = {

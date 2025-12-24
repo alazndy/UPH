@@ -55,11 +55,12 @@ export function TeamSettings() {
     const teamMembers = activeTeam?.members || [];
     
     // Mock groups for now as team-store doesn't implement groups yet
+    // Mock groups for now as team-store doesn't implement groups yet
     const teamGroups: any[] = [];
-    const createGroup = async () => {};
-    const deleteGroup = async () => {};
-    const addMemberToGroup = async () => {};
-    const removeMemberFromGroup = async () => {};
+    const createGroup = async (name: string) => { console.log("Create group", name) };
+    const deleteGroup = async (id: string) => { console.log("Delete group", id) };
+    const addMemberToGroup = async (groupId: string, memberId: string) => { console.log("Add member to group", groupId, memberId) };
+    const removeMemberFromGroup = async (groupId: string, memberId: string) => { console.log("Remove member from group", groupId, memberId) };
     const handleUpdateMemberRole = async (memberId: string, newRole: UserRole) => {
         if (activeTeam) await updateMemberRole(activeTeam.id, memberId, newRole);
     };
@@ -237,7 +238,7 @@ export function TeamSettings() {
                                     </div>
                                     
                                     <div className="flex -space-x-2 overflow-hidden py-1">
-                                        {group.memberIds.map((mid, i) => {
+                                        {group.memberIds.map((mid: string, i: number) => {
                                             const m = teamMembers.find(tm => tm.uid === mid);
                                             if (!m) return null;
                                             return (
@@ -266,6 +267,7 @@ export function TeamSettings() {
                                                         key={member.uid}
                                                         checked={isInGroup}
                                                         onCheckedChange={(checked) => {
+                                                            if (!member.uid) return;
                                                             if (checked) addMemberToGroup(group.id, member.uid);
                                                             else removeMemberFromGroup(group.id, member.uid);
                                                         }}

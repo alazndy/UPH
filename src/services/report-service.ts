@@ -4,13 +4,6 @@ import * as XLSX from 'xlsx';
 import { Project } from '@/types/project';
 import { InventoryItem } from '@/types'; // Update if needed based on actual type location
 
-// Extend jsPDF to include autoTable type definition if not automatically picked up
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
-
 export const ReportService = {
   generateProjectPDF: (projects: Project[]) => {
     const doc = new jsPDF();
@@ -49,8 +42,8 @@ export const ReportService = {
       'Status': p.status,
       'Priority': p.priority,
       'Progress': `${p.progress}%`,
-      'Start Date': p.startDate instanceof Date ? p.startDate.toLocaleDateString() : p.startDate,
-      'Deadline': p.deadline instanceof Date ? p.deadline.toLocaleDateString() : p.deadline,
+      'Start Date': new Date(p.startDate).toLocaleDateString(),
+      'Deadline': p.deadline ? new Date(p.deadline).toLocaleDateString() : '-',
       'Budget': p.budget,
       'Spent': p.spent,
       'Remaining': (p.budget - p.spent)

@@ -156,7 +156,6 @@ export default function ProjectsPage() {
                                             <ProjectListItem 
                                                 key={project.id}
                                                 project={project}
-                                                t={t}
                                                 onEdit={handleEditClick}
                                                 onDelete={handleDeleteClick}
                                                 onToggleFavorite={toggleFavorite}

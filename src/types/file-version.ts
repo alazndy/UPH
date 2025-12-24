@@ -25,6 +25,8 @@ export interface VersionedFile {
   currentVersionNumber: number;
   totalVersions: number;
   category: 'document' | 'design' | 'code' | 'image' | 'other';
+  fileSize?: number;
+  mimeType?: string;
   tags?: string[];
   lockedBy?: string; // User ID if file is locked for editing
   lockedAt?: Date;

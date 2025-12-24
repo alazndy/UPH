@@ -10,7 +10,7 @@ export interface ProjectSlice {
   error: string | null;
   
   fetchProjects: () => Promise<void>;
-  addProject: (project: Omit<Project, 'id' | 'userId' | 'spent' | 'completionPercentage' | 'files'>) => Promise<void>;
+  addProject: (project: Omit<Project, 'id' | 'userId' | 'spent' | 'completionPercentage' | 'files'>) => Promise<string>;
   updateProject: (id: string, project: Partial<Project>) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   getProject: (id: string) => Project | undefined;
@@ -92,9 +92,11 @@ export const createProjectSlice: StateCreator<ProjectSlice> = (set, get) => ({
             projects: [...state.projects, newProject], 
             isLoading: false 
         }));
+        return id;
     } catch (error: unknown) {
         console.error("Error adding project:", error);
         set({ error: (error as Error).message || "Failed to add project", isLoading: false });
+        throw error;
     }
   },
 

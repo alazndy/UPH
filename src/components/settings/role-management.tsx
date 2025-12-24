@@ -227,7 +227,7 @@ export function RoleManagement({ onRoleChange }: RoleManagementProps) {
                         <ChevronRight className="h-4 w-4" />
                       )}
                       <span className="font-medium">
-                        {getPermissionCategory(`${category}:read`)}
+                        {getPermissionCategory(`${category}:read` as Permission)}
                       </span>
                     </div>
                     <Badge variant="outline">

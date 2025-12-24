@@ -1,4 +1,3 @@
-
 // @ts-check
 import type { NextConfig } from "next";
 
@@ -44,11 +43,6 @@ const nextConfig: NextConfig = {
       }
     ],
   },
-  // Fix for Next.js 16 Turbopack/Webpack conflict with PWA plugin
-  experimental: {
-     // @ts-expect-error - Turbopack type not yet in stable Next types
-     turbopack: false 
-  }
 };
 
 export default withPWA(withNextIntl(nextConfig));

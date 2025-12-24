@@ -15,3 +15,4 @@ export * from './risk';
 export * from './security';
 export * from './forge';
 export * from './flux';
+export * from './auth';

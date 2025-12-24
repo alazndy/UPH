@@ -140,7 +140,7 @@ export function TemplateForm({
   };
 
   const onSubmit = async (data: FormData) => {
-    const templateData = {
+    const templateData: Omit<ProjectTemplate, "id" | "createdAt" | "updatedAt" | "usageCount"> = {
       name: data.name,
       description: data.description,
       category: data.category,
@@ -156,6 +156,9 @@ export function TemplateForm({
         ...m,
       })),
       materials: [],
+      tags: [],
+      defaultStatus: "Planning",
+      defaultPriority: "Medium"
     };
 
     if (isEdit && template) {

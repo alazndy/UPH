@@ -8,25 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export function UserPerformanceChart() {
-  const { tasks } = useProjectStore(); // Assuming tasks are available here or need to fetch globally
+  const { tasks } = useProjectStore();
+  const allTasks = Object.values(tasks).flat();
 
-  // Calculate tasks per user (mocked logic if assignee is not consistent yet)
-  // Since we don't have a dedicated "All Users" store easily accessible with Names, 
-  // we will aggregate from tasks' "assignedTo" field if available, or mock for now as "Unassigned"
-  
-  // Real implementation needs: 
-  // 1. Fetch all users
-  // 2. Count completed tasks per user
-  
-  // For prototype, let's group by 'status' as a proxy for "Workload Distribution"
-  // or use the task.assignedTo if defined.
-  
   const data = [
-    { name: 'Completed', value: tasks.filter(t => t.status === 'done').length },
-    { name: 'In Progress', value: tasks.filter(t => t.status === 'in-progress').length },
-    { name: 'To Do', value: tasks.filter(t => t.status === 'todo').length },
-    { name: 'Review', value: tasks.filter(t => t.status === 'review').length },
+    { name: 'Completed', value: allTasks.filter(t => t.status === 'done').length },
+    { name: 'In Progress', value: allTasks.filter(t => t.status === 'in-progress').length },
+    { name: 'To Do', value: allTasks.filter(t => t.status === 'todo').length },
+    { name: 'Review', value: allTasks.filter(t => t.status === 'review').length },
   ];
+
 
   return (
     <Card>

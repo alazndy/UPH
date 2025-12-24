@@ -7,6 +7,7 @@ export type ActivityType =
   | 'INVENTORY_DELETED'
   | 'DESIGN_UPLOADED'
   | 'STOCK_ADJUSTMENT'
+  | 'ENGINEERING_CHANGE'
   | 'SYSTEM';
 
 export interface Activity {

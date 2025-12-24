@@ -17,6 +17,7 @@ import type { FileVersion, VersionedFile, FileActivity } from '@/types/file-vers
 
 interface FileVersionState {
   files: VersionedFile[];
+  currentFile: VersionedFile | null;
   versions: FileVersion[];
   activities: FileActivity[];
   loading: boolean;
@@ -25,6 +26,7 @@ interface FileVersionState {
 
 interface FileVersionActions {
   fetchFiles: (projectId: string) => Promise<void>;
+  fetchVersionedFile: (fileId: string) => Promise<void>;
   fetchVersions: (fileId: string) => Promise<void>;
   fetchActivities: (fileId: string) => Promise<void>;
   
@@ -57,6 +59,7 @@ type FileVersionStore = FileVersionState & FileVersionActions;
 
 export const useFileVersionStore = create<FileVersionStore>((set, get) => ({
   files: [],
+  currentFile: null,
   versions: [],
   activities: [],
   loading: false,
@@ -87,6 +90,32 @@ export const useFileVersionStore = create<FileVersionStore>((set, get) => ({
     } catch (error: any) {
       set({ error: error.message, loading: false });
       console.error('Error fetching versioned files:', error);
+    }
+  },
+
+  fetchVersionedFile: async (fileId) => {
+    set({ loading: true, error: null });
+    try {
+      const docRef = doc(db, 'versionedFiles', fileId);
+      const docSnap = await import('firebase/firestore').then(mod => mod.getDoc(docRef));
+      
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const currentFile = {
+          id: docSnap.id,
+          ...data,
+          lockedAt: data.lockedAt?.toDate(),
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        } as VersionedFile;
+        
+        set({ currentFile, loading: false });
+      } else {
+        set({ error: 'File not found', loading: false });
+      }
+    } catch (error: any) {
+      set({ error: error.message, loading: false });
+      console.error('Error fetching versioned file:', error);
     }
   },
 
@@ -152,6 +181,8 @@ export const useFileVersionStore = create<FileVersionStore>((set, get) => ({
           currentVersionNumber: 1,
           totalVersions: 1,
           category,
+          fileSize: file.size,
+          mimeType: file.type,
           createdBy: userId,
           createdAt: now,
           updatedAt: now,
@@ -209,6 +240,8 @@ export const useFileVersionStore = create<FileVersionStore>((set, get) => ({
         currentVersionId: versionDocRef.id,
         currentVersionNumber: versionNumber,
         totalVersions: versionNumber,
+        fileSize: file.size,
+        mimeType: file.type,
         updatedAt: Timestamp.fromDate(now),
       });
       

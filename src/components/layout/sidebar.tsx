@@ -23,7 +23,8 @@ import {
   Users,
   CloudSync,
   Hammer,
-  Activity
+  Activity,
+  TrendingUp
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -73,6 +74,13 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       id: 'ecm'
     },
     {
+      label: 'Malzeme Listesi (BOM)',
+      icon: Package,
+      href: '/bom',
+      color: 'text-indigo-500',
+      id: 'bom'
+    },
+    {
       label: 'Risk Zekası (RAID)',
       icon: ShieldAlert,
       href: '/analytics/risk',
@@ -94,11 +102,25 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       id: 'kanban'
     },
     {
+      label: 'Gantt Şeması',
+      icon: BarChart3,
+      href: '/gantt',
+      color: 'text-teal-500',
+      id: 'gantt'
+    },
+    {
       label: t('analytics'),
       icon: BarChart3,
       href: '/analytics',
       color: 'text-emerald-500',
       id: 'risk-management' // Mapped to risk for now
+    },
+    {
+      label: 'EVM Dashboard',
+      icon: TrendingUp,
+      href: '/analytics/evm',
+      color: 'text-indigo-500',
+      id: 'evm'
     },
     {
       label: t('inventory'),
