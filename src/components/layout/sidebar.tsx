@@ -24,7 +24,8 @@ import {
   CloudSync,
   Hammer,
   Activity,
-  TrendingUp
+  TrendingUp,
+  ShoppingBag
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth-store';
 
@@ -128,6 +129,13 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
       href: '/inventory',
       color: 'text-pink-700',
       id: 'inventory'
+    },
+    {
+      label: 'Marketplace',
+      icon: ShoppingBag,
+      href: '/marketplace',
+      color: 'text-indigo-500',
+      id: 'dashboard' // Grouping with core dashboard features
     },
     {
       label: 'Forge (Üretim)',

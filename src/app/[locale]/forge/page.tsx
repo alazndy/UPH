@@ -9,6 +9,7 @@ import { PremiumButton } from '@/components/ui/premium-button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useForgeStore } from '@/stores/forge-store';
+import { KanbanBoard } from '@/components/forge/kanban-board';
 import { AddJobDialog } from '@/components/forge/add-job-dialog';
 import { FeatureGuard } from '@/components/common/feature-guard';
 
@@ -91,6 +92,12 @@ export default function ForgePage() {
             </motion.div>
           ))}
         </div>
+
+          
+          {/* Main Content Area - Kanban Board */}
+          <div className="flex-1 min-h-0">
+             <KanbanBoard />
+          </div>
 
         {/* Active Jobs List */}
         <Card className="glass-panel border-white/5 bg-zinc-900/40 backdrop-blur-xl">

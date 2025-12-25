@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useForgeStore } from "@/stores/forge-store";
+import { TechnicianSelect } from "./technician-select";
 
 interface AddJobDialogProps {
   open: boolean;
@@ -30,7 +31,7 @@ interface AddJobDialogProps {
 
 interface FormData {
   project: string;
-  projectId: string; // Typically would come from a project select
+  projectId: string; 
   priority: 'Low' | 'Medium' | 'High' | 'Critical';
   technician: string;
   step: string;
@@ -38,17 +39,19 @@ interface FormData {
 
 export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
   const { addJob, loading } = useForgeStore();
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<FormData>({
     defaultValues: {
       priority: 'Medium',
       step: 'Hazırlık'
     }
   });
 
+  const technicianValue = watch("technician");
+
   const onSubmit = async (data: FormData) => {
     await addJob({
       project: data.project,
-      projectId: data.projectId || `proj-${Math.floor(Math.random()*1000)}`, // Mock ID for now
+      projectId: data.projectId || `proj-${Date.now()}`,
       priority: data.priority,
       technician: data.technician,
       step: data.step
@@ -101,10 +104,9 @@ export function AddJobDialog({ open, onOpenChange }: AddJobDialogProps) {
                   <Users className="w-4 h-4" />
                   Teknisyen
                 </Label>
-                <Input 
-                  id="technician" 
-                  placeholder="örn: Ahmet Y." 
-                  {...register("technician")} 
+                <TechnicianSelect 
+                    value={technicianValue} 
+                    onValueChange={(val) => setValue("technician", val)} 
                 />
              </div>
           </div>

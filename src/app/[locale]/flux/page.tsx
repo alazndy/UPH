@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
-import { Activity, Wifi, WifiOff, Cpu, Thermometer, Zap, Server, Search, RefreshCw, Lock, LineChart } from 'lucide-react';
+import { Activity, Wifi, WifiOff, Cpu, Thermometer, Zap, Server, Search, RefreshCw, Lock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button'; // Standard button for the lock screen
 import { useFluxStore } from '@/stores/flux-store';
 import { AddDeviceDialog } from '@/components/flux/add-device-dialog';
+import { BrokerConnectionDialog } from '@/components/flux/broker-connection-dialog';
 import { FeatureGuard } from '@/components/common/feature-guard';
 import { useMarketplaceStore } from '@/stores/marketplace-store';
 import { useRouter } from 'next/navigation';
@@ -21,8 +22,12 @@ export default function FluxPage() {
   const tFlux = useTranslations('Flux');
   const [filter, setFilter] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showConnectionDialog, setShowConnectionDialog] = useState(false);
   
-  const { devices, stats, fetchDevices, refreshStats, loading } = useFluxStore();
+  const { 
+    devices, stats, fetchDevices, refreshStats, loading,
+    isBrokerConnected, disconnectFromBroker 
+  } = useFluxStore();
   const router = useRouter();
 
   // We use this manually inside the render for the fallback UI
@@ -61,6 +66,15 @@ export default function FluxPage() {
             <p className="text-muted-foreground mt-1">{tFlux('subtitle')}</p>
           </div>
           <div className="flex gap-2">
+              <PremiumButton 
+                  variant={isBrokerConnected ? "premium" : "glass"}
+                  className={isBrokerConnected ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/50" : ""}
+                  onClick={() => isBrokerConnected ? disconnectFromBroker() : setShowConnectionDialog(true)}
+              >
+                  {isBrokerConnected ? <Wifi className="w-4 h-4 mr-2 animate-pulse" /> : <WifiOff className="w-4 h-4 mr-2" />}
+                  {isBrokerConnected ? "Bridge Online" : "Connect Bridge"}
+              </PremiumButton>
+
               <PremiumButton variant="glass" onClick={() => fetchDevices()}>
                   <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                   {tFlux('refresh')}
@@ -190,6 +204,7 @@ export default function FluxPage() {
          </div>
          
          <AddDeviceDialog open={showAddDialog} onOpenChange={setShowAddDialog} />
+         <BrokerConnectionDialog open={showConnectionDialog} onOpenChange={setShowConnectionDialog} />
       </div>
     </FeatureGuard>
   );

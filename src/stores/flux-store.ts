@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { FluxDevice, FluxStats } from '@/types/flux';
+import { FluxIoTService } from '@/services/flux-iot-service';
 
 interface FluxState {
   devices: FluxDevice[];
@@ -26,6 +27,12 @@ interface FluxActions {
   updateDeviceCondition: (id: string, data: Partial<FluxDevice>) => Promise<void>;
   refreshStats: () => void;
   deleteDevice: (id: string) => Promise<void>;
+  
+  // IoT
+  isBrokerConnected: boolean;
+  connectToBroker: (config: { url: string; username?: string; password?: string }) => void;
+  disconnectFromBroker: () => void;
+  handleDeviceMessage: (deviceId: string, data: Partial<FluxDevice>) => void;
 }
 
 type FluxStore = FluxState & FluxActions;
@@ -62,6 +69,7 @@ export const useFluxStore = create<FluxStore>((set, get) => ({
   stats: initialStats,
   loading: false,
   error: null,
+  isBrokerConnected: false,
 
   fetchDevices: async () => {
     set({ loading: true, error: null });
@@ -164,27 +172,53 @@ export const useFluxStore = create<FluxStore>((set, get) => ({
   },
 
   refreshStats: () => {
-    // Simulating live data updates
+    // Legacy random simulation (kept for fallback) if not connected to broker
+    if (get().isBrokerConnected) return;
+
     const devices = get().devices.map(d => {
-      // Randomly fluctuate stats for "Alive" feel
       if (d.status === 'Offline') return d;
-      
       const fluctuation = Math.random() > 0.5 ? 1 : -1;
       let newTemp = (d.temp || 25) + (Math.random() * 0.5 * fluctuation);
       let newLoad = (d.load || 30) + (Math.random() * 1 * fluctuation);
-      
-      // Clamp values
       newLoad = Math.max(0, Math.min(100, newLoad));
       newTemp = Math.max(-10, Math.min(100, newTemp));
+      return { ...d, temp: Math.round(newTemp * 10) / 10, load: Math.round(newLoad) };
+    });
+    set({ devices, stats: calculateStats(devices) });
+  },
 
-      return { 
-        ...d, 
-        temp: Math.round(newTemp * 10) / 10,
-        load: Math.round(newLoad)
-      };
+  // IoT Connectivity Actions
+
+
+  connectToBroker: (config) => {
+    const iotService = FluxIoTService.getInstance();
+    
+    // Subscribe to status changes
+    iotService.onStatusChange((isConnected, error) => {
+        set({ isBrokerConnected: isConnected, error: error || null });
     });
 
-    set({ devices, stats: calculateStats(devices) });
+    iotService.onMessage((deviceId, data) => {
+        get().handleDeviceMessage(deviceId, data);
+    });
+
+    iotService.connect(config);
+  },
+
+  disconnectFromBroker: () => {
+    FluxIoTService.getInstance().disconnect();
+    set({ isBrokerConnected: false });
+  },
+
+  handleDeviceMessage: (deviceId: string, data: Partial<FluxDevice>) => {
+    const currentDevices = get().devices;
+    const targetIndex = currentDevices.findIndex(d => d.id === deviceId);
+    
+    if (targetIndex !== -1) {
+        const updatedDevices = [...currentDevices];
+        updatedDevices[targetIndex] = { ...updatedDevices[targetIndex], ...data };
+        set({ devices: updatedDevices, stats: calculateStats(updatedDevices) });
+    }
   }
 
 }));

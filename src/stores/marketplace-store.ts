@@ -19,14 +19,14 @@ interface MarketplaceActions {
 
 // Extended Mock Database with Full Ecosystem
 const MOCK_MODULES: MarketplaceModule[] = [
-  // --- UPH INTERNAL ---
+  // --- UPH CORE MODULES ---
   {
     id: 'flux-core',
-    name: 'Flux Core',
-    description: 'Essential IoT device monitoring and connectivity.',
+    name: 'Flux (IoT & Energy)',
+    description: '⚡ Endüstriyel IoT izleme ve enerji yönetim modülü.',
     icon: 'Activity',
     category: 'Engineering',
-    type: 'app',
+    type: 'app', 
     price: 0,
     features: ['flux_core'],
     version: '2.1.0'
@@ -34,7 +34,7 @@ const MOCK_MODULES: MarketplaceModule[] = [
   {
     id: 'flux-analytics',
     name: 'Flux Analytics Pro',
-    description: 'Advanced charts, historical data, and energy predictions.',
+    description: '📈 Gelişmiş veri analizi ve kestirimci bakım.',
     icon: 'LineChart',
     category: 'Engineering',
     type: 'addon',
@@ -46,8 +46,8 @@ const MOCK_MODULES: MarketplaceModule[] = [
   },
   {
     id: 'forge-core',
-    name: 'Forge Core',
-    description: 'Manufacturing job tracking and assignment.',
+    name: 'Forge (Üretim)',
+    description: '🔨 Üretim bandı yönetimi ve iş emri takibi.',
     icon: 'Hammer',
     category: 'Operations',
     type: 'app',
@@ -58,7 +58,7 @@ const MOCK_MODULES: MarketplaceModule[] = [
   {
     id: 'forge-3d',
     name: 'Forge 3D Vision',
-    description: 'Interactive 3D schematics for assembly technicians.',
+    description: '👓 Montaj hattı için interaktif 3D şemalar.',
     icon: 'Box',
     category: 'Operations',
     type: 'addon',
