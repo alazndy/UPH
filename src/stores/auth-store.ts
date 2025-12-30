@@ -11,7 +11,7 @@ import {
   Unsubscribe
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { INITIAL_TEAM_MEMBERS } from '@/lib/mock-team-data';
+
 
 interface AuthState {
   user: AppUser | null;
@@ -25,19 +25,6 @@ interface AuthState {
   logout: () => Promise<void>;
   initializeAuth: () => Unsubscribe;
   completeOnboarding: () => Promise<void>;
-
-  // Team Management
-  teamMembers: import('@/types').TeamMember[];
-  inviteMember: (email: string, role: import('@/types').UserRole) => Promise<void>;
-  updateMemberRole: (uid: string, role: import('@/types').UserRole) => Promise<void>;
-  removeMember: (uid: string) => Promise<void>;
-
-  // Group Management
-  teamGroups: import('@/types').TeamGroup[];
-  createGroup: (name: string, description?: string) => Promise<void>;
-  deleteGroup: (groupId: string) => Promise<void>;
-  addMemberToGroup: (groupId: string, memberId: string) => Promise<void>;
-  removeMemberFromGroup: (groupId: string, memberId: string) => Promise<void>;
 }
 
 const mapFirebaseUser = (firebaseUser: FirebaseUser): AppUser => ({
@@ -135,82 +122,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   completeOnboarding: async () => {
-      // Mock implementation for onboarding completion
-      await new Promise(resolve => setTimeout(resolve, 500));
       // In a real app, you would update the user profile in Firestore here
+      // This is now just a placeholder for the flow, but no mock data is involved.
       console.log('Onboarding completed');
   },
-
-  // Team Implementation (from mock config - replace with Firebase in production)
-  teamMembers: INITIAL_TEAM_MEMBERS,
-
-  inviteMember: async (email, role) => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const displayName = email.split('@')[0]; // Derive displayName from email
-      const uid = Date.now().toString(); // Generate a unique ID for the new member
-
-      const newMember: import('@/types').TeamMember = {
-          uid: uid,
-          userId: uid, // Assuming userId is the same as uid for new members
-          email, 
-          displayName, 
-          role, 
-          status: 'pending',
-          avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}`,
-          joinedAt: new Date()
-      };
-      set(state => ({
-          teamMembers: [...state.teamMembers, newMember]
-      }));
-  },
-
-  updateMemberRole: async (uid, role) => {
-      set(state => ({
-          teamMembers: state.teamMembers.map(m => m.uid === uid ? { ...m, role } : m)
-      }));
-  },
-
-  removeMember: async (uid) => {
-      set((state) => ({
-        teamMembers: state.teamMembers.filter((m) => m.uid !== uid),
-      }));
-    },
-    
-    // Cloud/Mock Group Logic
-    teamGroups: [],
-    createGroup: async (name, description) => {
-        const newGroup: import('@/types').TeamGroup = {
-            id: crypto.randomUUID(),
-            name,
-            description,
-            memberIds: [],
-            color: 'blue'
-        };
-        set((state) => ({ teamGroups: [...state.teamGroups, newGroup] }));
-    },
-    deleteGroup: async (groupId) => {
-        set((state) => ({ teamGroups: state.teamGroups.filter(g => g.id !== groupId) }));
-    },
-    addMemberToGroup: async (groupId, memberId) => {
-        set((state) => ({
-            teamGroups: state.teamGroups.map(g => 
-                g.id === groupId && !g.memberIds.includes(memberId) 
-                ? { ...g, memberIds: [...g.memberIds, memberId] } 
-                : g
-            )
-        }));
-    },
-    removeMemberFromGroup: async (groupId, memberId) => {
-        set((state) => ({
-             teamGroups: state.teamGroups.map(g => 
-                g.id === groupId 
-                ? { ...g, memberIds: g.memberIds.filter(id => id !== memberId) }
-                : g
-            )
-        }));
-    },
-
 }));
 

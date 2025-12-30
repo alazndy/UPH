@@ -29,11 +29,14 @@ const formSchema = z.object({
   }),
 });
 
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+
 export function LoginForm() {
   const router = useRouter();
   const { login, loginWithGoogle, loginWithGithub } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState<'google' | 'github' | null>(null);
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,6 +49,14 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
+      if (!executeRecaptcha) {
+        console.warn("Recaptcha not ready");
+        return;
+      }
+
+      const token = await executeRecaptcha("login_submit");
+      console.log("Captcha Token:", token); // In production, send this to backend
+
       await login(values.email, values.password);
       toast.success('Login successful!');
       router.push('/dashboard');

@@ -60,6 +60,23 @@ UPH (Unified Project Hub), mühendislik ve üretim şirketleri için tasarlanmı
   - Revizyon takibi
   - MRP entegrasyonu
 
+### 🤖 Unified AI Brain & Intelligence
+
+- **AI Asistanı**: Risk ve EVM verilerini analiz eden akıllı stratejist.
+- **Proje Sağlık Raporu**: Finansal (CPI/SPI) ve Operasyonel (Risk) durum analizi.
+- **SWOT Analizi**: Proje bazlı güçlü ve zayıf yön tespiti.
+
+### 🔗 Connected Ecosystem (Entegrasyonlar)
+
+- **ENV-I Stok Senkronizasyonu**:
+  - Proje kaynak planlarken anlık stok kontrolü.
+  - "Stoktan Ekle" ile doğrudan envanterden malzeme atama.
+- **Weave Design-to-Build**:
+  - Weave BOM (.json) dosyalarını tek tıkla projeye aktarın.
+  - Tasarım bileşenlerini otomatik olarak tedarik görevlerine dönüştürün.
+- **t-Market**:
+  - Proje ihtiyaçlarını doğrudan pazar yerinden sipariş edin.
+
 ### Risk ve Performans
 
 - **RAID Log** (Risk, Assumption, Issue, Dependency)
@@ -212,26 +229,37 @@ src/
 
 ---
 
-## 🔗 T-Ecosystem Entegrasyonu
+## 🔗 T-Ecosystem Bağlantı Köprüleri (Hub Bridges)
 
-UPH, T-Ecosystem'in merkez noktasıdır:
+UPH, diğer ekosistem uygulamalarıyla çift yönlü veri akışına sahiptir:
 
-```
-                    ┌─────────┐
-                    │   UPH   │
-                    │ (Merkez)│
-                    └────┬────┘
-         ┌───────────────┼───────────────┐
-         │               │               │
-    ┌────┴────┐    ┌────┴────┐    ┌────┴────┐
-    │  ENV-I  │    │  Weave  │    │   T-SA  │
-    │  (Stok) │    │(Tasarım)│    │  (AI)   │
-    └─────────┘    └────┬────┘    └─────────┘
-                        │
-                  ┌─────┴─────┐
-                  │ Renderci  │
-                  │  (3D)     │
-                  └───────────┘
+### 🔄 ENV-I (Akıllı Envanter)
+
+- **Stok Sorgulama:** Proje kaynak sayfasından ENV-I veritabanına sorgu atarak stok durumunu görür.
+- **Rezevasyon:** Projede kullanılacak malzemeyi "Stoktan Ekle" diyerek rezerve eder (ENV-I'da miktar düşer).
+
+### 🎨 Weave (Tasarım Stüdyosu)
+
+- **BOM İçe Aktarım:** Weave'de tasarlanan PCB/Ürün reçetelerini (.json) tek tıkla UPH görev listesine dönüştürür.
+- **Versiyon Takibi:** Tasarım revizyonları UPH aktivite günlüğüne işlenir.
+
+### 🧠 T-SA (Specification Analyst)
+
+- **Gereksinim İthalatı:** T-SA tarafından analiz edilen teknik şartname maddelerini ve "Bunu Yap" görevlerini UPH Projesine "Todo" olarak ekler.
+- **Uyumluluk:** Proje bitiminde T-SA üzerinden "Yapıldı mı?" kontrolü sağlar.
+
+```mermaid
+graph TD
+    UPH[Unified Project Hub]
+    ENVI[ENV-I Inventory]
+    WEAVE[Weave Design]
+    TSA[T-SA Analyst]
+    MARKET[t-Market]
+
+    UPH <-->|Stok Kontrol / Rezervasyon| ENVI
+    WEAVE -->|BOM Export| UPH
+    TSA -->|Task Export| UPH
+    UPH -->|Satınalma Emri| MARKET
 ```
 
 ---
