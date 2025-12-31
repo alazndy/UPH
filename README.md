@@ -45,6 +45,7 @@ UPH (Unified Project Hub), mühendislik ve üretim şirketleri için tasarlanmı
 
 - Alt görevler
 - Kanban panosu
+- Gantt Şeması (Bağımlılık Çizgileri)
 - Görev durumları
 - Yorumlar
 - Tarih takibi
