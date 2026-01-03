@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { 
   Activity, Hammer, Network, Users, 
-  Search, ShoppingBag, 
+  Search, ShoppingBag, Check,
   LineChart, Box, Link, Puzzle, ArrowRight,
   Building, BarChart, ShieldAlert, MonitorPlay, Cpu, ClipboardCheck, RefreshCw,
   Sparkles, Grid, Layers, Shuffle, Plug

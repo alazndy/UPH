@@ -1,0 +1,15 @@
+ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+Failed to compile.
+
+./src/app/[locale]/(dashboard)/marketplace/page.tsx:180:48
+Type error: Cannot find name 'Check'.
+
+  178 |                                     <CardDescription className="text-xs mt-1">Sistem Genelinde</CardDescription>
+  179 |                                 </div>
+> 180 |                                 {installed && <Check className="w-5 h-5 text-emerald-500" />}
+      |                                                ^
+  181 |                             </CardHeader>
+  182 |                             <CardContent>
+  183 |                                 <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">
+Next.js build worker exited with code: 1 and signal: null
+
