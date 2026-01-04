@@ -1,288 +1,99 @@
-# UPH - Unified Project Hub
+# UPH: Unified Project Hub
 
-<div align="center">
+![Status](https://img.shields.io/badge/Status-Beta-blue) ![License](https://img.shields.io/badge/License-MIT-green) ![Tech](https://img.shields.io/badge/Tech-Next.js%2016%20%7C%20TypeScript%20%7C%20EVM-violet)
 
-![UPH Logo](https://via.placeholder.com/150?text=UPH)
+**UPH** (Unified Project Hub) is the central command center for project management within the **T-Ecosystem**. It surpasses traditional task management by integrating **Earned Value Management (EVM)**, proactive **Risk Intelligence**, and advanced scheduling into a single, cohesive platform. It is designed for complex engineering and operations projects where schedule and budget adherence is critical.
 
-**Mühendislik Projeleri İçin Merkezi Yönetim Platformu**
+## 🚀 Capabilities & Features
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![Firebase](https://img.shields.io/badge/Firebase-orange?logo=firebase)](https://firebase.google.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
+### 📅 Advanced Scheduling & Gantt
 
-[Demo](#) • [Dokümantasyon](#) • [Kurulum](#kurulum) • [Özellikler](#özellikler)
+- **Interactive Gantt Charts**: Drag-and-drop timeline management with critical path analysis.
+- **Dependency Tracking**: Finish-to-Start relationships with visual connectors.
+- **Milestones**: Highlight key project deliverables and deadlines.
+- **Timeline Views**: Switch between Day, Week, and Month granularities.
 
-</div>
+### 📊 Financial & Performance Intelligence (EVM)
 
----
+- **Real-time Metrics**: Automatically calculates **CPI** (Cost Performance Index) and **SPI** (Schedule Performance Index).
+- **Forecasting**: Predicts **EAC** (Estimate at Completion) and **ETC** (Estimate to Complete) based on current performance.
+- **Visual Status**: Instant "On Track", "At Risk", or "Critical" status indicators based on EVM thresholds.
 
-## 📖 Hakkında
+### ⚠️ Proactive Risk Management (RAID)
 
-UPH (Unified Project Hub), mühendislik ve üretim şirketleri için tasarlanmış kapsamlı bir proje yönetim platformudur. T-Ecosystem ailesinin merkezi uygulamasıdır.
+- **RAID Logs**: comprehensive tracking of **R**isks, **A**ssumptions, **I**ssues, and **D**ependencies.
+- **Risk Scoring**: Impact x Probability matrices to calculate severity.
+- **Mitigation Plans**: Assign owners and contingency strategies for every identified risk.
 
-### Neden UPH?
+### 📋 Agile & Task Management
 
-- 🎯 **Merkezi Yönetim**: Tüm projeleriniz tek bir yerden
-- 📊 **EVM Metrikleri**: Earned Value Management ile performans takibi
-- 🔧 **ECR/ECO Sistemi**: Mühendislik değişiklik yönetimi
-- 🤝 **Ekip İşbirliği**: Gerçek zamanlı takım koordinasyonu
-- 🔗 **Ekosistem Entegrasyonu**: ENV-I, Weave, Renderci, T-SA ile bağlantı
+- **Kanban Boards**: Drag-and-drop task movement through customizable workflows.
+- **Team Capacity**: View resource allocation and prevent burnout.
+- **Time Tracking**: Log hours against specific tasks for accurate actual cost calculations.
 
----
+### 🏗️ Engineering Integration
 
-## ✨ Özellikler
+- **BOM Management**: Create and track Bill of Materials for hardware projects.
+- **Spec Management**: Store and version control engineering specifications.
 
-### Proje Yönetimi
+## 🛠️ Technology Architecture
 
-- Proje oluşturma ve düzenleme
-- Durum takibi (Planning, Active, On Hold, Completed)
-- Öncelik belirleme
-- Etiketleme sistemi
-- Favori projeler
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router) - Leveraging the latest capabilities.
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Visualization**:
+  - **Recharts**: For EVM and burn-down charts.
+  - **Custom SVG**: For the high-performance Gantt chart engine.
+- **State**: Zustand + React Query (TanStack Query) for server state hydration.
+- **Database**: Firebase Firestore.
+- **Styling**: Tailwind CSS.
 
-### Görev Yönetimi
-
-- Alt görevler
-- Kanban panosu
-- Gantt Şeması (Bağımlılık Çizgileri)
-- Görev durumları
-- Yorumlar
-- Tarih takibi
-
-### Mühendislik Değişiklik Yönetimi
-
-- **ECR** (Engineering Change Request)
-  - Değişiklik talepleri
-  - Etki analizi
-  - Onay süreci
-- **ECO** (Engineering Change Order)
-  - Değişiklik emirleri
-  - Revizyon takibi
-  - MRP entegrasyonu
-
-### 🤖 Unified AI Brain & Intelligence
-
-- **AI Asistanı**: Risk ve EVM verilerini analiz eden akıllı stratejist.
-- **Proje Sağlık Raporu**: Finansal (CPI/SPI) ve Operasyonel (Risk) durum analizi.
-- **SWOT Analizi**: Proje bazlı güçlü ve zayıf yön tespiti.
-
-### 🔗 Connected Ecosystem (Entegrasyonlar)
-
-- **ENV-I Stok Senkronizasyonu**:
-  - Proje kaynak planlarken anlık stok kontrolü.
-  - "Stoktan Ekle" ile doğrudan envanterden malzeme atama.
-- **Weave Design-to-Build**:
-  - Weave BOM (.json) dosyalarını tek tıkla projeye aktarın.
-  - Tasarım bileşenlerini otomatik olarak tedarik görevlerine dönüştürün.
-- **t-Market**:
-  - Proje ihtiyaçlarını doğrudan pazar yerinden sipariş edin.
-
-### Risk ve Performans
-
-- **RAID Log** (Risk, Assumption, Issue, Dependency)
-- **EVM Metrikleri** (CPI, SPI, EAC, ETC)
-- Risk matrisi
-- Performans göstergeleri
-
-### Bütçe Yönetimi
-
-- Bütçe planlaması
-- Harcama takibi
-- Bütçe kullanım oranı
-- Maliyet analizi
-
-### Fatura Sistemi
-
-- Fatura oluşturma
-- Müşteri yönetimi
-- Ödeme takibi
-- PDF export
-
-### Zaman Takibi
-
-- Proje bazlı zaman girişi
-- Haftalık raporlar
-- Fatura entegrasyonu
-
-### Entegrasyonlar
-
-- **GitHub**: Commit, PR, Issue takibi
-- **Google Drive**: Dosya yönetimi
-- **ENV-I**: Stok durumu
-- **Weave**: Tasarım dosyaları
-- **T-SA**: AI analiz
-
----
-
-## 🛠️ Teknoloji Yığını
-
-| Kategori  | Teknoloji          |
-| --------- | ------------------ |
-| Framework | Next.js 16         |
-| Dil       | TypeScript 5       |
-| State     | Zustand            |
-| UI        | Shadcn/ui          |
-| Stil      | Tailwind CSS 4     |
-| Animasyon | Framer Motion      |
-| Backend   | Firebase Firestore |
-| Auth      | Firebase Auth      |
-| Storage   | Firebase Storage   |
-| AI        | Google Gemini      |
-
----
-
-## 📦 Kurulum
-
-### Gereksinimler
-
-- Node.js 18+
-- pnpm
-
-### Adımlar
+## 📂 Project Structure
 
 ```bash
-# Repo'yu klonla
-git clone https://github.com/your-repo/UPH.git
-cd UPH-main
+src/app/[locale]/(dashboard)/
+├── projects/        # Project portfolio & details
+├── gantt/           # Timeline & scheduling engine
+├── analytics/       # EVM, CPI/SPI dashboards
+├── kanban/          # Agile task boards
+├── risk/            # RAID log & risk matrix (in dev)
+├── bom/             # Bill of Materials
+├── teams/           # Resource management
+└── engineering/     # Engineering documents
 
-# Bağımlılıkları yükle
-pnpm install
-
-# Geliştirme sunucusunu başlat
-pnpm dev
+src/types/evm.ts     # Earned Value Management formulas
+src/types/risk.ts    # RAID data models
 ```
 
-### Ortam Değişkenleri
+## 🏁 Getting Started
 
-`.env.local` dosyası oluşturun:
+### Prerequisites
 
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_key
-```
+- Node.js (v18+)
+- pnpm
 
----
+### Installation
 
-## 📁 Proje Yapısı
+1.  **Clone the repository**
 
-```
-src/
-├── app/                    # Next.js App Router
-│   └── [locale]/
-│       └── (dashboard)/
-│           ├── analytics/
-│           ├── dashboard/
-│           ├── engineering/
-│           ├── inventory/
-│           ├── invoices/
-│           ├── kanban/
-│           ├── planning/
-│           ├── projects/
-│           ├── settings/
-│           ├── teams/
-│           ├── templates/
-│           └── time-tracking/
-├── components/             # React bileşenleri
-├── stores/                 # Zustand store'ları
-├── types/                  # TypeScript tip tanımları
-├── lib/                    # Yardımcı fonksiyonlar
-└── services/               # API servisleri
-```
+    ```bash
+    git clone https://github.com/alazndy/UPH.git
+    cd UPH
+    ```
+
+2.  **Install Dependencies**
+
+    ```bash
+    pnpm install
+    ```
+
+3.  **Run Development Server**
+
+    ```bash
+    pnpm dev
+    ```
+
+    Open [http://localhost:3001](http://localhost:3001) to view the application.
 
 ---
 
-## 🎨 Ekran Görüntüleri
-
-### Dashboard
-
-![Dashboard](https://via.placeholder.com/800x450?text=Dashboard)
-
-### Proje Detay
-
-![Project](https://via.placeholder.com/800x450?text=Project+Detail)
-
-### Kanban
-
-![Kanban](https://via.placeholder.com/800x450?text=Kanban+Board)
-
----
-
-## 📊 Store Yapısı
-
-| Store             | İşlev               |
-| ----------------- | ------------------- |
-| ProjectStore      | Proje yönetimi      |
-| TeamStore         | Ekip yönetimi       |
-| ECMStore          | ECR/ECO yönetimi    |
-| RiskStore         | RAID yönetimi       |
-| InvoiceStore      | Fatura yönetimi     |
-| TimeStore         | Zaman takibi        |
-| InventoryStore    | Envanter görünümü   |
-| GitHubStore       | GitHub entegrasyonu |
-| NotificationStore | Bildirimler         |
-| SettingsStore     | Ayarlar             |
-
----
-
-## 🔗 T-Ecosystem Bağlantı Köprüleri (Hub Bridges)
-
-UPH, diğer ekosistem uygulamalarıyla çift yönlü veri akışına sahiptir:
-
-### 🔄 ENV-I (Akıllı Envanter)
-
-- **Stok Sorgulama:** Proje kaynak sayfasından ENV-I veritabanına sorgu atarak stok durumunu görür.
-- **Rezevasyon:** Projede kullanılacak malzemeyi "Stoktan Ekle" diyerek rezerve eder (ENV-I'da miktar düşer).
-
-### 🎨 Weave (Tasarım Stüdyosu)
-
-- **BOM İçe Aktarım:** Weave'de tasarlanan PCB/Ürün reçetelerini (.json) tek tıkla UPH görev listesine dönüştürür.
-- **Versiyon Takibi:** Tasarım revizyonları UPH aktivite günlüğüne işlenir.
-
-### 🧠 T-SA (Specification Analyst)
-
-- **Gereksinim İthalatı:** T-SA tarafından analiz edilen teknik şartname maddelerini ve "Bunu Yap" görevlerini UPH Projesine "Todo" olarak ekler.
-- **Uyumluluk:** Proje bitiminde T-SA üzerinden "Yapıldı mı?" kontrolü sağlar.
-
-```mermaid
-graph TD
-    UPH[Unified Project Hub]
-    ENVI[ENV-I Inventory]
-    WEAVE[Weave Design]
-    TSA[T-SA Analyst]
-    MARKET[t-Market]
-
-    UPH <-->|Stok Kontrol / Rezervasyon| ENVI
-    WEAVE -->|BOM Export| UPH
-    TSA -->|Task Export| UPH
-    UPH -->|Satınalma Emri| MARKET
-```
-
----
-
-## 📄 Lisans
-
-Bu proje özel lisans altındadır.
-
----
-
-## 👥 Katkıda Bulunma
-
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/amazing`)
-3. Commit yapın (`git commit -m 'Add amazing feature'`)
-4. Push yapın (`git push origin feature/amazing`)
-5. Pull Request açın
-
----
-
-<div align="center">
-
-**T-Ecosystem** tarafından ❤️ ile geliştirildi
-
-</div>
+Part of the **T-Ecosystem**.
